@@ -5076,3 +5076,214 @@ Bu laboratuvar çalışmasında, **ProductManagement** projesinin backend ve UI 
 
 Bu laboratuvar çalışmasını tamamlayarak backend ve UI projelerinde PR pipeline'ların doğru şekilde tetiklendiğini ve çalıştığını doğruladınız. Bu adımlar, oluşturulan pipeline'ların işlevselliğini test etmek ve PR süreçlerinin sorunsuz bir şekilde işlediğinden emin olmak için önemlidir.
 
+## 5.18 Lab-18: Backend için CI Pipeline Oluşturma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin backend kısmı için bir CI (Continuous Integration) pipeline oluşturacağız. Pipeline, `main` branch'e yapılan her kod merge işleminden sonra otomatik olarak çalışacak ve bir artifact oluşturacaktır. Bu süreç, sürekli entegrasyonu destekleyerek projenizin daha hızlı ve güvenilir bir şekilde geliştirilmesini sağlayacaktır.
+
+### 5.18.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Backend Repository'si**: Backend repository'si Azure DevOps üzerinde mevcut olmalıdır.
+- **Self-Hosted Agent Pool**: Daha önce oluşturduğunuz agent pool adını biliyor olmalısınız.
+- **YAML Formatında Pipeline Bilgisi**: YAML formatında temel pipeline bilgisi.
+
+---
+
+### 5.18.2 Adım 1: YAML Pipeline Dosyasını Oluşturma
+
+1. **YAML Dosyası Oluşturma**
+   - VSCode veya tercih ettiğiniz bir editörde, backend repository'nizin kök dizininde `.azure-pipelines` adında bir klasör oluşturun.
+   - Bu klasör içinde `ci-pipeline.yml` adında bir dosya oluşturun.
+
+2. **YAML Pipeline İçeriği**
+   - Aşağıdaki YAML içeriğini `ci-pipeline.yml` dosyasına yapıştırın:
+     ```yaml
+     trigger:
+       branches:
+         include:
+           - main
+
+     pool:
+       name: 'Self-Hosted Agents' # Daha önce oluşturduğunuz agent pool adı
+
+     variables:
+       buildConfiguration: 'Release'
+
+     steps:
+       - task: UseDotNet@2
+         displayName: 'Install .NET SDK'
+         inputs:
+           packageType: 'sdk'
+           version: '6.x'
+           installationPath: $(Agent.ToolsDirectory)/dotnet
+
+       - script: |
+           dotnet restore
+           dotnet build --configuration $(buildConfiguration)
+           dotnet test --configuration $(buildConfiguration) --no-build
+         displayName: 'Restore, Build, and Test'
+
+       - task: PublishBuildArtifacts@1
+         displayName: 'Publish Artifacts'
+         inputs:
+           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+           ArtifactName: 'drop'
+     ```
+
+3. **YAML Dosyasını Commit ve Push Etme**
+   - Terminalde aşağıdaki komutları çalıştırarak değişikliklerinizi stage edin, commit edin ve remote repository'ye push edin:
+     ```bash
+     git add .azure-pipelines/ci-pipeline.yml
+     git commit -m "Backend için CI pipeline eklendi"
+     git push origin <branch-name>
+     ```
+
+4. **Pull Request Oluşturma**
+   - Azure DevOps portalına gidin ve `main` branch'e merge etmek üzere bir PR oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     Backend için CI pipeline eklendi. Main branch'e kod merge edilince otomatik olarak çalışacaktır.
+     ```
+
+---
+
+### 5.18.3 Adım 2: Azure DevOps Üzerinde Pipeline Oluşturma
+
+1. **Azure DevOps Portalına Giriş**
+   - Tarayıcınızda [Azure DevOps](https://dev.azure.com/) portalına gidin ve hesabınıza giriş yapın.
+
+2. **Pipeline Oluşturma**
+   - **Pipelines** sekmesine gidin ve **New Pipeline** butonuna tıklayın.
+   - Repository'yi seçin ve **Existing Azure Pipelines YAML file** seçeneğini seçin.
+   - `ci-pipeline.yml` dosyasının yolunu belirterek pipeline'ı oluşturun.
+
+3. **Pipeline'ı Kaydetme ve Çalıştırma**
+   - Pipeline'ı kaydedin ve test etmek için çalıştırın.
+   - Pipeline'ın `main` branch'te kod merge edildikten sonra otomatik olarak çalışıp çalışmadığını doğrulayın.
+
+---
+
+### 5.18.4 Adım 3: Pipeline'ın Çalışmasını Doğrulama
+
+1. **Kod Merge Etme**
+   - Yeni oluşturulan pipeline'ı test etmek için bir feature branch üzerinde basit bir değişiklik yapın ve bu değişikliği PR ile `main` branch'e merge edin.
+
+2. **Pipeline Tetiklenmesini Gözlemleme**
+   - Azure DevOps portalında **Pipelines** sekmesine giderek pipeline'ın otomatik olarak çalıştırıldığını doğrulayın.
+
+3. **Artifact Oluşturulmasını Kontrol Etme**
+   - Pipeline tamamlandıktan sonra, **Artifacts** sekmesinde oluşturulan artifact'i kontrol edin.
+   - Artifact'in doğru bir şekilde oluşturulduğunu ve indirilip kullanılabilir durumda olduğunu doğrulayın.
+
+---
+
+### 5.18.5 Lab-18'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend için bir CI pipeline oluşturmuş, pipeline'ı repository'ye YAML formatında eklemiş, Azure DevOps üzerinde yapılandırmış ve pipeline'ın doğru şekilde çalıştığını doğrulamış oldunuz. Bu süreç, projenizin sürekli entegrasyonunu sağlamanın temel bir adımıdır.
+
+## 5.19 Lab-19: UI Projesi için CI Pipeline Oluşturma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin UI kısmı için bir CI (Continuous Integration) pipeline oluşturacağız. Pipeline, `main` branch'e yapılan her kod merge işleminden sonra otomatik olarak çalışacak ve bir artifact oluşturacaktır. Bu süreç, sürekli entegrasyonu destekleyerek projenizin daha hızlı ve güvenilir bir şekilde geliştirilmesini sağlayacaktır.
+
+---
+
+### 5.19.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **UI Repository'si**: UI repository'si Azure DevOps üzerinde mevcut olmalıdır.
+- **Self-Hosted Agent Pool**: Daha önce oluşturduğunuz agent pool adını biliyor olmalısınız.
+- **YAML Formatında Pipeline Bilgisi**: YAML formatında temel pipeline bilgisi.
+
+---
+
+### 5.19.2 Adım 1: YAML Pipeline Dosyasını Oluşturma
+
+1. **YAML Dosyası Oluşturma**
+   - VSCode veya tercih ettiğiniz bir editörde, UI repository'nizin kök dizininde `.azure-pipelines` adında bir klasör oluşturun.
+   - Bu klasör içinde `ci-pipeline.yml` adında bir dosya oluşturun.
+
+2. **YAML Pipeline İçeriği**
+   - Aşağıdaki YAML içeriğini `ci-pipeline.yml` dosyasına yapıştırın:
+     ```yaml
+     trigger:
+       branches:
+         include:
+           - main
+
+     pool:
+       name: 'Self-Hosted Agents' # Daha önce oluşturduğunuz agent pool adı
+
+     variables:
+       buildConfiguration: 'Release'
+
+     steps:
+       - task: NodeTool@0
+         displayName: 'Use Node.js'
+         inputs:
+           versionSpec: '14.x'
+           checkLatest: true
+
+       - script: |
+           npm install
+           npm run build --prod
+         displayName: 'Install Dependencies and Build UI Project'
+
+       - task: PublishBuildArtifacts@1
+         displayName: 'Publish Artifacts'
+         inputs:
+           PathtoPublish: 'dist'
+           ArtifactName: 'drop'
+     ```
+
+3. **YAML Dosyasını Commit ve Push Etme**
+   - Terminalde aşağıdaki komutları çalıştırarak değişikliklerinizi stage edin, commit edin ve remote repository'ye push edin:
+     ```bash
+     git add .azure-pipelines/ci-pipeline.yml
+     git commit -m "UI için CI pipeline eklendi"
+     git push origin <branch-name>
+     ```
+
+4. **Pull Request Oluşturma**
+   - Azure DevOps portalına gidin ve `main` branch'e merge etmek üzere bir PR oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     UI için CI pipeline eklendi. Main branch'e kod merge edilince otomatik olarak çalışacaktır.
+     ```
+
+---
+
+### 5.19.3 Adım 2: Azure DevOps Üzerinde Pipeline Oluşturma
+
+1. **Azure DevOps Portalına Giriş**
+   - Tarayıcınızda [Azure DevOps](https://dev.azure.com/) portalına gidin ve hesabınıza giriş yapın.
+
+2. **Pipeline Oluşturma**
+   - **Pipelines** sekmesine gidin ve **New Pipeline** butonuna tıklayın.
+   - Repository'yi seçin ve **Existing Azure Pipelines YAML file** seçeneğini seçin.
+   - `ci-pipeline.yml` dosyasının yolunu belirterek pipeline'ı oluşturun.
+
+3. **Pipeline'ı Kaydetme ve Çalıştırma**
+   - Pipeline'ı kaydedin ve test etmek için çalıştırın.
+   - Pipeline'ın `main` branch'te kod merge edildikten sonra otomatik olarak çalışıp çalışmadığını doğrulayın.
+
+---
+
+### 5.19.4 Adım 3: Pipeline'ın Çalışmasını Doğrulama
+
+1. **Kod Merge Etme**
+   - Yeni oluşturulan pipeline'ı test etmek için bir feature branch üzerinde basit bir değişiklik yapın ve bu değişikliği PR ile `main` branch'e merge edin.
+
+2. **Pipeline Tetiklenmesini Gözlemleme**
+   - Azure DevOps portalında **Pipelines** sekmesine giderek pipeline'ın otomatik olarak çalıştırıldığını doğrulayın.
+
+3. **Artifact Oluşturulmasını Kontrol Etme**
+   - Pipeline tamamlandıktan sonra, **Artifacts** sekmesinde oluşturulan artifact'i kontrol edin.
+   - Artifact'in doğru bir şekilde oluşturulduğunu ve indirilip kullanılabilir durumda olduğunu doğrulayın.
+
+---
+
+### 5.19.5 Lab-19'un Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak UI projesi için bir CI pipeline oluşturmuş, pipeline'ı repository'ye YAML formatında eklemiş, Azure DevOps üzerinde yapılandırmış ve pipeline'ın doğru şekilde çalıştığını doğrulamış oldunuz. Bu süreç, projenizin sürekli entegrasyonunu sağlamanın temel bir adımıdır.
