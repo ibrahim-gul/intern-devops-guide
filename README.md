@@ -3198,3 +3198,903 @@ npm install -g @angular/cli
 Bu laboratuvar çalışmasını tamamlayarak, **UI** (Angular 18) projenizde ürünleri listeleyen bir sayfa oluşturmuş, bu sayfayı **Backend** (ASP.NET Core) API'sine bağlamış ve CORS ayarlarını yapılandırarak frontend ve backend arasında güvenli bir iletişim sağlamış oldunuz. Bu adımlar, projenizin frontend ve backend bileşenleri arasındaki etkileşimi optimize etmenizi ve kullanıcıya dinamik veri sunmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, UI projesine daha fazla özellik ekleyerek geliştirmeye devam edeceğiz.
 
 ---
+
+## 5.10 Lab-10: Ürün Ekleme Özelliğini Backend ve UI'ye Eklemek
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesine ürün ekleme özelliği ekleyeceğiz. İlk olarak, **Backend** (ASP.NET Core) kodlarını güncelleyecek, ardından **UI** (Angular 18) tarafında gerekli değişiklikleri yapacağız ve her iki bileşeni birbirine bağlayacağız. Bu adımlar, kullanıcıların yeni ürünler eklemesine olanak tanıyacak ve sistemin işlevselliğini artıracaktır.
+
+### 5.10.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'den Lab-9'a Kadar Tüm Laboratuvarların Tamamlanması**: Önceki laboratuvar adımlarını başarıyla tamamlamış olun.
+- **Visual Studio Code (VSCode)**: [Download](https://code.visualstudio.com/) edilerek kurulmuş ve yapılandırılmış olmalı.
+- **Backend Projesi Çalışır Durumda Olmalı**: ASP.NET Core backend projenizin çalışır durumda ve `ProductManagementDB` veritabanına bağlı olduğundan emin olun.
+- **CORS Ayarları Yapılandırılmış Olmalı**: Lab-9'da CORS ayarlarını başarıyla yapmış olun.
+- **İnternet Bağlantısı**: Gerekli paketleri indirmek ve projeleri senkronize etmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.10.2 Adım 1: Backend'e Ürün Ekleme Özelliğini Eklemek
+
+#### 1. **IProductRepository Arayüzünü Güncelleme**
+
+`IProductRepository` arayüzüne yeni bir yöntem ekleyerek ürün ekleme işlevini tanımlayacağız.
+
+- **src/app/Repositories/IProductRepository.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Models;
+    using System.Threading.Tasks;
+
+    namespace Backend.Repositories
+    {
+        public interface IProductRepository
+        {
+            Task<IEnumerable<Product>> GetAllProductsAsync();
+            Task<Product> AddProductAsync(Product product);
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 2. **ProductRepository Sınıfını Güncelleme**
+
+`ProductRepository` sınıfını güncelleyerek yeni yöntemi implement edeceğiz.
+
+- **src/app/Repositories/ProductRepository.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Data;
+    using Backend.Models;
+    using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace Backend.Repositories
+    {
+        public class ProductRepository : IProductRepository
+        {
+            private readonly ApplicationDbContext _context;
+
+            public ProductRepository(ApplicationDbContext context)
+            {
+                _context = context;
+            }
+
+            public async Task<IEnumerable<Product>> GetAllProductsAsync()
+            {
+                return await _context.Products.ToListAsync();
+            }
+
+            public async Task<Product> AddProductAsync(Product product)
+            {
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+                return product;
+            }
+
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 3. **ProductsController'ı Güncelleme**
+
+`ProductsController`'a yeni bir POST metodu ekleyerek ürün ekleme API'sini oluşturacağız.
+
+- **src/app/Controllers/ProductsController.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Models;
+    using Backend.Repositories;
+    using Microsoft.AspNetCore.Mvc;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace Backend.Controllers
+    {
+        [Route("api/[controller]")]
+        [ApiController]
+        public class ProductsController : ControllerBase
+        {
+            private readonly IProductRepository _productRepository;
+
+            public ProductsController(IProductRepository productRepository)
+            {
+                _productRepository = productRepository;
+            }
+
+            // GET: api/Products
+            [HttpGet]
+            public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+            {
+                var products = await _productRepository.GetAllProductsAsync();
+                return Ok(products);
+            }
+
+            // POST: api/Products
+            [HttpPost]
+            public async Task<ActionResult<Product>> AddProduct([FromBody] Product product)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var createdProduct = await _productRepository.AddProductAsync(product);
+                return CreatedAtAction(nameof(GetProducts), new { id = createdProduct.Id }, createdProduct);
+            }
+
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 4. **Backend Projesini Güncelleme**
+
+Yeni eklenen değişikliklerin veritabanına yansıması için migration oluşturup veritabanını güncelleyeceğiz.
+
+1. **Package Manager Console'u Açma**
+   - Visual Studio'da, üst menüden **Tools > NuGet Package Manager > Package Manager Console** yolunu izleyin.
+
+2. **Migration Oluşturma**
+   - **Package Manager Console** penceresinde aşağıdaki komutu çalıştırın:
+     ```powershell
+     Add-Migration AddProduct
+     ```
+
+3. **Veritabanını Güncelleme**
+   - Migration tamamlandıktan sonra, aşağıdaki komutu çalıştırarak veritabanını güncelleyin:
+     ```powershell
+     Update-Database
+     ```
+
+#### 5. **Backend'i Test Etme**
+
+API'nin çalıştığından emin olmak için Swagger veya Postman kullanarak yeni POST metodunu test edin.
+
+1. **Projeyi Çalıştırma**
+   - Visual Studio'da backend projesini başlatın (**F5** tuşuna basın veya **Debug > Start Debugging** seçeneğine tıklayın).
+
+2. **Swagger UI ile Test Etme**
+   - Tarayıcınızda Swagger UI açılacaktır (genellikle `https://localhost:5001/swagger`).
+   - **Products** endpoint'ini bulun ve **POST** metodunu seçin.
+   - **Try it out** butonuna tıklayın ve aşağıdaki gibi bir JSON payload girin:
+     ```json
+     {
+       "productName": "Yeni Ürün",
+       "price": 150.00,
+       "stock": 30
+     }
+     ```
+   - **Execute** butonuna tıklayın ve API'nin doğru şekilde çalıştığını doğrulayın.
+
+### 5.10.3 Adım 2: UI'da Ürün Ekleme Sayfasını Oluşturma
+
+#### 1. **Angular Servislerini Güncelleme**
+
+`ProductService`'i güncelleyerek ürün ekleme işlevini ekleyeceğiz.
+
+- **src/app/services/product.service.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```typescript
+    import { Injectable } from '@angular/core';
+    import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+    import { Observable, throwError } from 'rxjs';
+    import { catchError } from 'rxjs/operators';
+    import { Product } from '../models/product.model';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ProductService {
+      private apiUrl = 'https://localhost:5001/api/Products'; // Backend API URL'si
+
+      constructor(private http: HttpClient) { }
+
+      getProducts(): Observable<Product[]> {
+        return this.http.get<Product[]>(this.apiUrl)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      addProduct(product: Product): Observable<Product> {
+        return this.http.post<Product>(this.apiUrl, product)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      private handleError(error: HttpErrorResponse) {
+        if (error.error instanceof ErrorEvent) {
+          // Client-side veya network hatası
+          console.error('An error occurred:', error.error.message);
+        } else {
+          // Backend hatası
+          console.error(
+            `Backend returned code ${error.status}, ` +
+            `body was: ${error.error}`);
+        }
+        // Kullanıcıya gösterilecek hata mesajını dön
+        return throwError(
+          'Something bad happened; please try again later.');
+      }
+    }
+    ```
+
+#### 2. **Ürün Ekleme Bileşeni Oluşturma**
+
+Yeni bir bileşen oluşturarak ürün ekleme formunu tasarlayacağız.
+
+1. **Yeni Bileşen Oluşturma**
+   - Terminalde aşağıdaki komutu çalıştırarak `add-product` adlı yeni bir bileşen oluşturun:
+     ```bash
+     ng generate component add-product
+     ```
+
+2. **AddProduct Bileşenini Yapılandırma**
+   - **src/app/add-product/add-product.component.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```typescript
+    import { Component } from '@angular/core';
+    import { ProductService } from '../services/product.service';
+    import { Product } from '../models/product.model';
+    import { Router } from '@angular/router';
+
+    @Component({
+      selector: 'app-add-product',
+      templateUrl: './add-product.component.html',
+      styleUrls: ['./add-product.component.css']
+    })
+    export class AddProductComponent {
+      product: Product = {
+        id: 0,
+        productName: '',
+        price: 0,
+        stock: 0
+      };
+
+      constructor(private productService: ProductService, private router: Router) { }
+
+      addProduct(): void {
+        if (this.product.productName && this.product.price > 0 && this.product.stock >= 0) {
+          this.productService.addProduct(this.product).subscribe({
+            next: () => this.router.navigate(['/products']),
+            error: (err) => console.error(err)
+          });
+        } else {
+          alert('Lütfen tüm alanları doğru şekilde doldurun.');
+        }
+      }
+    }
+    ```
+
+3. **AddProduct Bileşeninin HTML Şablonunu Düzenleme**
+   - **src/app/add-product/add-product.component.html** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```html
+    <div class="container">
+      <h2>Yeni Ürün Ekle</h2>
+      <form (ngSubmit)="addProduct()">
+        <div class="form-group">
+          <label for="productName">Ürün Adı</label>
+          <input type="text" id="productName" [(ngModel)]="product.productName" name="productName" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="price">Fiyat</label>
+          <input type="number" id="price" [(ngModel)]="product.price" name="price" class="form-control" required min="0.01" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="stock">Stok</label>
+          <input type="number" id="stock" [(ngModel)]="product.stock" name="stock" class="form-control" required min="0">
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Ekle</button>
+      </form>
+    </div>
+    ```
+
+#### 3. **Routing Ayarlarını Güncelleme**
+
+Yeni oluşturduğumuz `AddProductComponent`'i uygulamaya eklemek için routing ayarlarını güncelleyeceğiz.
+
+- **src/app/app-routing.module.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```typescript
+    import { NgModule } from '@angular/core';
+    import { RouterModule, Routes } from '@angular/router';
+    import { ProductsComponent } from './products/products.component';
+    import { AddProductComponent } from './add-product/add-product.component';
+
+    const routes: Routes = [
+      { path: 'products', component: ProductsComponent },
+      { path: 'add-product', component: AddProductComponent },
+      { path: '', redirectTo: '/products', pathMatch: 'full' },
+      { path: '**', redirectTo: '/products' }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forRoot(routes)],
+      exports: [RouterModule]
+    })
+    export class AppRoutingModule { }
+    ```
+
+- **src/app/app.module.ts** dosyasını açın ve `AppRoutingModule`'ü içe aktarın:
+
+    ```typescript
+    import { BrowserModule } from '@angular/platform-browser';
+    import { NgModule } from '@angular/core';
+    import { FormsModule } from '@angular/forms';
+    import { HttpClientModule } from '@angular/common/http';
+
+    import { AppRoutingModule } from './app-routing.module';
+    import { AppComponent } from './app.component';
+    import { ProductsComponent } from './products/products.component';
+    import { AddProductComponent } from './add-product/add-product.component';
+
+    @NgModule({
+      declarations: [
+        AppComponent,
+        ProductsComponent,
+        AddProductComponent
+      ],
+      imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        HttpClientModule
+      ],
+      providers: [],
+      bootstrap: [AppComponent]
+    })
+    export class AppModule { }
+    ```
+
+#### 4. **Navigation Bar Eklemek**
+
+Kullanıcıların ürün ekleme sayfasına kolayca erişebilmesi için bir navigasyon bar ekleyeceğiz.
+
+- **src/app/app.component.html** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```html
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">Product Management</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/products">Ürünler</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/add-product">Yeni Ürün Ekle</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <router-outlet></router-outlet>
+    ```
+
+#### 5. **UI Projesini Test Etme**
+
+Yeni eklenen ürün ekleme özelliğini test ederek her şeyin doğru çalıştığından emin olacağız.
+
+1. **Angular Uygulamasını Çalıştırma**
+   - Terminalde aşağıdaki komutu çalıştırarak Angular uygulamasını başlatın:
+     ```bash
+     ng serve
+     ```
+   - Tarayıcınızda `http://localhost:4200` adresine gidin.
+
+2. **Ürün Ekleme İşlemini Test Etme**
+   - Navigasyon barından **"Yeni Ürün Ekle"** sekmesine tıklayın.
+   - Açılan formu doldurun ve **"Ekle"** butonuna tıklayın.
+   - Formun başarıyla gönderildiğini ve yeni ürünün ürünler listesinde göründüğünü doğrulayın.
+
+3. **Backend ve UI Arasındaki Bağlantıyı Doğrulama**
+   - Backend API'sinin doğru çalıştığından ve UI'nın bu API ile doğru şekilde iletişim kurduğundan emin olun.
+   - Herhangi bir hata durumunda, tarayıcı konsolunu ve backend loglarını kontrol ederek sorunları tespit edin.
+
+### 5.10.4 Lab-10'un Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak **ProductManagement** projesine ürün ekleme özelliğini başarıyla eklemiş oldunuz. **Backend** tarafında gerekli API endpoint'lerini oluşturup veritabanı işlemlerini yapılandırdınız, **UI** tarafında ise Angular ile kullanıcı dostu bir ürün ekleme formu oluşturarak frontend ve backend arasındaki entegrasyonu sağladınız. Bu adımlar, sisteminize dinamik veri ekleme ve yönetme yetenekleri kazandırarak kullanıcı deneyimini geliştirmiştir. Bir sonraki laboratuvar çalışmasında, ürün güncelleme ve silme gibi ek işlevleri projeye entegre etmeye devam edeceğiz.
+
+---
+
+**Not:** Angular projenizin backend API'sine erişebilmesi için CORS ayarlarının doğru yapılandırıldığından emin olun. Ayrıca, `apiUrl` değişkeninin doğru backend URL'sini işaret ettiğinden emin olun.
+
+## 5.11 Lab-11: Ürün Güncelleme Özelliğini Backend ve UI'ye Eklemek
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesine ürün güncelleme özelliği ekleyeceğiz. Bu adımda, **Backend** (ASP.NET Core) tarafında gerekli API endpoint'lerini oluşturacak ve **UI** (Angular 18) tarafında ürün güncelleme formunu tasarlayarak mevcut ürünleri düzenlemeye olanak tanıyacağız. Bu adımlar, kullanıcıların mevcut ürün bilgilerini güncelleyebilmesini sağlayarak sistemin esnekliğini artıracaktır.
+
+### 5.11.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'den Lab-10'a Kadar Tüm Laboratuvarların Tamamlanması**: Önceki laboratuvar adımlarını başarıyla tamamlamış olun.
+- **Visual Studio Code (VSCode)**: [Download](https://code.visualstudio.com/) edilerek kurulmuş ve yapılandırılmış olmalı.
+- **Backend Projesi Çalışır Durumda Olmalı**: ASP.NET Core backend projenizin çalışır durumda ve `ProductManagementDB` veritabanına bağlı olduğundan emin olun.
+- **CORS Ayarları Yapılandırılmış Olmalı**: Lab-9'da CORS ayarlarını başarıyla yapmış olun.
+- **İnternet Bağlantısı**: Gerekli paketleri indirmek ve projeleri senkronize etmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.11.2 Adım 1: Backend'e Ürün Güncelleme Özelliğini Eklemek
+
+#### 1. **IProductRepository Arayüzünü Güncelleme**
+
+`IProductRepository` arayüzüne yeni bir yöntem ekleyerek ürün güncelleme işlevini tanımlayacağız.
+
+- **src/app/Repositories/IProductRepository.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Models;
+    using System.Threading.Tasks;
+
+    namespace Backend.Repositories
+    {
+        public interface IProductRepository
+        {
+            Task<IEnumerable<Product>> GetAllProductsAsync();
+            Task<Product> AddProductAsync(Product product);
+            Task<Product> UpdateProductAsync(Product product); // Yeni eklenen yöntem
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 2. **ProductRepository Sınıfını Güncelleme**
+
+`ProductRepository` sınıfını güncelleyerek yeni yöntemi implement edeceğiz.
+
+- **src/app/Repositories/ProductRepository.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Data;
+    using Backend.Models;
+    using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace Backend.Repositories
+    {
+        public class ProductRepository : IProductRepository
+        {
+            private readonly ApplicationDbContext _context;
+
+            public ProductRepository(ApplicationDbContext context)
+            {
+                _context = context;
+            }
+
+            public async Task<IEnumerable<Product>> GetAllProductsAsync()
+            {
+                return await _context.Products.ToListAsync();
+            }
+
+            public async Task<Product> AddProductAsync(Product product)
+            {
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+                return product;
+            }
+
+            public async Task<Product> UpdateProductAsync(Product product)
+            {
+                var existingProduct = await _context.Products.FindAsync(product.Id);
+                if (existingProduct == null)
+                {
+                    return null;
+                }
+
+                existingProduct.ProductName = product.ProductName;
+                existingProduct.Price = product.Price;
+                existingProduct.Stock = product.Stock;
+
+                await _context.SaveChangesAsync();
+                return existingProduct;
+            }
+
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 3. **ProductsController'ı Güncelleme**
+
+`ProductsController`'a yeni bir PUT metodu ekleyerek ürün güncelleme API'sini oluşturacağız.
+
+- **src/app/Controllers/ProductsController.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Models;
+    using Backend.Repositories;
+    using Microsoft.AspNetCore.Mvc;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace Backend.Controllers
+    {
+        [Route("api/[controller]")]
+        [ApiController]
+        public class ProductsController : ControllerBase
+        {
+            private readonly IProductRepository _productRepository;
+
+            public ProductsController(IProductRepository productRepository)
+            {
+                _productRepository = productRepository;
+            }
+
+            // GET: api/Products
+            [HttpGet]
+            public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+            {
+                var products = await _productRepository.GetAllProductsAsync();
+                return Ok(products);
+            }
+
+            // POST: api/Products
+            [HttpPost]
+            public async Task<ActionResult<Product>> AddProduct([FromBody] Product product)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var createdProduct = await _productRepository.AddProductAsync(product);
+                return CreatedAtAction(nameof(GetProducts), new { id = createdProduct.Id }, createdProduct);
+            }
+
+            // PUT: api/Products/{id}
+            [HttpPut("{id}")]
+            public async Task<ActionResult<Product>> UpdateProduct(int id, [FromBody] Product product)
+            {
+                if (id != product.Id)
+                {
+                    return BadRequest("Ürün ID'si uyuşmuyor.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var updatedProduct = await _productRepository.UpdateProductAsync(product);
+                if (updatedProduct == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedProduct);
+            }
+
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 4. **Backend Projesini Güncelleme**
+
+Yeni eklenen değişikliklerin veritabanına yansıması için migration oluşturup veritabanını güncelleyeceğiz.
+
+1. **Package Manager Console'u Açma**
+   - Visual Studio'da, üst menüden **Tools > NuGet Package Manager > Package Manager Console** yolunu izleyin.
+
+2. **Migration Oluşturma**
+   - **Package Manager Console** penceresinde aşağıdaki komutu çalıştırın:
+     ```powershell
+     Add-Migration AddUpdateProduct
+     ```
+
+3. **Veritabanını Güncelleme**
+   - Migration tamamlandıktan sonra, aşağıdaki komutu çalıştırarak veritabanını güncelleyin:
+     ```powershell
+     Update-Database
+     ```
+
+#### 5. **Backend'i Test Etme**
+
+API'nin çalıştığından emin olmak için Swagger veya Postman kullanarak yeni PUT metodunu test edin.
+
+1. **Projeyi Çalıştırma**
+   - Visual Studio'da backend projesini başlatın (**F5** tuşuna basın veya **Debug > Start Debugging** seçeneğine tıklayın).
+
+2. **Swagger UI ile Test Etme**
+   - Tarayıcınızda Swagger UI açılacaktır (genellikle `https://localhost:5001/swagger`).
+   - **Products** endpoint'ini bulun ve **PUT** metodunu seçin.
+   - **Try it out** butonuna tıklayın ve URL kısmına güncellemek istediğiniz ürünün ID'sini girin (örneğin, `1`).
+   - Aşağıdaki gibi bir JSON payload girin:
+     ```json
+     {
+       "id": 1,
+       "productName": "Güncellenmiş Ürün",
+       "price": 200.00,
+       "stock": 50
+     }
+     ```
+   - **Execute** butonuna tıklayın ve API'nin doğru şekilde çalıştığını doğrulayın.
+
+### 5.11.3 Adım 2: UI'da Ürün Güncelleme Sayfasını Oluşturma
+
+#### 1. **Angular Servislerini Güncelleme**
+
+`ProductService`'i güncelleyerek ürün güncelleme işlevini ekleyeceğiz.
+
+- **src/app/services/product.service.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```typescript
+    import { Injectable } from '@angular/core';
+    import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+    import { Observable, throwError } from 'rxjs';
+    import { catchError } from 'rxjs/operators';
+    import { Product } from '../models/product.model';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ProductService {
+      private apiUrl = 'https://localhost:5001/api/Products'; // Backend API URL'si
+
+      constructor(private http: HttpClient) { }
+
+      getProducts(): Observable<Product[]> {
+        return this.http.get<Product[]>(this.apiUrl)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      addProduct(product: Product): Observable<Product> {
+        return this.http.post<Product>(this.apiUrl, product)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      updateProduct(product: Product): Observable<Product> {
+        const url = `${this.apiUrl}/${product.id}`;
+        return this.http.put<Product>(url, product)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      private handleError(error: HttpErrorResponse) {
+        if (error.error instanceof ErrorEvent) {
+          // Client-side veya network hatası
+          console.error('An error occurred:', error.error.message);
+        } else {
+          // Backend hatası
+          console.error(
+            `Backend returned code ${error.status}, ` +
+            `body was: ${error.error}`);
+        }
+        // Kullanıcıya gösterilecek hata mesajını dön
+        return throwError(
+          'Something bad happened; please try again later.');
+      }
+    }
+    ```
+
+#### 2. **Ürün Güncelleme Bileşeni Oluşturma**
+
+Mevcut ürünleri düzenlemek için yeni bir bileşen oluşturacağız.
+
+1. **Yeni Bileşen Oluşturma**
+   - Terminalde aşağıdaki komutu çalıştırarak `edit-product` adlı yeni bir bileşen oluşturun:
+     ```bash
+     ng generate component edit-product
+     ```
+   - Bu komut, `src/app/edit-product` dizini altında gerekli dosyaları oluşturacaktır.
+
+2. **EditProduct Bileşenini Yapılandırma**
+   - **src/app/edit-product/edit-product.component.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+     ```typescript
+     import { Component, OnInit } from '@angular/core';
+     import { ActivatedRoute, Router } from '@angular/router';
+     import { ProductService } from '../services/product.service';
+     import { Product } from '../models/product.model';
+
+     @Component({
+       selector: 'app-edit-product',
+       templateUrl: './edit-product.component.html',
+       styleUrls: ['./edit-product.component.css']
+     })
+     export class EditProductComponent implements OnInit {
+       product: Product = {
+         id: 0,
+         productName: '',
+         price: 0,
+         stock: 0
+       };
+
+       constructor(
+         private route: ActivatedRoute,
+         private router: Router,
+         private productService: ProductService
+       ) { }
+
+       ngOnInit(): void {
+         const id = Number(this.route.snapshot.paramMap.get('id'));
+         if (id) {
+           this.productService.getProducts().subscribe({
+             next: (products) => {
+               const foundProduct = products.find(p => p.id === id);
+               if (foundProduct) {
+                 this.product = foundProduct;
+               } else {
+                 alert('Ürün bulunamadı.');
+                 this.router.navigate(['/products']);
+               }
+             },
+             error: (err) => console.error(err)
+           });
+         } else {
+           alert('Geçersiz ürün ID\'si.');
+           this.router.navigate(['/products']);
+         }
+       }
+
+       updateProduct(): void {
+         if (this.product.productName && this.product.price > 0 && this.product.stock >= 0) {
+           this.productService.updateProduct(this.product).subscribe({
+             next: () => {
+               alert('Ürün başarıyla güncellendi.');
+               this.router.navigate(['/products']);
+             },
+             error: (err) => console.error(err)
+           });
+         } else {
+           alert('Lütfen tüm alanları doğru şekilde doldurun.');
+         }
+       }
+     }
+     ```
+
+3. **EditProduct Bileşeninin HTML Şablonunu Düzenleme**
+   - **src/app/edit-product/edit-product.component.html** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+     ```html
+     <div class="container">
+       <h2>Ürün Güncelle</h2>
+       <form (ngSubmit)="updateProduct()">
+         <div class="form-group">
+           <label for="productName">Ürün Adı</label>
+           <input type="text" id="productName" [(ngModel)]="product.productName" name="productName" class="form-control" required>
+         </div>
+         <div class="form-group">
+           <label for="price">Fiyat</label>
+           <input type="number" id="price" [(ngModel)]="product.price" name="price" class="form-control" required min="0.01" step="0.01">
+         </div>
+         <div class="form-group">
+           <label for="stock">Stok</label>
+           <input type="number" id="stock" [(ngModel)]="product.stock" name="stock" class="form-control" required min="0">
+         </div>
+         <button type="submit" class="btn btn-primary mt-3">Güncelle</button>
+       </form>
+     </div>
+     ```
+
+#### 3. **Routing Ayarlarını Güncelleme**
+
+Yeni oluşturduğumuz `EditProductComponent`'i uygulamaya eklemek için routing ayarlarını güncelleyeceğiz.
+
+- **src/app/app-routing.module.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```typescript
+    import { NgModule } from '@angular/core';
+    import { RouterModule, Routes } from '@angular/router';
+    import { ProductsComponent } from './products/products.component';
+    import { AddProductComponent } from './add-product/add-product.component';
+    import { EditProductComponent } from './edit-product/edit-product.component';
+
+    const routes: Routes = [
+      { path: 'products', component: ProductsComponent },
+      { path: 'add-product', component: AddProductComponent },
+      { path: 'edit-product/:id', component: EditProductComponent }, // Yeni eklenen route
+      { path: '', redirectTo: '/products', pathMatch: 'full' },
+      { path: '**', redirectTo: '/products' }
+    ];
+
+    @NgModule({
+      imports: [RouterModule.forRoot(routes)],
+      exports: [RouterModule]
+    })
+    export class AppRoutingModule { }
+    ```
+
+- **src/app/app.module.ts** dosyasını açın ve `EditProductComponent`'i içe aktarın:
+
+    ```typescript
+    import { BrowserModule } from '@angular/platform-browser';
+    import { NgModule } from '@angular/core';
+    import { FormsModule } from '@angular/forms';
+    import { HttpClientModule } from '@angular/common/http';
+
+    import { AppRoutingModule } from './app-routing.module';
+    import { AppComponent } from './app.component';
+    import { ProductsComponent } from './products/products.component';
+    import { AddProductComponent } from './add-product/add-product.component';
+    import { EditProductComponent } from './edit-product/edit-product.component'; // Yeni eklenen bileşen
+
+    @NgModule({
+      declarations: [
+        AppComponent,
+        ProductsComponent,
+        AddProductComponent,
+        EditProductComponent
+      ],
+      imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        HttpClientModule
+      ],
+      providers: [],
+      bootstrap: [AppComponent]
+    })
+    export class AppModule { }
+    ```
+
+#### 4. **Ürün Listesi Bileşenini Güncelleme**
+
+Ürünler listesini güncelleyerek her ürün için düzenleme bağlantısı ekleyeceğiz.
+
+- **src/app/products/products.component.html** dosyasını açın ve aşağıdaki kodu düzenleyin:
+
+    ```html
+    <div class="container">
+      <h2>Ürünler Listesi</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Ürün Adı</th>
+            <th>Fiyat</th>
+            <th>Stok</th>
+            <th>İşlemler</th> <!-- Yeni sütun -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td>{{ product.id }}</td>
+            <td>{{ product.productName }}</td>
+            <td>{{ product.price | currency }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+              <a [routerLink]="['/edit-product', product.id]" class="btn btn-sm btn-secondary">Güncelle</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    ```
+
+#### 5. **UI Projesini Test Etme**
+
+Yeni eklenen ürün güncelleme özelliğini test ederek her şeyin doğru çalıştığından emin olacağız.
+
+1. **Angular Uygulamasını Çalıştırma**
+   - Terminalde aşağıdaki komutu çalıştırarak Angular uygulamasını başlatın:
+     ```bash
+     ng serve
+     ```
+   - Tarayıcınızda `http://localhost:4200` adresine gidin.
+
+2. **Ürün Güncelleme İşlemini Test Etme**
+   - **Ürünler** sayfasından güncellemek istediğiniz bir ürünü seçin ve **"Güncelle"** butonuna tıklayın.
+   - Açılan formu düzenleyin ve **"Güncelle"** butonuna tıklayın.
+   - Formun başarıyla gönderildiğini ve güncellenen ürünün ürünler listesinde göründüğünü doğrulayın.
+
+3. **Backend ve UI Arasındaki Bağlantıyı Doğrulama**
+   - Backend API'sinin doğru çalıştığından ve UI'nın bu API ile doğru şekilde iletişim kurduğundan emin olun.
+   - Herhangi bir hata durumunda, tarayıcı konsolunu ve backend loglarını kontrol ederek sorunları tespit edin.
+
+### 5.11.4 Lab-11'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak **ProductManagement** projesine ürün güncelleme özelliğini başarıyla eklemiş oldunuz. **Backend** tarafında gerekli API endpoint'lerini oluşturup veritabanı işlemlerini yapılandırdınız, **UI** tarafında ise Angular ile kullanıcı dostu bir ürün güncelleme formu oluşturarak frontend ve backend arasındaki entegrasyonu sağladınız. Bu adımlar, sisteminize mevcut verileri düzenleme yeteneği kazandırarak kullanıcı deneyimini daha da iyileştirmiştir. Bir sonraki laboratuvar çalışmasında, ürün silme gibi ek işlevleri projeye entegre etmeye devam edeceğiz.
+
+---
+
+**Not:** Angular projenizin backend API'sine erişebilmesi için CORS ayarlarının doğru yapılandırıldığından emin olun. Ayrıca, `apiUrl` değişkeninin doğru backend URL'sini işaret ettiğinden emin olun.
+
+
