@@ -2130,3 +2130,512 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 Bu laboratuvar çalışmasını tamamlayarak, **Backend** repounuzu Visual Studio kullanarak lokal makinenize klonlamış, ana branch'ten yeni bir branch oluşturmuş ve temel proje yapısını kurmuş oldunuz. Yaptığınız değişiklikleri commit ve push ederek bir Pull Request oluşturmuş ve bu PR'ı main branch'e başarıyla merge etmiş oldunuz. Bu adımlar, projenizin sürüm kontrolünü etkin bir şekilde yönetmenizi ve iş akışınızı düzenli tutmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, backend reposunu yapılandırma ve geliştirme adımlarını gerçekleştireceğiz.
 
 ---
+
+## 5.6 Lab-6: Lokalde SQL Server Kurulumu ve Yeni Bir Veritabanı Oluşturma
+
+Bu laboratuvar çalışmasında, **Basit Ürün Yönetimi Platformu** projesi için gerekli olan SQL Server'ı lokal makinenize kuracak ve yeni bir veritabanı oluşturacaksınız. Bu adımlar, veritabanı yönetimini ve geliştirmesini kolaylaştıracak şekilde yapılandırılmıştır.
+
+### 5.6.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Windows İşletim Sistemi**: SQL Server ve SQL Server Management Studio (SSMS) genellikle Windows üzerinde kullanılır.
+- **İnternet Bağlantısı**: SQL Server ve SSMS indirmek için stabil bir internet bağlantısı gereklidir.
+- **Yönetici Hakları**: SQL Server ve SSMS kurulumu için bilgisayarınızda yönetici (admin) haklarına sahip olmanız gerekmektedir.
+
+### 5.6.2 Adım 1: SQL Server'ı İndirme ve Kurma
+
+1. **SQL Server'ın İndirilmesi**
+   
+   - Tarayıcınızı açın ve [Microsoft SQL Server İndirme Sayfası](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) adresine gidin.
+   - **SQL Server 2022** veya mevcut en son sürümü seçin.
+   - İhtiyacınıza uygun olan **Developer** veya **Express** sürümünü indirin. **Developer** sürümü, tam özellikli bir geliştirme ve test ortamı sağlar ve ücretsizdir.
+
+2. **SQL Server Kurulumunu Başlatma**
+   
+   - İndirilen kurulum dosyasını çalıştırın.
+   - **Installation Type** bölümünde **Basic** seçeneğini seçin. Bu, hızlı ve varsayılan ayarlarla kurulumu sağlar.
+   
+3. **Kurulum İşlemini Tamamlama**
+   
+   - Lisans koşullarını kabul edin ve **Install** butonuna tıklayın.
+   - Kurulum tamamlandığında, SQL Server'ın başarıyla yüklendiğini gösteren bir bildirim alacaksınız.
+   - **Close** butonuna tıklayarak kurulum sihirbazını kapatın.
+
+### 5.6.3 Adım 2: SQL Server Management Studio (SSMS) Kurulumu
+
+1. **SSMS'nin İndirilmesi**
+   
+   - Tarayıcınızı açın ve [SQL Server Management Studio İndirme Sayfası](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms) adresine gidin.
+   - **Download SSMS** butonuna tıklayarak en son sürümünü indirin.
+
+2. **SSMS Kurulumunu Başlatma**
+   
+   - İndirilen kurulum dosyasını çalıştırın.
+   - Kurulum sihirbazındaki talimatları izleyerek kurulumu tamamlayın.
+   - Kurulum tamamlandığında, **Close** butonuna tıklayarak kurulum sihirbazını kapatın.
+
+### 5.6.4 Adım 3: Yeni Bir Veritabanı Oluşturma
+
+1. **SSMS'yi Açma**
+   
+   - Başlat menüsünden **SQL Server Management Studio**'yu açın.
+   - **Connect to Server** penceresi açıldığında, **Server name** alanına SQL Server instance'ınızı girin. Varsayılan olarak, **localhost** veya **.\SQLEXPRESS** olabilir.
+   - **Authentication** türünü seçin:
+     - **Windows Authentication**: Windows kullanıcı hesabınızla giriş yapar.
+     - **SQL Server Authentication**: SQL Server kullanıcı adı ve şifresi kullanır. (Bu seçenek için önceden bir SQL Server kullanıcısı oluşturulmuş olmalıdır.)
+   - **Connect** butonuna tıklayarak bağlanın.
+
+2. **Yeni Veritabanı Oluşturma**
+   
+   - SSMS ana penceresinde, **Object Explorer** panelinde sunucu adına sağ tıklayın.
+   - **New Database...** seçeneğine tıklayın.
+   
+3. **Veritabanı Detaylarını Girme**
+   
+   - **New Database** penceresinde aşağıdaki bilgileri doldurun:
+     - **Database Name**: `ProductManagementDB`
+     - **Owner**: Varsayılan olarak kendi kullanıcı adınız atanmış olacaktır. Gerekirse değiştirebilirsiniz.
+   
+4. **Veritabanını Oluşturma**
+   
+   - **OK** butonuna tıklayarak veritabanını oluşturun.
+   - Oluşturulan veritabanını **Object Explorer** panelinde **Databases** altında göreceksiniz.
+
+### 5.6.5 Adım 4: Veritabanı Ayarlarını Yapılandırma
+
+1. **Veritabanı Ayarlarına Erişim**
+   
+   - **Object Explorer** panelinde, oluşturduğunuz `ProductManagementDB` veritabanına sağ tıklayın.
+   - **Properties** seçeneğine tıklayın.
+
+2. **Veritabanı Özelliklerini Düzenleme**
+   
+   - **Options** sekmesine gidin.
+   - Aşağıdaki ayarları kontrol edin ve gerekirse düzenleyin:
+     - **Collation**: Veritabanı karakter setini belirler. Varsayılan olarak `SQL_Latin1_General_CP1_CI_AS` seçili olabilir. İhtiyacınıza göre değiştirebilirsiniz.
+     - **Recovery Model**: Yedekleme ve geri yükleme seçeneklerini belirler. Genellikle `Simple` modeli başlangıç için yeterlidir.
+   
+3. **Değişiklikleri Kaydetme**
+   
+   - Yapılan değişikliklerden sonra, **OK** butonuna tıklayarak ayarları kaydedin.
+
+### 5.6.6 Adım 5: Veritabanına Bağlantıyı Test Etme
+
+1. **Yeni Veritabanına Bağlanma**
+   
+   - **Object Explorer** panelinde, `ProductManagementDB` veritabanına tıklayarak genişletin.
+   - **Tables** klasörüne sağ tıklayın ve **New > Table...** seçeneğine tıklayın.
+   
+2. **Tablo Oluşturma**
+   
+   - Basit bir tablo oluşturmak için aşağıdaki adımları izleyin:
+     - **Column Name**: `Id`
+       - **Data Type**: `int`
+       - **Allow Nulls**: `Unchecked`
+       - **Primary Key**: Sağ tıklayarak **Set Primary Key** seçeneğine tıklayın.
+     - **Column Name**: `ProductName`
+       - **Data Type**: `nvarchar(100)`
+       - **Allow Nulls**: `Unchecked`
+     - **Column Name**: `Price`
+       - **Data Type**: `decimal(18,2)`
+       - **Allow Nulls**: `Unchecked`
+   
+   - Tabloyu kaydedin:
+     - Üst menüden **File > Save Table1 As...** seçeneğine tıklayın.
+     - **Table Name**: `Products`
+     - **OK** butonuna tıklayarak tabloyu oluşturun.
+
+3. **Tabloyu İnceleme**
+   
+   - **Object Explorer** panelinde, `Products` tablosunu genişleterek oluşturduğunuz sütunları ve anahtarları kontrol edin.
+   
+4. **SQL Sorgusu ile Veri Eklemek**
+   
+   - **Object Explorer** panelinde, `Products` tablosuna sağ tıklayın ve **Edit Top 200 Rows** seçeneğine tıklayın.
+   - Yeni bir ürün eklemek için aşağıdaki bilgileri girin:
+     - `Id`: `1`
+     - `ProductName`: `Örnek Ürün`
+     - `Price`: `99.99`
+   
+   - Veri ekledikten sonra, tabloyu kaydedin.
+
+5. **Veritabanı Bağlantısını Test Etme**
+   
+   - **New Query** butonuna tıklayarak yeni bir SQL sorgusu penceresi açın.
+   - Aşağıdaki sorguyu yazın ve çalıştırın:
+     ```sql
+     SELECT * FROM Products;
+     ```
+   - Sorgu sonucunda eklediğiniz ürünün listelendiğini doğrulayın.
+
+### 5.6.7 Lab-6'nın Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, lokal makinenize SQL Server kurmuş, SQL Server Management Studio (SSMS) ile yeni bir veritabanı oluşturmuş ve temel tabloyu ekleyerek veritabanı bağlantısını başarıyla test etmiş oldunuz. Bu adımlar, projenizin veritabanı yönetimini ve geliştirmesini kolaylaştıracak sağlam bir temel oluşturmuştur. Bir sonraki laboratuvar çalışmasında, Entity Framework Core ile veritabanı entegrasyonunu gerçekleştireceğiz.
+    
+---
+
+## 5.7 Lab-7: Veritabanı Tablolarını Oluşturma ve Entity Framework Core ile Listeleme Metotlarını Yazma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesi için veritabanı tablolarını oluşturacak ve **Entity Framework Core (EF Core)** kullanarak bu tablolara erişim sağlayacak kodları yazacaksınız. Ayrıca, ürünleri listelemek için gerekli metotları ekleyeceksiniz. Bu adımlar, veritabanı entegrasyonunu sağlamak ve veri yönetimini kolaylaştırmak amacıyla gerçekleştirilmektedir.
+
+### 5.7.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'in Tamamlanması**: Azure DevOps üzerinde `ProductManagement` adlı takım projesini başarıyla oluşturmuş olun.
+- **Lab-2'nin Tamamlanması**: Epic, Feature, PBI ve Task'ları başarıyla oluşturmuş olun.
+- **Lab-3'ün Tamamlanması**: Sprint oluşturmuş ve Task'ları sprint'e atamış olun.
+- **Lab-4'ün Tamamlanması**: Backend ve UI için Git repolarını başarıyla oluşturmuş olun.
+- **Lab-5'in Tamamlanması**: Backend reposunu Visual Studio kullanarak klonlamış, yeni bir branch oluşturmuş ve temel proje yapısını kurmuş olun.
+- **Lab-6'nın Tamamlanması**: SQL Server'ı lokal makinenize kurmuş ve `ProductManagementDB` veritabanını oluşturmuş olun.
+- **Visual Studio 2022**: [Download](https://visualstudio.microsoft.com/downloads/)
+- **.NET 8 SDK**: [Download](https://dotnet.microsoft.com/download/dotnet/8.0)
+- **Entity Framework Core**: Visual Studio üzerinden NuGet paketlerini eklemek için internet bağlantınız olmalı.
+- **İnternet Bağlantısı**: Gerekli paketleri indirmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.7.2 Adım 1: Entity Framework Core NuGet Paketlerini Yükleme
+
+1. **Visual Studio'yu Açın ve Backend Projesini Yükleyin**
+   
+   - Visual Studio 2022'yi başlatın.
+   - **Solution Explorer** panelinden `Backend` projesini açın.
+
+2. **NuGet Paket Yöneticisini Açın**
+   
+   - Üst menüden **Tools > NuGet Package Manager > Manage NuGet Packages for Solution...** yolunu izleyin.
+
+3. **Gerekli EF Core Paketlerini Yükleyin**
+   
+   - **Browse** sekmesine gidin ve aşağıdaki paketleri aratarak yükleyin:
+     - `Microsoft.EntityFrameworkCore`
+     - `Microsoft.EntityFrameworkCore.SqlServer`
+     - `Microsoft.EntityFrameworkCore.Tools`
+
+   - Her paketi seçip **Install** butonuna tıklayarak projeye ekleyin.
+
+4. **Paket Yükleme Onayı**
+   
+   - Paketlerin başarıyla yüklendiğini **Installed** sekmesinde doğrulayın.
+
+### 5.7.3 Adım 2: Entity Sınıflarını Oluşturma
+
+1. **Models Klasörünü Oluşturma**
+   
+   - **Solution Explorer** içinde, `Backend` projesine sağ tıklayın.
+   - **Add > New Folder** seçeneğine tıklayın ve klasör adını `Models` olarak belirleyin.
+
+2. **Product Model Sınıfını Oluşturma**
+   
+   - `Models` klasörüne sağ tıklayın ve **Add > Class...** seçeneğine tıklayın.
+   - **Class Name**: `Product.cs`
+   - **Add** butonuna tıklayın.
+
+3. **Product.cs İçeriğini Düzenleme**
+   
+   - Aşağıdaki kodu `Product.cs` dosyasına ekleyin:
+     ```csharp
+     using System.ComponentModel.DataAnnotations;
+
+     namespace Backend.Models
+     {
+         public class Product
+         {
+             [Key]
+             public int Id { get; set; }
+
+             [Required]
+             [MaxLength(100)]
+             public string ProductName { get; set; }
+
+             [Required]
+             [Range(0.01, double.MaxValue)]
+             public decimal Price { get; set; }
+
+             public int Stock { get; set; }
+         }
+     }
+     ```
+
+### 5.7.4 Adım 3: DbContext Sınıfını Oluşturma
+
+1. **Data Klasörünü Oluşturma**
+   
+   - **Solution Explorer** içinde, `Backend` projesine sağ tıklayın.
+   - **Add > New Folder** seçeneğine tıklayın ve klasör adını `Data` olarak belirleyin.
+
+2. **ApplicationDbContext Sınıfını Oluşturma**
+   
+   - `Data` klasörüne sağ tıklayın ve **Add > Class...** seçeneğine tıklayın.
+   - **Class Name**: `ApplicationDbContext.cs`
+   - **Add** butonuna tıklayın.
+
+3. **ApplicationDbContext.cs İçeriğini Düzenleme**
+   
+   - Aşağıdaki kodu `ApplicationDbContext.cs` dosyasına ekleyin:
+     ```csharp
+     using Backend.Models;
+     using Microsoft.EntityFrameworkCore;
+
+     namespace Backend.Data
+     {
+         public class ApplicationDbContext : DbContext
+         {
+             public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+                 : base(options)
+             {
+             }
+
+             public DbSet<Product> Products { get; set; }
+
+             protected override void OnModelCreating(ModelBuilder modelBuilder)
+             {
+                 base.OnModelCreating(modelBuilder);
+
+                 // Veritabanı tablolarının yapılandırmaları buraya eklenebilir
+             }
+         }
+     }
+     ```
+
+### 5.7.5 Adım 4: DbContext'i Konfigüre Etme
+
+1. **appsettings.json Dosyasını Düzenleme**
+   
+   - **Solution Explorer** içinde, `Backend` projesine sağ tıklayın ve **Open** seçeneği ile `appsettings.json` dosyasını açın.
+   - Aşağıdaki bağlantı dizesini ekleyin veya mevcut bağlantı dizesini düzenleyin:
+     ```json
+     {
+       "ConnectionStrings": {
+         "DefaultConnection": "Server=localhost;Database=ProductManagementDB;Trusted_Connection=True;"
+       },
+       "Logging": {
+         "LogLevel": {
+           "Default": "Information",
+           "Microsoft.AspNetCore": "Warning"
+         }
+       },
+       "AllowedHosts": "*"
+     }
+     ```
+
+2. **Program.cs veya Startup.cs Dosyasını Düzenleme**
+   
+   - **Solution Explorer** içinde, `Backend` projesine sağ tıklayın ve **Open** seçeneği ile `Program.cs` dosyasını açın.
+   
+   - Aşağıdaki kodu `Program.cs` dosyasına ekleyin veya mevcut kodu düzenleyin:
+     ```csharp
+     using Backend.Data;
+     using Microsoft.EntityFrameworkCore;
+
+     var builder = WebApplication.CreateBuilder(args);
+
+     // Add services to the container.
+     builder.Services.AddControllers();
+
+     // Configure DbContext
+     builder.Services.AddDbContext<ApplicationDbContext>(options =>
+         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+     builder.Services.AddEndpointsApiExplorer();
+     builder.Services.AddSwaggerGen();
+
+     var app = builder.Build();
+
+     // Configure the HTTP request pipeline.
+     if (app.Environment.IsDevelopment())
+     {
+         app.UseSwagger();
+         app.UseSwaggerUI();
+     }
+
+     app.UseHttpsRedirection();
+
+     app.UseAuthorization();
+
+     app.MapControllers();
+
+     app.Run();
+     ```
+
+### 5.7.6 Adım 5: Migration Oluşturma ve Veritabanını Güncelleme
+
+1. **Package Manager Console'u Açma**
+   
+   - Üst menüden **Tools > NuGet Package Manager > Package Manager Console** yolunu izleyin.
+
+2. **Migration Oluşturma**
+   
+   - **Package Manager Console** penceresinde, aşağıdaki komutu çalıştırın:
+     ```powershell
+     Add-Migration InitialCreate
+     ```
+   - Bu komut, veritabanı şemasını tanımlayan bir migration oluşturur.
+
+3. **Veritabanını Güncelleme**
+   
+   - Migration tamamlandıktan sonra, aşağıdaki komutu çalıştırarak veritabanını güncelleyin:
+     ```powershell
+     Update-Database
+     ```
+   - Bu adım, `ProductManagementDB` veritabanına `Products` tablosunu ekler.
+
+### 5.7.7 Adım 6: Repository ve Service Sınıflarını Oluşturma
+
+1. **Repositories Klasörünü Oluşturma**
+   
+   - **Solution Explorer** içinde, `Backend` projesine sağ tıklayın.
+   - **Add > New Folder** seçeneğine tıklayın ve klasör adını `Repositories` olarak belirleyin.
+
+2. **IProductRepository Arayüzünü Oluşturma**
+   
+   - `Repositories` klasörüne sağ tıklayın ve **Add > Class...** seçeneğine tıklayın.
+   - **Class Name**: `IProductRepository.cs`
+   - **Add** butonuna tıklayın.
+   
+   - Aşağıdaki kodu `IProductRepository.cs` dosyasına ekleyin:
+     ```csharp
+     using Backend.Models;
+
+     namespace Backend.Repositories
+     {
+         public interface IProductRepository
+         {
+             Task<IEnumerable<Product>> GetAllProductsAsync();
+             // Diğer CRUD metotları buraya eklenebilir
+         }
+     }
+     ```
+
+3. **ProductRepository Sınıfını Oluşturma**
+   
+   - `Repositories` klasörüne sağ tıklayın ve **Add > Class...** seçeneğine tıklayın.
+   - **Class Name**: `ProductRepository.cs`
+   - **Add** butonuna tıklayın.
+   
+   - Aşağıdaki kodu `ProductRepository.cs` dosyasına ekleyin:
+     ```csharp
+     using Backend.Data;
+     using Backend.Models;
+     using Microsoft.EntityFrameworkCore;
+
+     namespace Backend.Repositories
+     {
+         public class ProductRepository : IProductRepository
+         {
+             private readonly ApplicationDbContext _context;
+
+             public ProductRepository(ApplicationDbContext context)
+             {
+                 _context = context;
+             }
+
+             public async Task<IEnumerable<Product>> GetAllProductsAsync()
+             {
+                 return await _context.Products.ToListAsync();
+             }
+
+             // Diğer CRUD metotları buraya eklenebilir
+         }
+     }
+     ```
+
+4. **Repository'yi Dependency Injection'a Eklemek**
+   
+   - **Program.cs** dosyasını tekrar açın ve repository'yi servisler arasına ekleyin:
+     ```csharp
+     using Backend.Data;
+     using Backend.Repositories;
+     using Microsoft.EntityFrameworkCore;
+
+     var builder = WebApplication.CreateBuilder(args);
+
+     // Add services to the container.
+     builder.Services.AddControllers();
+
+     // Configure DbContext
+     builder.Services.AddDbContext<ApplicationDbContext>(options =>
+         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+     // Register repositories
+     builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+     builder.Services.AddEndpointsApiExplorer();
+     builder.Services.AddSwaggerGen();
+
+     var app = builder.Build();
+
+     // Configure the HTTP request pipeline.
+     if (app.Environment.IsDevelopment())
+     {
+         app.UseSwagger();
+         app.UseSwaggerUI();
+     }
+
+     app.UseHttpsRedirection();
+
+     app.UseAuthorization();
+
+     app.MapControllers();
+
+     app.Run();
+     ```
+
+### 5.7.8 Adım 7: Controller Oluşturma ve Listeleme Metotlarını Eklemek
+
+1. **Controllers Klasörüne Ürün Controller'ını Eklemek**
+   
+   - **Solution Explorer** içinde, `Controllers` klasörüne sağ tıklayın.
+   - **Add > Controller...** seçeneğine tıklayın.
+   - **API Controller - Empty** seçeneğini seçin ve **Add** butonuna tıklayın.
+   - **Controller Name**: `ProductsController`
+   - **Add** butonuna tıklayın.
+
+2. **ProductsController.cs İçeriğini Düzenleme**
+   
+   - Aşağıdaki kodu `ProductsController.cs` dosyasına ekleyin:
+     ```csharp
+     using Backend.Models;
+     using Backend.Repositories;
+     using Microsoft.AspNetCore.Mvc;
+
+     namespace Backend.Controllers
+     {
+         [Route("api/[controller]")]
+         [ApiController]
+         public class ProductsController : ControllerBase
+         {
+             private readonly IProductRepository _productRepository;
+
+             public ProductsController(IProductRepository productRepository)
+             {
+                 _productRepository = productRepository;
+             }
+
+             // GET: api/Products
+             [HttpGet]
+             public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+             {
+                 var products = await _productRepository.GetAllProductsAsync();
+                 return Ok(products);
+             }
+
+             // Diğer CRUD metotları buraya eklenebilir
+         }
+     }
+     ```
+
+3. **API'yi Test Etme**
+   
+   - Projeyi çalıştırın (**F5** tuşuna basın veya üst menüden **Debug > Start Debugging** seçeneğine tıklayın).
+   - Tarayıcınızda Swagger UI açılacaktır.
+   - **Products** endpoint'ini bulun ve **GET** metodunu test edin.
+   - `Products` tablosunda eklediğiniz ürünün listelendiğini doğrulayın.
+
+### 5.7.9 Lab-7'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, **ProductManagement** projesi için veritabanı tablolarını oluşturmuş, **Entity Framework Core** ile veritabanı entegrasyonunu sağlamış ve ürünleri listelemek için gerekli metotları eklemiş oldunuz. Bu adımlar, veritabanı ile uygulamanız arasındaki etkileşimi yönetmenizi ve veri işlemlerini kolaylaştırmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, CRUD işlemleri için diğer metotları eklemeye ve API'yi genişletmeye devam edeceğiz.
+
+---
