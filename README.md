@@ -4097,4 +4097,396 @@ Bu laboratuvar çalışmasını tamamlayarak **ProductManagement** projesine ür
 
 **Not:** Angular projenizin backend API'sine erişebilmesi için CORS ayarlarının doğru yapılandırıldığından emin olun. Ayrıca, `apiUrl` değişkeninin doğru backend URL'sini işaret ettiğinden emin olun.
 
+## 5.12 Lab-12: Ürün Silme Özelliğini Backend ve UI'ye Eklemek
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesine ürün silme özelliği ekleyeceğiz. Bu adımda, **Backend** (ASP.NET Core) tarafında gerekli API endpoint'lerini oluşturacak ve **UI** (Angular 18) tarafında ürün silme butonunu ekleyerek kullanıcıların ürünleri silmesine olanak tanıyacağız. Silme işlemi sırasında kullanıcıdan onay alarak yanlışlıkla silmeleri önleyeceğiz. Bu adımlar, sistemin veri yönetimini tamamlayarak tam CRUD (Create, Read, Update, Delete) işlevselliği sağlamasını sağlayacaktır.
+
+### 5.12.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'den Lab-11'e Kadar Tüm Laboratuvarların Tamamlanması**: Önceki laboratuvar adımlarını başarıyla tamamlamış olun.
+- **Visual Studio Code (VSCode)**: [Download](https://code.visualstudio.com/) edilerek kurulmuş ve yapılandırılmış olmalı.
+- **Backend Projesi Çalışır Durumda Olmalı**: ASP.NET Core backend projenizin çalışır durumda ve `ProductManagementDB` veritabanına bağlı olduğundan emin olun.
+- **CORS Ayarları Yapılandırılmış Olmalı**: Lab-9'da CORS ayarlarını başarıyla yapmış olun.
+- **İnternet Bağlantısı**: Gerekli paketleri indirmek ve projeleri senkronize etmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.12.2 Adım 1: Backend'e Ürün Silme Özelliğini Eklemek
+
+#### 1. **IProductRepository Arayüzünü Güncelleme**
+
+`IProductRepository` arayüzüne yeni bir yöntem ekleyerek ürün silme işlevini tanımlayacağız.
+
+- **src/app/Repositories/IProductRepository.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Models;
+    using System.Threading.Tasks;
+
+    namespace Backend.Repositories
+    {
+        public interface IProductRepository
+        {
+            Task<IEnumerable<Product>> GetAllProductsAsync();
+            Task<Product> AddProductAsync(Product product);
+            Task<Product> UpdateProductAsync(Product product);
+            Task<bool> DeleteProductAsync(int id); // Yeni eklenen yöntem
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 2. **ProductRepository Sınıfını Güncelleme**
+
+`ProductRepository` sınıfını güncelleyerek yeni yöntemi implement edeceğiz.
+
+- **src/app/Repositories/ProductRepository.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Data;
+    using Backend.Models;
+    using Microsoft.EntityFrameworkCore;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace Backend.Repositories
+    {
+        public class ProductRepository : IProductRepository
+        {
+            private readonly ApplicationDbContext _context;
+
+            public ProductRepository(ApplicationDbContext context)
+            {
+                _context = context;
+            }
+
+            public async Task<IEnumerable<Product>> GetAllProductsAsync()
+            {
+                return await _context.Products.ToListAsync();
+            }
+
+            public async Task<Product> AddProductAsync(Product product)
+            {
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+                return product;
+            }
+
+            public async Task<Product> UpdateProductAsync(Product product)
+            {
+                var existingProduct = await _context.Products.FindAsync(product.Id);
+                if (existingProduct == null)
+                {
+                    return null;
+                }
+
+                existingProduct.ProductName = product.ProductName;
+                existingProduct.Price = product.Price;
+                existingProduct.Stock = product.Stock;
+
+                await _context.SaveChangesAsync();
+                return existingProduct;
+            }
+
+            public async Task<bool> DeleteProductAsync(int id)
+            {
+                var product = await _context.Products.FindAsync(id);
+                if (product == null)
+                {
+                    return false;
+                }
+
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 3. **ProductsController'ı Güncelleme**
+
+`ProductsController`'a yeni bir DELETE metodu ekleyerek ürün silme API'sini oluşturacağız.
+
+- **src/app/Controllers/ProductsController.cs** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```csharp
+    using Backend.Models;
+    using Backend.Repositories;
+    using Microsoft.AspNetCore.Mvc;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
+    namespace Backend.Controllers
+    {
+        [Route("api/[controller]")]
+        [ApiController]
+        public class ProductsController : ControllerBase
+        {
+            private readonly IProductRepository _productRepository;
+
+            public ProductsController(IProductRepository productRepository)
+            {
+                _productRepository = productRepository;
+            }
+
+            // GET: api/Products
+            [HttpGet]
+            public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+            {
+                var products = await _productRepository.GetAllProductsAsync();
+                return Ok(products);
+            }
+
+            // POST: api/Products
+            [HttpPost]
+            public async Task<ActionResult<Product>> AddProduct([FromBody] Product product)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var createdProduct = await _productRepository.AddProductAsync(product);
+                return CreatedAtAction(nameof(GetProducts), new { id = createdProduct.Id }, createdProduct);
+            }
+
+            // PUT: api/Products/{id}
+            [HttpPut("{id}")]
+            public async Task<ActionResult<Product>> UpdateProduct(int id, [FromBody] Product product)
+            {
+                if (id != product.Id)
+                {
+                    return BadRequest("Ürün ID'si uyuşmuyor.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var updatedProduct = await _productRepository.UpdateProductAsync(product);
+                if (updatedProduct == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedProduct);
+            }
+
+            // DELETE: api/Products/{id}
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> DeleteProduct(int id)
+            {
+                var result = await _productRepository.DeleteProductAsync(id);
+                if (!result)
+                {
+                    return NotFound();
+                }
+
+                return NoContent();
+            }
+
+            // Diğer CRUD metotları buraya eklenebilir
+        }
+    }
+    ```
+
+#### 4. **Backend Projesini Güncelleme**
+
+Yeni eklenen değişikliklerin veritabanına yansıması için migration oluşturup veritabanını güncelleyeceğiz.
+
+1. **Package Manager Console'u Açma**
+   - Visual Studio'da, üst menüden **Tools > NuGet Package Manager > Package Manager Console** yolunu izleyin.
+
+2. **Migration Oluşturma**
+   - **Package Manager Console** penceresinde aşağıdaki komutu çalıştırın:
+     ```powershell
+     Add-Migration AddDeleteProduct
+     ```
+
+3. **Veritabanını Güncelleme**
+   - Migration tamamlandıktan sonra, aşağıdaki komutu çalıştırarak veritabanını güncelleyin:
+     ```powershell
+     Update-Database
+     ```
+
+#### 5. **Backend'i Test Etme**
+
+API'nin çalıştığından emin olmak için Swagger veya Postman kullanarak yeni DELETE metodunu test edin.
+
+1. **Projeyi Çalıştırma**
+   - Visual Studio'da backend projesini başlatın (**F5** tuşuna basın veya **Debug > Start Debugging** seçeneğine tıklayın).
+
+2. **Swagger UI ile Test Etme**
+   - Tarayıcınızda Swagger UI açılacaktır (genellikle `https://localhost:5001/swagger`).
+   - **Products** endpoint'ini bulun ve **DELETE** metodunu seçin.
+   - **Try it out** butonuna tıklayın ve URL kısmına silmek istediğiniz ürünün ID'sini girin (örneğin, `1`).
+   - **Execute** butonuna tıklayın ve API'nin doğru şekilde çalıştığını doğrulayın.
+
+3. **Postman ile Test Etme**
+   - `https://localhost:5001/api/Products/{id}` adresine bir DELETE isteği gönderin.
+
+### 5.12.3 Adım 2: UI'da Ürün Silme Butonunu Oluşturma
+
+#### 1. **Angular Servislerini Güncelleme**
+
+`ProductService`'i güncelleyerek ürün silme işlevini ekleyeceğiz.
+
+- **src/app/services/product.service.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```typescript
+    import { Injectable } from '@angular/core';
+    import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+    import { Observable, throwError } from 'rxjs';
+    import { catchError } from 'rxjs/operators';
+    import { Product } from '../models/product.model';
+
+    @Injectable({
+      providedIn: 'root'
+    })
+    export class ProductService {
+      private apiUrl = 'https://localhost:5001/api/Products'; // Backend API URL'si
+
+      constructor(private http: HttpClient) { }
+
+      getProducts(): Observable<Product[]> {
+        return this.http.get<Product[]>(this.apiUrl)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      addProduct(product: Product): Observable<Product> {
+        return this.http.post<Product>(this.apiUrl, product)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      updateProduct(product: Product): Observable<Product> {
+        const url = `${this.apiUrl}/${product.id}`;
+        return this.http.put<Product>(url, product)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      deleteProduct(id: number): Observable<void> {
+        const url = `${this.apiUrl}/${id}`;
+        return this.http.delete<void>(url)
+          .pipe(
+            catchError(this.handleError)
+          );
+      }
+
+      private handleError(error: HttpErrorResponse) {
+        if (error.error instanceof ErrorEvent) {
+          // Client-side veya network hatası
+          console.error('An error occurred:', error.error.message);
+        } else {
+          // Backend hatası
+          console.error(
+            `Backend returned code ${error.status}, ` +
+            `body was: ${error.error}`);
+        }
+        // Kullanıcıya gösterilecek hata mesajını dön
+        return throwError(
+          'Something bad happened; please try again later.');
+      }
+    }
+    ```
+
+#### 2. **Ürün Listesi Bileşenini Güncelleme**
+
+Ürünler listesini güncelleyerek her ürün için silme butonu ekleyeceğiz ve silme işlemi sırasında onay alacağız.
+
+- **src/app/products/products.component.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+
+    ```typescript
+    import { Component, OnInit } from '@angular/core';
+    import { ProductService } from '../services/product.service';
+    import { Product } from '../models/product.model';
+    import { Router } from '@angular/router';
+
+    @Component({
+      selector: 'app-products',
+      templateUrl: './products.component.html',
+      styleUrls: ['./products.component.css']
+    })
+    export class ProductsComponent implements OnInit {
+      products: Product[] = [];
+
+      constructor(private productService: ProductService, private router: Router) { }
+
+      ngOnInit(): void {
+        this.loadProducts();
+      }
+
+      loadProducts(): void {
+        this.productService.getProducts().subscribe({
+          next: (data) => this.products = data,
+          error: (err) => console.error(err)
+        });
+      }
+
+      deleteProduct(id: number): void {
+        const confirmDelete = confirm('Bu ürünü silmek istediğinize emin misiniz?');
+        if (confirmDelete) {
+          this.productService.deleteProduct(id).subscribe({
+            next: () => {
+              alert('Ürün başarıyla silindi.');
+              this.loadProducts();
+            },
+            error: (err) => console.error(err)
+          });
+        }
+      }
+    }
+    ```
+
+- **src/app/products/products.component.html** dosyasını açın ve aşağıdaki kodu düzenleyin:
+
+    ```html
+    <div class="container">
+      <h2>Ürünler Listesi</h2>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Ürün Adı</th>
+            <th>Fiyat</th>
+            <th>Stok</th>
+            <th>İşlemler</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td>{{ product.id }}</td>
+            <td>{{ product.productName }}</td>
+            <td>{{ product.price | currency }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+              <a [routerLink]="['/edit-product', product.id]" class="btn btn-sm btn-secondary">Güncelle</a>
+              <button (click)="deleteProduct(product.id)" class="btn btn-sm btn-danger ml-2">Sil</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    ```
+
+#### 3. **UI Projesini Güncelleme**
+
+Projenizin diğer kısımlarının zaten yapılandırılmış olduğunu varsayarak, yukarıdaki adımlar yeterli olacaktır. Ancak, stil ve ek özellikler eklemek isterseniz, CSS dosyalarını düzenleyebilirsiniz.
+
+### 5.12.4 Lab-12'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak **ProductManagement** projesine ürün silme özelliğini başarıyla eklemiş oldunuz. **Backend** tarafında gerekli API endpoint'lerini oluşturup veritabanı işlemlerini yapılandırdınız, **UI** tarafında ise Angular ile kullanıcı dostu bir ürün silme butonu ekleyerek frontend ve backend arasındaki entegrasyonu tamamladınız. Silme işlemi sırasında kullanıcıdan onay alarak veri güvenliğini artırdınız. Bu adımlar, sisteminize tam CRUD işlevselliği kazandırarak kullanıcı deneyimini ve veri yönetimini geliştirmiştir. Bir sonraki laboratuvar çalışmasında, sistemin güvenliğini artırmak için kimlik doğrulama ve yetkilendirme gibi ek özellikleri projeye entegre etmeye devam edeceğiz.
+
+---
+
+**Not:** Angular projenizin backend API'sine erişebilmesi için CORS ayarlarının doğru yapılandırıldığından emin olun. Ayrıca, `apiUrl` değişkeninin doğru backend URL'sini işaret ettiğinden emin olun.
 
