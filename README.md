@@ -508,3 +508,126 @@ Seçilen araçlar, **DevOps** prensiplerini destekleyerek otomasyon, sürekli ge
 
 # 3. Azure DevOps Server’a Giriş
 
+## 3.1 Azure Boards
+
+**Azure Boards**, projelerinizi planlamak, izlemek ve yönetmek için kullanabileceğiniz bir **iş takibi (work tracking)** platformudur. Yazılım geliştirme sürecini düzenli ve şeffaf hale getirmek için **Scrum**, **Kanban** veya **karma** yaklaşımlarına uygun araçlar sunar. Ekipler, **backlog** oluşturabilir, **iş öğelerini** (User Story, Bug, Task vb.) takip edebilir ve **sprint** planlamaları yapabilir. Ayrıca proje yönetimi süreçlerinin merkezinde yer alarak, geliştirme ve operasyon ekiplerinin birbirleriyle etkin bir şekilde koordinasyon kurmasını sağlar.
+
+> **Resmi Dokümantasyon**:  
+> [Azure Boards Hakkında Daha Fazla Bilgi Edinin](https://learn.microsoft.com/tr-tr/azure/devops/boards/)
+
+---
+
+### 3.1.1 Temel Özellikler
+
+1. **Work Items (İş Öğeleri)**  
+   - **User Story**, **Bug**, **Epic**, **Feature**, **Issue** gibi iş öğeleri; projenin gereksinimlerini ve yapılacak işleri tanımlamak için kullanılır.  
+   - Her iş öğesi, bir başlık (title), açıklama (description), tahmini efor ve sorumlu (assignee) gibi alanları barındırır.
+
+2. **Backlog ve Sprint Yönetimi**  
+   - Yazılım geliştirme sürecinde, ekiplerin plan yapması ve iş öğelerini önceliklendirmesi için **backlog** kullanılır.  
+   - **Sprint** süreçlerinde, backlog’daki öğelerden seçilen işler belirli bir zaman aralığında tamamlanmaya çalışılır.
+
+3. **Board (Tablo) ve Kanban**  
+   - Ekipler, **board** ekranı üzerinden iş öğelerini sürükle-bırak mantığıyla yönetebilir.  
+   - Kanban sütunları (To Do, In Progress, Done vb.) veya Scrum görev panosu aracılığıyla, işlerin hangi aşamada olduğunu kolayca takip edebilir.
+
+4. **Query ve Filtreler**  
+   - İş öğeleri üzerinde detaylı sorgular (query) oluşturabilir, belirli kriterlere uyan öğeleri listeleyip filtreleyebilirsiniz.  
+   - Ekibin ihtiyaçlarına göre özel listeler oluşturarak, iş yükü dağılımını ve öncelikli görevleri görebilirsiniz.
+
+5. **Dashboard ve Raporlama**  
+   - Azure Boards verilerini kullanarak **burndown chart**, **cumulative flow diagram** gibi çeşitli raporlar ve panolar oluşturabilirsiniz.  
+   - Bu sayede sprint ilerlemesi, ekip performansı veya hata trendleri hakkında görsel ve güncel bilgiler elde edersiniz.
+
+---
+
+### 3.1.2 Process Templates (Süreç Şablonları)
+
+Azure Boards’ta varsayılan olarak **Basic**, **Agile**, **Scrum** ve **CMMI** adlı dört temel süreç şablonu bulunur. Her şablon, iş öğesi tiplerini ve alanlarını yönetmek için farklı bir yapı ve terminoloji sunar:
+
+1. **Basic**  
+   - En sade yaklaşımdır. Yeni başlayan ekipler ya da az sayıda iş öğesi kullanan takımlar için uygundur.  
+   - **Issue**, **Task**, **Epic** gibi temel iş öğesi tipleri vardır.
+
+2. **Agile**  
+   - Kullanıcı hikayesi (User Story), Görev (Task), Hata (Bug), Epic vb. gibi öğeler içerir.  
+   - Çevik prensipleri uygulayan ekiplerin sıklıkla tercih ettiği süreç şablonu.
+
+3. **Scrum**  
+   - **Product Backlog Item (PBI)**, **Task**, **Bug**, **Sprint**, **Epic** gibi öğeler barındırır.  
+   - Sprint temelli iş yönetimi yapan takımlar için uygundur.
+
+4. **CMMI (Capability Maturity Model Integration)**  
+   - Daha kurumsal ve süreç odaklı, fazlaca onay/durum akışına ihtiyaç duyan ekipler için tasarlanmıştır.  
+   - Değişiklik isteme (Change Request), Gereksinim (Requirement), Görev (Task) gibi ek iş öğesi tipleri bulunur.
+
+Bu süreç şablonları, projenizin **metodolojisi**, **kurumsal standartlar** ve **ekip yaklaşımı** doğrultusunda seçilir. Ayrıca süreç şablonlarında kendi özel iş öğesi tiplerini ekleyerek veya alanları özelleştirerek, şirket gereksinimlerinize uyarlayabilirsiniz.
+
+---
+
+### 3.1.3 Epic -> Feature -> PBI -> Task Hiyerarşisi
+
+**Azure Boards**, iş öğelerini üstten alta bir hiyerarşiyle yönetmeye olanak tanır. Özellikle **Scrum** veya **Agile** şablonlarında şu yapı çok sık görülür:
+
+1. **Epic**  
+   - Geniş kapsamlı bir iş veya işlevdir. Örneğin, “Mobil Uygulama Arayüzünün Yenilenmesi” bir Epic olabilir.  
+   - Genellikle birkaç sprint veya proje aşamasını kapsayacak kadar büyük iş paketlerini ifade eder.
+
+2. **Feature**  
+   - Epic’i destekleyen alt özellikler veya modüller. Örneğin, “Yeni Login Ekranı”, “Profil Düzenleme Modülü” gibi parçalar Epic’in daha somut kısımlarıdır.  
+   - Bir Epic birden fazla Feature içerebilir.
+
+3. **Product Backlog Item (PBI) veya User Story**  
+   - Scrum sürecinde, Feature’ların gerçekleştirilmesi için gereken kullanıcı senaryoları veya gereksinim parçaları.  
+   - Örneğin, “Kullanıcı adı ve şifre ile giriş yapabilme” bir PBI olabilir.  
+   - Genelde bir sprint içinde tamamlanabilecek büyüklükte olur.
+
+4. **Task**  
+   - Bir User Story veya PBI’nin gerçekleştirilmesi için gerekli teknik/operasyonel adımlardır.  
+   - “Veritabanı Şeması Oluşturma”, “Arayüz Tasarımı”, “API Endpoint Yazma” gibi spesifik işleri ifade eder.  
+   - Genellikle birkaç saatlik veya en fazla 1-2 günlük süreyle kapatılacak kadar küçük parçalara ayrılır.
+
+#### Örnek Senaryo
+
+- **Epic**: “Mobil Bankacılık Uygulamasının Yeniden Tasarımı”  
+  - Yüksek seviyede; 2 aylık bir süreyi kapsayabilir. İçinde birçok modül veya ekran yenilemesi barındırır.
+
+  - **Feature 1**: “Giriş ve Kayıt İşlemleri”  
+    - **PBI 1.1**: “Kullanıcı yeni bir hesap oluşturabilmeli”  
+      - **Task 1.1.1**: Veritabanı tablolarının düzenlenmesi  
+      - **Task 1.1.2**: API endpoint’lerinin yazılması  
+      - **Task 1.1.3**: Mobil arayüz tasarımı  
+    - **PBI 1.2**: “Mevcut kullanıcı, kullanıcı adı ve şifre ile giriş yapabilmeli”  
+      - **Task 1.2.1**: Oturum açma doğrulama (authentication) servisi  
+      - **Task 1.2.2**: Hata mesajlarının lokalizasyonu  
+      - **Task 1.2.3**: Test senaryolarının yazılması
+
+  - **Feature 2**: “Anasayfa ve Profil Ekranı”  
+    - **PBI 2.1**: “Kullanıcı, anasayfada hesap bakiyelerini görüntüleyebilmeli”  
+    - **PBI 2.2**: “Kullanıcı, profil bilgilerini güncelleyebilmeli”  
+    - (Devam eden benzer PBIs / Task’lar…)
+
+Bu yapı, hem üst seviye iş yönetimini (Epic/Feature) hem de günlük çalışma detaylarını (PBI/Task) organize etmenizi sağlar. Her seviyedeki öğeler birbirine “parent-child” ilişkisiyle bağlanır. Böylece hangi büyük resim (Epic) altında hangi küçük iş öğeleri (Task) yürütüldüğü açıkça görülür.
+
+---
+
+### 3.1.4 Avantajları
+
+- **Planlama Kolaylığı**: Büyük işleri (Epic) daha küçük, yönetilebilir parçalara (Feature, PBI, Task) ayırarak sprint planlaması yapmak daha sağlıklıdır.  
+- **İzlenebilirlik**: Task seviyesinde kim ne yapıyor, hangi işi ne kadar tamamladı gibi soruların cevabı tek bir yapı içinde görülebilir.  
+- **Şeffaf İletişim**: Yöneticiler ve iş birimi sahipleri, hangi Epic veya Feature’ın ne aşamada olduğunu backlog panosu üzerinden takip edebilir.  
+- **Önceliklendirme**: Epic’ler veya Feature’lar arasında öncelik sıralaması yapabilir, ek kaynak gerektiğinde veya bir işi beklemeye aldığınızda kolayca yönetebilirsiniz.
+
+---
+
+### 3.1.5 İpuçları ve En İyi Uygulamalar
+
+- **Düzgün Boyutlandırma**: Epic ve Feature’lar mümkün olduğunca proje aşamalarını yansıtacak şekilde tanımlanmalı; PBI’lar bir sprint içinde bitirilebilecek kadar küçük tutulmalıdır.  
+- **Düzenli Refinement/Grooming**: Backlog öğelerinin düzenli aralıklarla gözden geçirilmesi (Refinement) ve güncellenmesi, sprint planlamalarının daha pürüzsüz geçmesini sağlar.  
+- **Net Tanım ve Kabul Kriterleri**: Her PBI veya User Story, “Done” (Tamamlanmış) sayılabilmesi için net kabul kriterleri (Acceptance Criteria) içermeli.  
+- **Bağımlılıklar**: Farklı Feature veya PBI’lar arasındaki bağımlılıkları görünür kılmak, ekipler arası koordinasyonu kolaylaştırır.  
+- **Sürükle-Bırak veya Kısayollar**: Azure Boards’daki arayüz, iş öğelerini hızlıca sürükle-bırak yöntemiyle hiyerarşik olarak bağlamanıza olanak verir (örneğin, bir Task’ı ilgili PBI altına taşıma).
+
+---
+
+Azure Boards’taki **Process Templates** ve **Epic -> Feature -> PBI -> Task** hiyerarşisi, projelerinizi üst düzeyden en ince detaya kadar **tek bir yönetim modelinde** takip etmenizi sağlar. Bu sayede organizasyon genelinde **izlenebilirlik** artar, **planlama** ve **raporlama** süreçleri kolaylaşır. Özelleştirilebilir iş akışları ve raporlama kabiliyeti ile Azure Boards, çeşitli metodolojileri benimsemiş takımlar için oldukça esnek ve güçlü bir çözüm sunar.
