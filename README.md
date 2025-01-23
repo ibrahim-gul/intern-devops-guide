@@ -1333,3 +1333,120 @@ Azure Test Plans, **DevOps** süreçlerinin **kalite güvencesi** kısmını gü
 | **Güvenlik ve Uyum**         | Tam veri kontrolü, yüksek uyum gereksinimleri için ideal   | Gelişmiş bulut güvenliği, geniş uyum sertifikaları    |
 | **Entegrasyonlar**           | Kurumsal iç sistemlerle derin entegrasyon                  | Geniş bulut ve üçüncü parti entegrasyon seçenekleri    |
 | **Yedekleme ve Kurtarma**   | Kullanıcı sorumluluğunda                                    |
+
+
+## 4. Proje Tanıtımı
+
+Bu bölümde, geliştirilecek olan **Basit Ürün Yönetimi Platformu** projesini detaylı bir şekilde tanıtacağız. Proje, temel ürün yönetimi işlevlerini gerçekleştiren, kullanıcı dostu bir arayüze sahip ve modern teknolojilerle inşa edilmiş bir uygulamadır. Aşağıda, projenin genel yapısı, kullanılan teknolojiler, mimarisi ve sunduğu özellikler hakkında bilgi bulabilirsiniz.
+
+---
+
+### 4.1 Proje Genel Görünümü
+
+**Basit Ürün Yönetimi Platformu**, kullanıcıların ürünleri listeleyebildiği, yeni ürünler ekleyebildiği, mevcut ürünleri düzenleyip silebildiği bir web uygulamasıdır. Bu platform, küçük ve orta ölçekli işletmelerin veya bireysel kullanıcıların ürün envanterlerini kolayca yönetmelerine olanak tanır. Proje, başlangıç aşamasında temel CRUD (Create, Read, Update, Delete) işlemlerini desteklerken, ilerleyen aşamalarda **authentication** ve **authorization** özellikleri ile güvenlik katmanı eklenmesi planlanmaktadır.
+
+---
+
+### 4.2 Kullanılan Teknolojiler
+
+Proje, modern ve popüler teknolojiler kullanılarak geliştirilmiştir. Bu teknolojiler, uygulamanın performansını, ölçeklenebilirliğini ve bakımını kolaylaştırmayı amaçlamaktadır.
+
+- **Backend: ASP.NET Core Web API (.NET 8)**
+  - Yüksek performanslı, platformlar arası çalışabilen bir framework.
+  - RESTful API’ler geliştirmek için ideal.
+  
+- **Frontend: Angular**
+  - Google tarafından desteklenen, güçlü bir frontend framework’ü.
+  - Tek sayfa uygulamaları (SPA) geliştirmek için kullanılır.
+  
+- **Veritabanı: SQL Server**
+  - Güçlü ve güvenilir bir ilişkisel veritabanı yönetim sistemi.
+  
+- **ORM: Entity Framework Core**
+  - .NET uygulamaları için nesne-ilişkisel eşleme (ORM) aracı.
+  - Veritabanı işlemlerini kolaylaştırır ve kod ile veritabanı arasındaki bağı azaltır.
+  
+- **Diğer Teknolojiler:**
+  - **Visual Studio 2022**: Geliştirme ortamı.
+  - **Postman**: API test araçları.
+  - **Git**: Versiyon kontrol sistemi.
+  - **Azure DevOps**: CI/CD süreçleri ve proje yönetimi.
+
+---
+
+### 4.3 Mimari
+
+Proje, **MVC (Model-View-Controller)** tasarım desenine dayalı olarak, katmanlı bir mimari ile inşa edilmiştir. Bu mimari, uygulamanın farklı bileşenlerinin birbirinden bağımsız olarak geliştirilmesini ve bakımını kolaylaştırır.
+
+#### 4.3.1 Backend (ASP.NET Core Web API)
+
+- **Controllers**: API uç noktalarını tanımlar ve istemciden gelen istekleri işler.
+- **Services**: İş mantığını içerir ve veri işleme görevlerini üstlenir.
+- **Repositories**: Veritabanı ile etkileşim kurar, CRUD işlemlerini gerçekleştirir.
+- **Models**: Veritabanı varlıklarını ve veri transfer objelerini (DTO) tanımlar.
+
+#### 4.3.2 Frontend (Angular)
+
+- **Components**: Kullanıcı arayüzünün parçalarını oluşturur.
+- **Services**: API ile iletişimi sağlar, veri işlemlerini yönetir.
+- **Modules**: Uygulamanın farklı bölümlerini organize eder.
+- **Routing**: Uygulama içinde sayfalar arası geçişleri yönetir.
+
+#### 4.3.3 Veritabanı (SQL Server)
+
+- **Tables**: Ürün bilgilerini saklamak için tablolar oluşturulur.
+- **Relationships**: Tablolar arasında ilişkiler tanımlanır.
+- **Stored Procedures**: Veri işlemlerini optimize etmek için kullanılır.
+
+---
+
+### 4.4 Özellikler
+
+Proje, kullanıcıların ürün yönetimi süreçlerini etkili bir şekilde gerçekleştirebilmeleri için çeşitli özellikler sunmaktadır.
+
+#### 4.4.1 Ürün Listeleme
+
+- **Açıklama**: Kullanıcılar, mevcut tüm ürünleri listeleyebilir.
+- **Özellikler**:
+  - Ürün adı, açıklaması, fiyatı ve stok durumu gibi bilgiler görüntülenir.
+  - Arama ve filtreleme seçenekleri ile ürünler kolayca bulunabilir.
+
+#### 4.4.2 Yeni Ürün Ekleme
+
+- **Açıklama**: Kullanıcılar, yeni ürünler ekleyebilir.
+- **Özellikler**:
+  - Ürün adı, açıklaması, fiyatı, kategorisi ve stok miktarı gibi alanlar doldurulur.
+  - Form doğrulama ile eksik veya hatalı bilgilerin girilmesi engellenir.
+
+#### 4.4.3 Ürün Düzenleme
+
+- **Açıklama**: Kullanıcılar, mevcut ürünlerin bilgilerini güncelleyebilir.
+- **Özellikler**:
+  - Mevcut ürün bilgileri önceden doldurulur ve kullanıcı tarafından güncellenebilir.
+  - Değişiklikler kaydedildiğinde, veritabanında güncelleme yapılır.
+
+#### 4.4.4 Ürün Silme
+
+- **Açıklama**: Kullanıcılar, artık ihtiyaç duymadıkları ürünleri silebilir.
+- **Özellikler**:
+  - Ürün silme işlemi onaylanmadan gerçekleştirilmez.
+  - Silinen ürünler veritabanından kaldırılır ve listeden çıkarılır.
+
+---
+
+### 4.5 Gelecek Aşamalar ve Geliştirmeler
+
+Projenin ilk aşamasında temel ürün yönetimi işlevleri geliştirildikten sonra, ilerleyen dönemlerde aşağıdaki ek özellikler ve geliştirmeler planlanmaktadır:
+
+- **Authentication/Authorization**: Kullanıcıların kimlik doğrulama ve yetkilendirme süreçlerinin eklenmesi.
+- **Rol Tabanlı Erişim Kontrolü**: Farklı kullanıcı rolleri için erişim izinlerinin tanımlanması.
+- **Gelişmiş Raporlama**: Ürün satışları, stok durumu gibi alanlarda detaylı raporlar oluşturulması.
+- **Entegrasyonlar**: Diğer sistemlerle (örneğin, ödeme sistemleri, CRM) entegrasyonların sağlanması.
+- **Responsive Tasarım**: Uygulamanın mobil cihazlarda da sorunsuz çalışacak şekilde optimize edilmesi.
+- **Performans Optimizasyonları**: Uygulamanın performansını artırmak için optimizasyon çalışmaları yapılması.
+
+---
+
+**Basit Ürün Yönetimi Platformu** projesi, modern yazılım geliştirme metodolojileri ve DevOps prensipleri doğrultusunda tasarlanmış, esnek ve ölçeklenebilir bir yapıya sahiptir. Bu proje üzerinden gerçekleştirilecek laboratuvar çalışmaları ile DevOps araçlarının ve süreçlerinin pratikte nasıl kullanılacağını öğrenmek mümkün olacaktır.
+
+---
