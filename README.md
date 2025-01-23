@@ -631,3 +631,136 @@ Bu yapı, hem üst seviye iş yönetimini (Epic/Feature) hem de günlük çalı�
 ---
 
 Azure Boards’taki **Process Templates** ve **Epic -> Feature -> PBI -> Task** hiyerarşisi, projelerinizi üst düzeyden en ince detaya kadar **tek bir yönetim modelinde** takip etmenizi sağlar. Bu sayede organizasyon genelinde **izlenebilirlik** artar, **planlama** ve **raporlama** süreçleri kolaylaşır. Özelleştirilebilir iş akışları ve raporlama kabiliyeti ile Azure Boards, çeşitli metodolojileri benimsemiş takımlar için oldukça esnek ve güçlü bir çözüm sunar.
+
+## 3.2 Azure Repos
+
+**Azure Repos**, yazılım geliştirme projeleriniz için **Git** veya **Team Foundation Version Control (TFVC)** tabanlı depo (repository) yönetimi sunan bir platformdur. Bu sayede kodunuzu versiyonlayabilir, dallar (branches) arasında geçiş yapabilir, pull request (PR) süreçlerini yönetebilir ve ekip içi kod incelemesi (code review) gerçekleştirebilirsiniz. 
+
+Azure Repos; *Azure DevOps* ekosisteminin bir modülü olarak, **Azure Boards**, **Pipelines**, **Artifacts** gibi diğer bileşenlerle **entegre** bir şekilde çalışır. Böylelikle hem sürüm kontrolü hem de CI/CD iş akışlarını tek bir platform üzerinden yönetmek mümkün hale gelir.
+
+---
+
+### 3.2.1 Başlangıç: Proje Oluşturma ve Repo Seçimi
+
+1. **Yeni Proje Oluşturma**  
+   - Azure DevOps ana sayfasında “**New Project**” butonu ile yeni bir proje oluşturabilirsiniz.  
+   - Proje oluşturulurken, **Repo türü** (Git veya TFVC) seçilir. *Önerilen*: Modern ve dağıtık yapısı nedeniyle **Git** kullanımı daha yaygındır.
+
+2. **Var Olan Projelerde Repo Ekleme**  
+   - Mevcut bir proje içinde **Repos** sekmesine giderek yeni bir repo oluşturabilirsiniz.  
+   - “**Initialize Repository**” adımı ile boş bir depo açabilir veya bir .gitignore, README.md vb. ekleyerek başlatabilirsiniz.
+
+---
+
+### 3.2.2 Azure Repos Menülerinin Detaylı İncelemesi
+
+Azure Repos’a girdiğinizde, sol menüde yer alan çeşitli sekmelerle karşılaşırsınız. Her sekme farklı bir işlevi yerine getirir:
+
+1. **Files (Dosyalar)**  
+   - Depodaki tüm klasör ve dosya yapısını gösterir.  
+   - Üst kısımda dallar (branches) arasında geçiş yapma seçeneği bulunur.  
+   - Dosya içeriklerini direkt olarak tarayıcıda görüntüleyebilir ve küçük değişiklikler için (örneğin README.md düzenlemeleri) tarayıcı üzerinden “**Edit**” diyerek commit yapabilirsiniz.  
+
+2. **Commits**  
+   - Seçili dal (branch) üzerindeki son commit’leri, commit mesajlarını, hangi dosyaların değiştiğini ve commit tarihlerini gösterir.  
+   - Her commit için detay sayfası mevcut olup, ek olarak **diff** görüntüleme yapılabilir.  
+   - Commit’leri kronolojik sırayla görebilir, commit ID’si üzerinden geçmişteki sürümlere göz atabilirsiniz.
+
+3. **Branches (Dallar)**  
+   - Projeye ait tüm dalları (branches) ve varsa *tags* (etiketler) listeleyen bölümdür.  
+   - Yeni bir dal oluşturabilir, dal silme işlemi yapabilir veya dalları birleştirmek (merge) için *Pull Request* oluşturabilirsiniz.  
+   - Her dalın son commit mesajı, commit tarihi ve dal üzerinde kimlerin çalıştığı gibi bilgileri görebilirsiniz.
+
+4. **Pull Requests (PR)**  
+   - Kod değişikliklerinin incelendiği, onaylandığı ve dalların birleştirildiği (merge) ana alandır.  
+   - Yeni bir PR oluştururken hedef dal (target branch) ve kaynak dal (source branch) seçilir, açıklama (description) yazılır ve *reviewer* eklenir.  
+   - Pull Request sayfasında dosya değişikliklerini satır satır (diff) inceleyebilir, yorum (comment) bırakabilir ve onay (approve) veya reddetme (reject) gibi aksiyonlarda bulunabilirsiniz.  
+   - **Policies** (ilke) tanımlayarak, örneğin “En az 2 kişinin onayı olmadan merge yapılamaz” gibi kurallar koyabilirsiniz.
+
+5. **Tags (Etiketler)**  
+   - Projede belirli commit noktalarını işaretlemek için kullanılan etiketleri (tags) listeler.  
+   - Örneğin, bir sürüm (version) yayınladığınızda “v1.0” veya “release-2025-01” gibi bir tag ekleyebilirsiniz.  
+   - Bu etiketler, belirli commit’lere hızlıca dönme ve sürümleri takip etme açısından faydalıdır.
+
+6. **Compare**  
+   - İki dal veya iki commit arasında farkları (diff) karşılaştırmanızı sağlar.  
+   - Geliştiriciler, birleşme (merge) yapmadan önce “compare” özelliği ile hangi dosyalarda ne gibi değişikliklerin olduğunu inceleyebilir.
+
+7. **Branch Policies (Dallar için Politikalar)**  
+   - *Branches* menüsünden belirli bir dal (genellikle `main` veya `master`) için koruma (policy) tanımlayabilirsiniz.  
+   - Zorunlu çekme istekleri (pull request requirement), zorunlu kod inceleme onayı (reviewers), zorunlu geçmiş başarıyla tamamlanmış build (CI), gibi kurallar eklenebilir.  
+   - Böylece ana dalın kalitesi korunur ve ekibin kod review süreciyle tutarlı kalması sağlanır.
+
+8. **Wiki veya Code Search (Opsiyonel Ek Menüler)**  
+   - Azure DevOps içerisindeki “Wiki” modülü ile depo içindeki dokümantasyon veya proje belgeleri tutulabilir.  
+   - “Code Search” ise depo içindeki kod aramaları için kullanışlı bir özelliktir. (Genellikle ayrı bir extension şeklinde eklenir.)
+
+---
+
+### 3.2.3 Git İş Akışı ile Azure Repos Kullanımı
+
+1. **Repo Klonlama**  
+   - Geliştiriciler, **Clone** butonuna tıklayarak URL’yi kopyalar ve `git clone <url>` komutuyla yerel makinede projeyi indirir.  
+   - Visual Studio veya VS Code gibi IDE’ler üzerinden de doğrudan klon işlemi yapılabilir.
+
+2. **Branch Oluşturma**  
+   - Yeni bir özelliğe veya hata düzeltmesine başlarken, `git checkout -b feature/new-login-page` gibi bir isimle dal oluşturulur.  
+   - Azure DevOps’taki *Branches* sekmesiyle dallarınızı görebilir ve yönetebilirsiniz.
+
+3. **Commit & Push**  
+   - Yerelde yapılan değişiklikler commit edilerek uzak (remote) depoya push edilir.  
+   - Azure Repos, “**Commits**” sekmesinde bu değişiklikleri kayıt altına alır; kim ne zaman, hangi mesajla commit yapmış görünür.
+
+4. **Pull Request Açma**  
+   - İş tamamlandığında, “Pull Requests” menüsünden yeni bir PR oluşturulur.  
+   - Kaynak dal (ör. `feature/new-login-page`) ve hedef dal (ör. `develop` veya `main`) seçilir.  
+   - Ekipten 1 veya 2 kişi “Reviewer” olarak eklenir, gerekirse ek açıklamalar yapılır.
+
+5. **Kod İncelemesi ve Onay**  
+   - İnceleme yapan kişiler, diff ekranında satır satır değişiklikleri inceleyip yorum yazar.  
+   - Müsait olmayan alanlar veya hatalı görülen noktalar “**Request changes**” seçeneğiyle gönderilir.
+
+6. **Merge (Birleştirme)**  
+   - Tüm incelemeler onaylandıktan ve varsa tüm *pipeline/build* kontrolleri (CI) başarılı olduktan sonra PR merge edilir.  
+   - Otomatik kapatılma, squash merge veya rebase gibi seçenekler proje tercihinize göre kullanılabilir.
+
+---
+
+### 3.2.4 Sık Karşılaşılan Senaryolar
+
+- **Conflict Çözme**  
+  - İki farklı geliştirici aynı satırda değişiklik yaptığında, “merge conflict” ortaya çıkabilir.  
+  - Conflict, yerel ortamda veya Azure DevOps web arayüzü üzerinden çözülebilir (yine de genellikle yerelde çözüm daha verimlidir).
+
+- **Kod İnceleme Zorunluluğu**  
+  - Branch policy olarak “Pull request review” kuralı konulduğunda, ana dala direkt push engellenir.  
+  - Tüm değişikliklerin PR üzerinden geçmesi hem kod kalitesini hem de iş birliğini artırır.
+
+- **Release Branch Stratejisi**  
+  - Ekipler “GitFlow”, “GitHub Flow” veya “Trunk-based development” gibi dal stratejilerini Azure Repos üzerinde uygular.  
+  - Major, minor ve patch sürümlerine göre branch yapısı tanımlanabilir.
+
+---
+
+### 3.2.5 En İyi Uygulamalar
+
+1. **Anlamlı Commit Mesajları**  
+   - “Fix bug” gibi belirsiz mesajlar yerine, “Fix null reference bug in login controller” gibi net tanımlar kullanmak ekip iletişimini güçlendirir.
+
+2. **Kısa Ömürlü Branch’ler**  
+   - Branch’leri uzun süre açık tutmak conflict riskini artırır. Mümkün olduğunca kısa feature dalı, sık merge işlemi idealdir.
+
+3. **Düzenli Pull Request İncelemeleri**  
+   - Kod incelemeleri (code review) sadece hataları yakalamakla kalmaz, ekip içinde bilgi paylaşımını da artırır.  
+   - PR’ların küçük ve odaklı olması incelemeyi kolaylaştırır.
+
+4. **Pipeline Entegrasyonu**  
+   - Her PR açıldığında otomatik build/test çalıştırarak hataları erken tespit edin. (Azure Pipelines ile entegre edilebilir.)  
+
+5. **Branch Policy**  
+   - Ana dalın güvenliği için, en az bir onay (approval) ve başarılı build koşulu gibi politikalar eklenmesi tavsiye edilir.
+
+---
+
+Azure Repos, **DevOps** yaklaşımını benimseyen ekipler için **güçlü** ve **esnek** bir kod yönetim ortamı sunar. Hem küçük ekipler hem de büyük kurumsal projeler, Azure Repos’un dallanma stratejileri, pull request mekanizmaları ve zengin entegrasyon özellikleri sayesinde kodlarını düzenli ve güvende tutabilir. Bu sayede, geliştirme süreçleri daha şeffaf, izlenebilir ve iş birliğine dayalı hale gelir.
+
