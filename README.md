@@ -2782,3 +2782,419 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 Bu laboratuvar çalışmasını tamamlayarak, **UI** repounuz üzerinde yeni bir feature branch oluşturmuş, Visual Studio Code kullanarak temel bir React UI projesi oluşturmuş, yaptığınız değişiklikleri commit/push etmiş ve bir Pull Request aracılığıyla bu değişiklikleri `main` branch'e başarıyla merge etmiş oldunuz. Bu adımlar, frontend geliştirme sürecinizi düzenli ve sürüm kontrolü altında tutmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, UI projesine daha fazla özellik ekleyerek geliştirmeye devam edeceğiz.
 
 ---
+
+## 5.8 Lab-8: UI İçin Yeni Bir Feature Branch Açma, Temel Proje Oluşturma ve Pull Request ile Merge Etme
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin **UI** reposu üzerinde yeni bir feature branch açacak, Visual Studio Code (VSCode) kullanarak temel bir UI projesi oluşturacak ve yaptığınız değişiklikleri commit/push ederek bir Pull Request (PR) oluşturup `main` branch'e merge edeceksiniz. Bu adımlar, frontend geliştirme sürecinizi düzenli ve sürüm kontrolü altında tutmanıza yardımcı olacaktır.
+
+### 5.8.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'in Tamamlanması**: Azure DevOps üzerinde `ProductManagement` adlı takım projesini başarıyla oluşturmuş olun.
+- **Lab-2'nin Tamamlanması**: Epic, Feature, PBI ve Task'ları başarıyla oluşturmuş olun.
+- **Lab-3'ün Tamamlanması**: Sprint oluşturmuş ve Task'ları sprint'e atamış olun.
+- **Lab-4'ün Tamamlanması**: Backend ve UI için Git repolarını başarıyla oluşturmuş olun.
+- **Lab-5'in Tamamlanması**: Backend reposunu Visual Studio kullanarak klonlamış, yeni bir branch oluşturmuş ve temel proje yapısını kurmuş olun.
+- **Lab-6'nın Tamamlanması**: SQL Server'ı lokal makinenize kurmuş ve `ProductManagementDB` veritabanını oluşturmuş olun.
+- **Lab-7'nin Tamamlanması**: Backend için Entity Framework Core ile veritabanı entegrasyonunu gerçekleştirmiş olun.
+- **Visual Studio Code (VSCode)**: [Download](https://code.visualstudio.com/) edilerek kurulmuş ve yapılandırılmış olmalı.
+- **Node.js ve npm**: [Download](https://nodejs.org/) edilerek kurulmuş olmalı (UI projesi için).
+- **Angular CLI Yüklü Olmalı**: Terminalde aşağıdaki komutu çalıştırarak Angular CLI'yı global olarak yükleyin:
+
+```
+npm install -g @angular/cli
+```
+
+- **Git Yüklü Olmalı**: Bilgisayarınıza [Git](https://git-scm.com/downloads) yüklü olmalıdır.
+- **Azure DevOps'a Erişim**: Azure DevOps hesabınıza erişim sağlayabilecek kullanıcı adı ve şifreniz olmalı.
+- **İnternet Bağlantısı**: Azure DevOps web arayüzüne ve Git'e erişmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.8.2 Adım 1: UI Reposunu Klonlama ve Yeni Bir Branch Oluşturma
+
+1. **Azure DevOps'ta UI Reposunu Bulma**
+ - Azure DevOps hesabınıza giriş yapın ve `ProductManagement` projesini seçin.
+ - Sol menüden **"Repos"** sekmesine tıklayın ve **UI** reposunu seçin.
+
+2. **Klonlama URL'sini Alma**
+ - **UI** reposunun ana sayfasında, sağ üst köşede bulunan **"Clone"** butonuna tıklayın.
+ - Açılan pencerede **HTTPS** URL'sini kopyalayın.
+   ```
+   https://dev.azure.com/yourorganization/ProductManagement/_git/UI
+   ```
+
+3. **UI Reposunu Lokal Makinenize Klonlama**
+ - Visual Studio Code'u açın.
+ - Başlangıç ekranında **"Clone Repository"** seçeneğine tıklayın. Eğer VSCode açıksa, **View > Command Palette...** yolunu izleyin ve `Git: Clone` komutunu seçin.
+ - Kopyaladığınız HTTPS URL'sini yapıştırın ve **Enter** tuşuna basın.
+ - Klonlamak istediğiniz lokal dizini seçin ve **Select Repository Location** butonuna tıklayın.
+ - Klonlama işlemi tamamlandığında, VSCode size klonlanan repoyu açma seçeneği sunacaktır. **Open** butonuna tıklayarak repoyu açın.
+
+4. **Yeni Feature Branch Oluşturma**
+ - VSCode'un sol alt köşesinde bulunan branch adını (genellikle `main`) tıklayın.
+ - Açılan menüde **Create new branch** seçeneğine tıklayın.
+ - Yeni branch adı olarak `feature/setup-ui-project` yazın ve **Enter** tuşuna basın.
+ - VSCode, yeni oluşturulan branch'e geçiş yapacaktır.
+
+### 5.8.3 Adım 2: Visual Studio Code ile Temel UI Projesi Oluşturma
+
+1. **Terminali Açma**
+ - VSCode'da üst menüden **Terminal > New Terminal** yolunu izleyin. Bu, VSCode içerisinde entegre bir terminal açacaktır.
+
+2. **UI Projesini Oluşturma**
+ - UI projesi olarak Angular kullanacaksanız, terminalde aşağıdaki komutu çalıştırın:
+   ```
+   ng new frontend
+   ```
+ - Komut çalıştırıldığında sizden proje için bazı yapılandırmalar yapmanızı isteyecektir:
+   - **Would you like to add Angular routing?**: `Yes` seçin.
+   - **Which stylesheet format would you like to use?**: İhtiyacınıza uygun olanı seçin (örneğin, `CSS`).
+
+3. **Proje Yapısını İnceleme**
+ - **Explorer** panelinde, oluşturulan `frontend` klasörünü göreceksiniz. Temel dosyaların ve klasörlerin oluşturulduğunu doğrulayın:
+   ```
+   UI/
+   ├── frontend/
+   │   ├── node_modules/
+   │   ├── src/
+   │   ├── angular.json
+   │   ├── package.json
+   │   └── README.md
+   ├── .gitignore
+   └── README.md
+   ```
+
+4. **README Dosyasını Güncelleme (Opsiyonel)**
+ - **frontend** klasöründe bulunan `README.md` dosyasını açın ve proje hakkında bilgi ekleyebilirsiniz.
+
+### 5.8.4 Adım 3: Değişiklikleri Commit ve Push Etme
+
+1. **Source Control Panelini Açma**
+ - VSCode'un sol yan panelinde bulunan **Source Control** simgesine tıklayın (genellikle bir dallı ağ simgesi).
+ - Yapmış olduğunuz değişiklikler listelenecektir.
+
+2. **Değişiklikleri Stage Etme**
+ - **Changes** bölümünde, tüm değişikliklerin yanındaki **+** işaretine tıklayarak değişiklikleri stage edin. Tüm değişiklikleri stage etmek için üstteki **Stage All Changes** simgesine tıklayabilirsiniz.
+
+3. **Commit Mesajını Girme**
+ - **Message** alanına açıklayıcı bir commit mesajı yazın:
+   ```
+   Setup basic Angular UI project structure
+   ```
+ - **Commit** butonuna tıklayarak değişiklikleri commit edin.
+
+4. **Branch'i Uzak Reposuna Push Etme**
+ - VSCode'un altındaki **Sync Changes** butonuna tıklayın. Bu, oluşturduğunuz `feature/setup-ui-project` branch'ini uzak repoya push edecektir.
+ - Eğer **Sync Changes** butonu görünmüyorsa, **...** menüsüne tıklayın ve **Push** seçeneğini seçin.
+
+### 5.8.5 Adım 4: Pull Request (PR) Oluşturma ve Merge Etme
+
+1. **Azure DevOps Web Arayüzüne Geri Dönün**
+ - Tarayıcınızda Azure DevOps web arayüzünü açın ve `ProductManagement` projesine gidin.
+ - Sol menüden **"Repos" > "Pull requests"** sekmesine tıklayın.
+
+2. **Yeni Pull Request Başlatma**
+ - **New Pull Request** butonuna tıklayın.
+
+3. **PR Detaylarını Girin**
+ - **Source branch**: `feature/setup-ui-project`
+ - **Target branch**: `main`
+ - **Title**: `Setup Basic Angular UI Project Structure`
+ - **Description**: `UI projesi için temel Angular yapılandırması oluşturuldu. Frontend klasörü altında ng new komutu ile başlangıç yapıldı.`
+
+4. **Pull Request'ı Oluşturma**
+ - Tüm bilgileri girdikten sonra, **Create** butonuna tıklayarak PR'ı oluşturun.
+
+5. **PR'ı İnceleme ve Onaylama**
+ - Ekip üyelerinden PR'ı incelemelerini isteyin.
+ - İnceleme süreci tamamlandıktan sonra, **Complete** butonuna tıklayarak PR'ı `main` branch'e merge edin.
+ - Gerekirse **Squash Commit** veya **Rebase and Merge** seçeneklerini kullanabilirsiniz.
+
+6. **Merge İşlemini Doğrulama**
+ - VSCode'da, **Source Control** paneline geri dönün.
+ - **Pull** butonuna tıklayarak `main` branch'ini güncelleyin ve merge edilen değişiklikleri alın.
+
+### 5.8.6 Adım 5: Merge İşlemi Sonrası Kontroller
+
+1. **Proje Yapısını İnceleme**
+ - VSCode'da `main` branch'ine geçtiğinizden emin olun ve `frontend` klasörünün doğru şekilde oluşturulduğunu doğrulayın.
+
+2. **Uygulamayı Test Etme (Opsiyonel)**
+ - Terminalde, `frontend` dizinine geçin ve uygulamayı çalıştırın:
+   ```
+   cd frontend
+   ng serve
+   ```
+ - Tarayıcınızda `http://localhost:4200` adresinde Angular uygulamasının sorunsuz çalıştığını doğrulayın.
+ - Uygulama çalıştıktan sonra terminalde `Ctrl + C` tuş kombinasyonuyla durdurabilirsiniz.
+
+### 5.8.7 Lab-8'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, **UI** repounuz üzerinde yeni bir feature branch oluşturmuş, Visual Studio Code kullanarak temel bir Angular UI projesi oluşturmuş, yaptığınız değişiklikleri commit/push etmiş ve bir Pull Request aracılığıyla bu değişiklikleri `main` branch'e başarıyla merge etmiş oldunuz. Bu adımlar, frontend geliştirme sürecinizi düzenli ve sürüm kontrolü altında tutmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, UI projesine daha fazla özellik ekleyerek geliştirmeye devam edeceğiz.
+
+---
+
+## 5.9 Lab-9: Ürünleri Listeleyen Sayfa İçin UI Kodlarını Yazma, Backend ile Bağlama ve CORS Ayarlarını Yapma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin **UI** (Angular 18) ve **Backend** (ASP.NET Core) projelerini birbirine bağlayarak ürünleri listeleyen bir sayfa oluşturacak ve CORS (Cross-Origin Resource Sharing) ayarlarını yapılandıracaksınız. Bu adımlar, frontend ve backend arasındaki etkileşimi sağlamak ve güvenli bir iletişim ortamı oluşturmak için gereklidir.
+
+### 5.9.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'den Lab-8'e Kadar Tüm Laboratuvarların Tamamlanması**: Önceki laboratuvar adımlarını başarıyla tamamlamış olun.
+- **Visual Studio Code (VSCode)**: [Download](https://code.visualstudio.com/) edilerek kurulmuş ve yapılandırılmış olmalı.
+- **Angular CLI Yüklü Olmalı**: Terminalde aşağıdaki komutu çalıştırarak Angular CLI'yı global olarak yükleyin:
+
+```
+npm install -g @angular/cli
+```
+
+- **Backend Projesi Çalışır Durumda Olmalı**: ASP.NET Core backend projenizin çalışır durumda ve `ProductManagementDB` veritabanına bağlı olduğundan emin olun.
+- **CORS İçin Gerekli Bilgiler**: Backend projesinde CORS ayarlarını yapabilmek için gerekli izinler ve bilgiler sağlanmış olmalı.
+- **İnternet Bağlantısı**: Gerekli paketleri indirmek ve projeleri senkronize etmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.9.2 Adım 1: Ürünleri Listeleyen Angular Bileşenini Oluşturma
+
+1. **Angular Projesinde Yeni Bileşen Oluşturma**
+ - VSCode'da **UI** projenizin kök dizininde terminali açın.
+ - Aşağıdaki komutu çalıştırarak `products` adlı yeni bir bileşen oluşturun:
+   ```
+   ng generate component products
+   ```
+ - Bu komut, `src/app/products` dizini altında gerekli dosyaları oluşturacaktır.
+
+2. **Products Bileşenini Yapılandırma**
+ - **src/app/products/products.component.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+   ```typescript
+   import { Component, OnInit } from '@angular/core';
+   import { ProductService } from '../services/product.service';
+   import { Product } from '../models/product.model';
+
+   @Component({
+     selector: 'app-products',
+     templateUrl: './products.component.html',
+     styleUrls: ['./products.component.css']
+   })
+   export class ProductsComponent implements OnInit {
+     products: Product[] = [];
+
+     constructor(private productService: ProductService) { }
+
+     ngOnInit(): void {
+       this.loadProducts();
+     }
+
+     loadProducts(): void {
+       this.productService.getProducts().subscribe({
+         next: (data) => this.products = data,
+         error: (err) => console.error(err)
+       });
+     }
+   }
+   ```
+
+3. **Products Bileşeninin HTML Şablonunu Düzenleme**
+ - **src/app/products/products.component.html** dosyasını açın ve aşağıdaki kodu ekleyin:
+   ```html
+   <div class="container">
+     <h2>Ürünler Listesi</h2>
+     <table class="table table-striped">
+       <thead>
+         <tr>
+           <th>ID</th>
+           <th>Ürün Adı</th>
+           <th>Fiyat</th>
+           <th>Stok</th>
+         </tr>
+       </thead>
+       <tbody>
+         <tr *ngFor="let product of products">
+           <td>{{ product.id }}</td>
+           <td>{{ product.productName }}</td>
+           <td>{{ product.price | currency }}</td>
+           <td>{{ product.stock }}</td>
+         </tr>
+       </tbody>
+     </table>
+   </div>
+   ```
+
+4. **Ürün Modelini Oluşturma**
+ - **src/app/models** klasörüne sağ tıklayın ve **New File** oluşturun. Dosya adını `product.model.ts` olarak belirleyin.
+ - **product.model.ts** dosyasına aşağıdaki kodu ekleyin:
+   ```typescript
+   export interface Product {
+     id: number;
+     productName: string;
+     price: number;
+     stock: number;
+   }
+   ```
+
+### 5.9.3 Adım 2: Backend API'sine HTTP Servisini Eklemek
+
+1. **Product Servisini Oluşturma**
+ - Terminalde aşağıdaki komutu çalıştırarak `product` adlı yeni bir servis oluşturun:
+   ```
+   ng generate service services/product
+   ```
+ - Bu komut, `src/app/services/product.service.ts` dosyasını oluşturacaktır.
+
+2. **Product Servisini Yapılandırma**
+ - **src/app/services/product.service.ts** dosyasını açın ve aşağıdaki kodu ekleyin:
+   ```typescript
+   import { Injectable } from '@angular/core';
+   import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+   import { Observable, throwError } from 'rxjs';
+   import { catchError } from 'rxjs/operators';
+   import { Product } from '../models/product.model';
+
+   @Injectable({
+     providedIn: 'root'
+   })
+   export class ProductService {
+     private apiUrl = 'https://localhost:5001/api/Products'; // Backend API URL'si
+
+     constructor(private http: HttpClient) { }
+
+     getProducts(): Observable<Product[]> {
+       return this.http.get<Product[]>(this.apiUrl)
+         .pipe(
+           catchError(this.handleError)
+         );
+     }
+
+     private handleError(error: HttpErrorResponse) {
+       if (error.error instanceof ErrorEvent) {
+         // Client-side veya network hatası
+         console.error('An error occurred:', error.error.message);
+       } else {
+         // Backend hatası
+         console.error(
+           `Backend returned code ${error.status}, ` +
+           `body was: ${error.error}`);
+       }
+       // Kullanıcıya gösterilecek hata mesajını dön
+       return throwError(
+         'Something bad happened; please try again later.');
+     }
+   }
+   ```
+
+3. **HTTP Client Modülünü Eklemek**
+ - **src/app/app.module.ts** dosyasını açın ve `HttpClientModule`'ü içe aktarın:
+   ```typescript
+   import { BrowserModule } from '@angular/platform-browser';
+   import { NgModule } from '@angular/core';
+   import { HttpClientModule } from '@angular/common/http';
+
+   import { AppComponent } from './app.component';
+   import { ProductsComponent } from './products/products.component';
+
+   @NgModule({
+     declarations: [
+       AppComponent,
+       ProductsComponent
+     ],
+     imports: [
+       BrowserModule,
+       HttpClientModule
+     ],
+     providers: [],
+     bootstrap: [AppComponent]
+   })
+   export class AppModule { }
+   ```
+
+### 5.9.4 Adım 3: Ürünleri Listeleyen Sayfayı Oluşturma
+
+1. **Ürünler Bileşenini Uygulamaya Eklemek**
+ - **src/app/app.component.html** dosyasını açın ve aşağıdaki kodu ekleyin:
+   ```html
+   <app-products></app-products>
+   ```
+
+2. **Angular Uygulamasını Çalıştırma**
+ - Terminalde aşağıdaki komutu çalıştırarak Angular uygulamasını başlatın:
+   ```
+   ng serve
+   ```
+ - Tarayıcınızda `http://localhost:4200` adresine giderek ürünlerin listelendiğini doğrulayın.
+
+### 5.9.5 Adım 4: CORS Ayarlarını Yapma
+
+1. **Backend Projesinde CORS Ayarlarını Yapılandırma**
+ - **Startup.cs** veya **Program.cs** dosyanızı açın (ASP.NET Core 6 ve üzeri için genellikle **Program.cs**).
+ - Aşağıdaki kodu ekleyerek CORS politikasını tanımlayın:
+   ```csharp
+   var builder = WebApplication.CreateBuilder(args);
+
+   // Add services to the container.
+   builder.Services.AddControllers();
+
+   // Configure CORS
+   builder.Services.AddCors(options =>
+   {
+       options.AddPolicy("AllowAngularApp",
+           builder =>
+           {
+               builder.WithOrigins("http://localhost:4200")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+           });
+   });
+
+   // Configure DbContext
+   builder.Services.AddDbContext<ApplicationDbContext>(options =>
+       options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+   // Register repositories
+   builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+   // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+   builder.Services.AddEndpointsApiExplorer();
+   builder.Services.AddSwaggerGen();
+
+   var app = builder.Build();
+
+   // Configure the HTTP request pipeline.
+   if (app.Environment.IsDevelopment())
+   {
+       app.UseSwagger();
+       app.UseSwaggerUI();
+   }
+
+   app.UseHttpsRedirection();
+
+   app.UseCors("AllowAngularApp"); // CORS politikasını kullan
+
+   app.UseAuthorization();
+
+   app.MapControllers();
+
+   app.Run();
+   ```
+
+2. **Backend Projesini Yeniden Başlatma**
+ - Visual Studio veya terminalde backend projesini durdurup tekrar başlatarak CORS ayarlarının uygulanmasını sağlayın.
+
+### 5.9.6 Adım 5: Uygulamayı Test Etme
+
+1. **Backend API'sinin Çalıştığından Emin Olma**
+ - Backend projesinin çalışır durumda olduğundan ve `Products` API'sine erişilebildiğinden emin olun. Örneğin, `https://localhost:5001/api/Products` adresine tarayıcıdan veya Postman aracılığıyla erişmeyi deneyin.
+
+2. **Angular Uygulamasında Ürünleri Listeleme**
+ - Angular uygulamanızı (`ng serve`) çalıştırın.
+ - Tarayıcınızda `http://localhost:4200` adresine gidin.
+ - Ürünlerin başarıyla listelendiğini doğrulayın. Backend'den alınan verilerin tabloda görüntülendiğini görmelisiniz.
+
+3. **Hata Ayıklama**
+ - Eğer ürünler listelenmiyorsa, tarayıcı konsolunu ve backend loglarını kontrol ederek hataları tespit edin.
+ - CORS ile ilgili hatalar varsa, backend CORS ayarlarını tekrar gözden geçirin.
+
+### 5.9.7 Lab-9'un Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, **UI** (Angular 18) projenizde ürünleri listeleyen bir sayfa oluşturmuş, bu sayfayı **Backend** (ASP.NET Core) API'sine bağlamış ve CORS ayarlarını yapılandırarak frontend ve backend arasında güvenli bir iletişim sağlamış oldunuz. Bu adımlar, projenizin frontend ve backend bileşenleri arasındaki etkileşimi optimize etmenizi ve kullanıcıya dinamik veri sunmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, UI projesine daha fazla özellik ekleyerek geliştirmeye devam edeceğiz.
+
+---
