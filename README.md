@@ -89,3 +89,53 @@ Aşağıdaki adımlar, tipik bir CI sürecini özetler:
   * Kod Kalitesi ve Standartlar: CI sürecinde kod analiz araçları, statik kod analizleri (örneğin SonarQube) de entegre edilerek standartlar korunabilir.
 
 Bu sayede, Continuous Integration uygulayan ekipler yazılım geliştirme hızlarını artırırken kaliteden ödün vermez ve uzun vadede teknik borcun (technical debt) büyümesini engeller. Özellikle Continuous Delivery (CD) ve Continuous Deployment süreçlerinin temeli de CI ile atılır; çünkü düzenli olarak entegre ve test edilen kod, sonraki dağıtım aşamalarına güvenle ilerleyebilir.
+
+## 2.2 Continuous Delivery (CD) & Continuous Deployment
+Continuous Delivery (CD) ve Continuous Deployment, Continuous Integration (CI) sürecinin bir sonraki aşamaları olarak görülebilir. Her iki yaklaşım da kodun, üretim veya son kullanıcının erişimine açık ortama (production) sürekli ve güvenle taşınmasını amaçlar. Ancak aralarında önemli bir fark bulunur:
+
+1. Continuous Delivery (CD):
+  * Kodun her zaman canlı ortama (production) çıkmaya hazır halde olmasını hedefler.
+  * Yeni bir sürümü manuel onay veya belirli süreçlerden (örneğin QA aşaması, güvenlik testleri, kullanıcı kabul testleri) geçirdikten sonra üretime alır.
+  * Ekipler, her an “Deploy” düğmesine basarak veya kısa bir onay akışıyla birlikte yeni sürümü yayına alabilecek güvene sahip olur.
+
+2. Continuous Deployment:
+  * Burada, başarılı bir build ve test aşamasından geçen her sürüm otomatik olarak canlı ortama aktarılır.
+  * Üretime geçiş için manuel onay gerekmez; süreç tamamen otomatiktir.
+  * Bu yaklaşım, yüksek düzeyde otomasyon, izleme (monitoring), hata yönetimi ve geri dönüş (rollback) mekanizmaları gerektirir.
+
+**Continuous Delivery (CD) Süreci Nasıl İşler?**
+
+1. CI Süreciyle Entegre
+  * CD, başarılı tamamlanmış bir CI sürecinin çıktısını alarak başlar. Build ve test aşamalarını sorunsuz geçen paket veya imaj, CD aşamasında kullanılmaya hazırdır.
+
+2. Paketleme ve Ortam Hazırlığı
+  * Uygulama, dağıtıma uygun bir formata (örneğin Docker imajı, zip paketi, NuGet paketi, npm paketi vb.) getirilir.
+  * CD pipeline’ı, uygulamayı test, staging veya canary gibi farklı ortamlara dağıtmak üzere konfigüre edilir.
+
+3. Ek Testler ve Onay Mekanizmaları
+  * CD aşamasında, integration test, yük ve performans testleri, güvenlik taramaları veya kullanıcı kabul testleri (UAT) yapılabilir.
+  * Kurumun politikalarına göre bu aşamada bir manuel onay (approval) adımı eklenebilir. Bu, ekiplere canlı ortama geçmeden önce ek doğrulama imkanı sağlar.
+
+4. Üretim (Production) Dağıtımı
+  * Gerekli onaylar verildikten sonra, pipeline uygulamayı üretim ortamına yayına alır (deploy).
+  * Deployment sonrası bir doğrulama aşamasıyla birlikte, uygulamanın sorunsuz çalıştığı onaylanır.
+
+**Continuous Deployment Süreciyle Farklar**
+
+1. Manuel Onay Yok
+  * Continuous Deployment’da, başarıyla testi geçen her sürüm canlıya otomatik olarak çıkar.
+  * Büyük ölçekli, yüksek hacimli uygulamalarda (örneğin e-ticaret siteleri, SaaS platformları) sıklıkla uygulanır.
+
+2. Otomatik Rollback
+  * Çok hızlı sürüm çıkıldığından, uygulamada oluşabilecek sorunlara karşı otomatik geri dönüş (rollback) ve ileri seviye izleme sistemleri bulunmalıdır.
+
+3. Hız ve Sürekli Güncelleme
+  * Her değişiklik anında son kullanıcılara ulaşabilir. Bu durum, rekabetçi ortamlarda büyük avantaj sağlarken, aynı zamanda yönetim ve kontrol mekanizmalarını daha karmaşık hale getirir.
+
+**CD ve Kurumsal Düzeyde Katma Değer**
+  * Daha Kısa “Lead Time”: Kod yazıldığı andan canlı ortama geçene kadar geçen süre minimum düzeye iner.
+  * Düşük Risk: Her sürüm, küçük ve test edilmiş parçalardan oluştuğu için hata riski azalır.
+  * Sürekli Gelişim: Hızlı geribildirim döngüleri, müşteri ihtiyaçlarına anında yanıt verme olanağı sunar.
+  * İş Birliği: Geliştirme, test ve operasyon ekipleri aynı pipeline üzerinden sorumluluk paylaşır, bu da iletişimi ve iş birliğini güçlendirir.
+
+Continuous Delivery ve Continuous Deployment prensiplerini doğru şekilde kurgulayan organizasyonlar, yenilik ve kalite açısından rakiplerinden önde olmanın yanı sıra, beklenmeyen hatalara daha hızlı tepki verme ve bunları en az maliyetle çözme yeteneğini de kazanmış olurlar.
