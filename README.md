@@ -1901,3 +1901,232 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 Bu laboratuvar çalışmasını tamamlayarak, `ProductManagement` projesi için yeni bir sprint oluşturmuş ve mevcut **Task**'ları bu sprint'e başarıyla atamış oldunuz. Sprint planlaması ve takip süreçlerini uygulayarak, proje yönetimini daha düzenli ve verimli hale getirdiniz. Bir sonraki laboratuvar çalışmasında, backend ve frontend için Git reposu oluşturma adımlarını gerçekleştireceğiz.
 
 ---
+
+## 5.4 Lab-4: Backend ve UI İçin Git Repolarını Oluşturma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesi için **Backend** ve **UI** olmak üzere iki ayrı Git repoları oluşturacağız. Bu adımlar, projenizin backend ve frontend bileşenlerini bağımsız olarak yönetmenizi ve sürüm kontrolünü etkin bir şekilde gerçekleştirmenizi sağlayacaktır.
+
+### 5.4.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'in Tamamlanması**: Azure DevOps üzerinde `ProductManagement` adlı takım projesini başarıyla oluşturmuş olun.
+- **Lab-2'nin Tamamlanması**: Epic, Feature, PBI ve Task'ları başarıyla oluşturmuş olun.
+- **Lab-3'ün Tamamlanması**: Sprint oluşturmuş ve Task'ları sprint'e atamış olun.
+- **Giriş Bilgileri**: Azure DevOps hesabınıza erişim sağlayabilecek kullanıcı adı ve şifreniz olmalı.
+- **İnternet Bağlantısı**: Azure DevOps web arayüzüne erişmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.4.2 Adım 1: Repos Sekmesine Erişim
+
+1. **Azure DevOps'a Giriş Yapın**
+   - [Azure DevOps](https://dev.azure.com/) hesabınıza giriş yapın ve `ProductManagement` projesini seçin.
+
+2. **Repos Sekmesine Gidin**
+   - Sol taraftaki menüden **"Repos"** sekmesine tıklayın. Bu sekme, projelerinizin Git repolarını yönetmenize olanak tanır.
+
+### 5.4.3 Adım 2: Backend Reposu Oluşturma
+
+1. **Yeni Repository Oluşturma**
+   - **Repos** sekmesinde, sağ üst köşede bulunan **"New repository"** butonuna tıklayın.
+
+2. **Repository Detaylarını Girin**
+   - **Repository Name (Depo Adı)**: `Backend`
+   - **Add a README**: `Initialize with a README` seçeneğini işaretleyin. Bu, depo oluşturulduğunda bir README dosyası ile başlatılmasını sağlar.
+   - **Create** butonuna tıklayarak **Backend** reposunu oluşturun.
+
+3. **Backend Reposunun Doğrulanması**
+   - Oluşturulan **Backend** reposunun ana sayfasına yönlendirileceksiniz. Burada README dosyasını görüntüleyebilir ve depo hakkında bilgi edinebilirsiniz.
+
+### 5.4.4 Adım 3: UI Reposu Oluşturma
+
+1. **Yeni Repository Oluşturma**
+   - **Repos** sekmesinde, tekrar sağ üst köşede bulunan **"New repository"** butonuna tıklayın.
+
+2. **Repository Detaylarını Girin**
+   - **Repository Name (Depo Adı)**: `UI`
+   - **Add a README**: `Initialize with a README` seçeneğini işaretleyin.
+   - **Create** butonuna tıklayarak **UI** reposunu oluşturun.
+
+3. **UI Reposunun Doğrulanması**
+   - Oluşturulan **UI** reposunun ana sayfasına yönlendirileceksiniz. Burada README dosyasını görüntüleyebilir ve depo hakkında bilgi edinebilirsiniz.
+
+### 5.4.5 Adım 4: Repoların Doğrulanması
+
+1. **Backend Reposunu Kontrol Etme**
+   - Azure DevOps üzerindeki **Backend** reposuna geri dönün.
+   - `README.md` dosyasının doğru şekilde oluşturulduğunu ve depo hakkında gerekli bilgilerin bulunduğunu doğrulayın.
+
+2. **UI Reposunu Kontrol Etme**
+   - Azure DevOps üzerindeki **UI** reposuna geri dönün.
+   - `README.md` dosyasının doğru şekilde oluşturulduğunu ve depo hakkında gerekli bilgilerin bulunduğunu doğrulayın.
+
+### 5.4.6 Lab-4'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, `ProductManagement` projesi için **Backend** ve **UI** olmak üzere iki ayrı Git repolarını Azure DevOps üzerinde başarıyla oluşturmuş oldunuz. Bu repolar, projenizin backend ve frontend bileşenlerini bağımsız olarak yönetmenizi ve sürüm kontrolünü etkin bir şekilde gerçekleştirmenizi sağlayacaktır. Bir sonraki laboratuvar çalışmasında, backend reposunu klonlayarak projenizin temel yapısını oluşturma adımlarını gerçekleştireceğiz.
+
+---
+
+## 5.5 Lab-5: Backend İçin Git Repounu Visual Studio Kullanarak Klonlama, Yeni Bir Branch Açma ve Proje Yapısını Oluşturma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin **Backend** reposunu Visual Studio kullanarak lokal makinenize klonlayacak, ana (main) branch'ten yeni bir branch oluşturacak ve temel proje yapısını kuracaksınız. Ardından, yaptığınız değişiklikleri commit ve push ederek bir Pull Request (PR) oluşturacak ve bu PR'ı main branch'e merge edeceksiniz. Bu adımlar, projenizin sürüm kontrolünü etkin bir şekilde yönetmenizi ve iş akışınızı düzenli tutmanızı sağlayacaktır.
+
+### 5.5.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'in Tamamlanması**: Azure DevOps üzerinde `ProductManagement` adlı takım projesini başarıyla oluşturmuş olun.
+- **Lab-2'nin Tamamlanması**: Epic, Feature, PBI ve Task'ları başarıyla oluşturmuş olun.
+- **Lab-3'ün Tamamlanması**: Sprint oluşturmuş ve Task'ları sprint'e atamış olun.
+- **Lab-4'ün Tamamlanması**: Backend ve UI için Git repolarını başarıyla oluşturmuş olun.
+- **Visual Studio 2022**: [Download](https://visualstudio.microsoft.com/downloads/)
+- **.NET 8 SDK**: [Download](https://dotnet.microsoft.com/download/dotnet/8.0)
+- **Git Extension for Visual Studio**: Visual Studio 2022 ile birlikte gelir, ancak güncel olduğundan emin olun.
+- **Azure DevOps'a Erişim**: Azure DevOps hesabınıza erişim sağlayabilecek kullanıcı adı ve şifreniz olmalı.
+- **İnternet Bağlantısı**: Azure DevOps web arayüzüne ve Git'e erişmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.5.2 Adım 1: Backend Reposunu Visual Studio ile Klonlama
+
+1. **Visual Studio'yu Açın**
+   - Bilgisayarınızda Visual Studio 2022'yi başlatın.
+
+2. **Başlangıç Penceresinden Klonlama Seçeneğine Gitme**
+   - Visual Studio açıldığında, **"Clone a repository"** seçeneğine tıklayın. Eğer Visual Studio açıksa, üst menüden **File > Clone Repository** yolunu izleyebilirsiniz.
+
+3. **Azure DevOps Reposundan Klonlama URL'sini Alma**
+   - Azure DevOps web arayüzünde `ProductManagement` projesine gidin.
+   - Sol menüden **"Repos"** sekmesine tıklayın ve **Backend** reposunu seçin.
+   - **"Clone"** butonuna tıklayın ve **HTTPS** URL'sini kopyalayın.
+     ```
+     https://dev.azure.com/yourorganization/ProductManagement/_git/Backend
+     ```
+
+4. **Visual Studio'da Reposu Klonlama**
+   - Visual Studio'da açılan **Clone a repository** penceresine, kopyaladığınız URL'yi yapıştırın.
+   - **Repository location**: Klonlamak istediğiniz lokal dizini seçin. Örneğin:
+     ```
+     C:\Projects\ProductManagement\Backend
+     ```
+   - **Repository Name**: Genellikle repo adı otomatik olarak doldurulur (`Backend`).
+   - **Clone** butonuna tıklayın.
+
+5. **Klonlama İşleminin Tamamlanması**
+   - Visual Studio, klonlama işlemini başlatacak ve tamamlandığında projeyi otomatik olarak açacaktır.
+
+### 5.5.3 Adım 2: Yeni Bir Branch Oluşturma
+
+1. **Team Explorer'ı Açın**
+   - Visual Studio'da, üst menüden **View > Team Explorer** yolunu izleyin.
+   - Team Explorer paneli açıldığında, sol tarafta **Branches** sekmesini göreceksiniz.
+
+2. **Main Branch'inden Yeni Branch Oluşturma**
+   - **Branches** altında, `main` branch'ini bulun.
+   - `main` branch'ine sağ tıklayın ve **New Local Branch From** seçeneğine tıklayın.
+
+3. **Yeni Branch Detaylarını Girin**
+   - **Branch name**: `feature/setup-project-structure`
+   - **Based on branch**: `main` seçili olmalıdır.
+   - **Checkout branch**: Bu seçeneği işaretleyerek yeni branch'e geçiş yapabilirsiniz.
+   - **Create Branch** butonuna tıklayın.
+
+4. **Yeni Branch'in Doğrulanması**
+   - Team Explorer'da **Branches** sekmesinde, yeni oluşturduğunuz `feature/setup-project-structure` branch'inin listelendiğini ve aktif olduğunu doğrulayın.
+
+### 5.5.4 Adım 3: Proje Yapısını Oluşturma
+
+1. **Solution Explorer'ı Açın**
+   - Visual Studio'da, üst menüden **View > Solution Explorer** yolunu izleyin.
+   - Klonlanan repoda, mevcut dosyaların ve klasörlerin listelendiğini göreceksiniz.
+
+2. **Gerekli Klasörleri ve Dosyaları Oluşturma**
+   - **Solution Explorer** içinde, projenizin ana dizinine sağ tıklayın ve **Add > New Folder** seçeneği ile aşağıdaki klasörleri oluşturun:
+     - `Controllers`
+     - `Models`
+     - `Services`
+     - `Repositories`
+
+   - **Proje Dizininde Gerekli Dosyaları Oluşturma**
+     - Proje ana dizinine sağ tıklayın ve **Add > New Item** seçeneğine tıklayın.
+     - Aşağıdaki dosyaları oluşturun:
+       - `Program.cs`
+       - `Startup.cs`
+
+3. **Dosya Yapısını Düzenleme**
+   - Oluşturduğunuz klasörlerin ve dosyaların proje yapısında doğru konumlandığından emin olun. Örneğin:
+     ```
+     Backend/
+     ├── Controllers/
+     ├── Models/
+     ├── Services/
+     ├── Repositories/
+     ├── Program.cs
+     └── Startup.cs
+     ```
+
+4. **README Dosyasını Güncelleme (Opsiyonel)**
+   - **Solution Explorer** içinde `README.md` dosyasına çift tıklayın ve proje hakkında bilgi ekleyebilirsiniz.
+     ```markdown
+     # Backend Repository
+
+     Bu repo, Basit Ürün Yönetimi Platformu projesinin backend bileşenlerini içerir. ASP.NET Core Web API kullanılarak geliştirilmiştir.
+     ```
+
+### 5.5.5 Adım 4: Değişiklikleri Commit ve Push Etme
+
+1. **Team Explorer'da Değişiklikleri Görüntüleme**
+   - Team Explorer panelinde, **Changes** sekmesine tıklayın.
+   - Yapmış olduğunuz değişikliklerin listelendiğini göreceksiniz.
+
+2. **Değişiklikleri Git'e Eklemek**
+   - **Changes** sekmesinde, tüm değişikliklerin seçili olduğundan emin olun. Eğer bazı dosyalar eklenmemişse, bunları işaretleyin.
+
+3. **Commit Mesajını Girin**
+   - **Message** alanına açıklayıcı bir commit mesajı yazın:
+     ```
+     Setup project structure with basic folders and files
+     ```
+
+4. **Commit Yapma**
+   - **Commit All** butonuna tıklayarak değişiklikleri lokal repoya commit edin.
+
+5. **Branch'i Uzak Reposuna Push Etmek**
+   - Team Explorer panelinde, **Sync** sekmesine tıklayın.
+   - **Push** butonuna tıklayarak `feature/setup-project-structure` branch'ini uzak repoya gönderin.
+
+### 5.5.6 Adım 5: Pull Request (PR) Oluşturma ve Merge Etme
+
+1. **Azure DevOps Web Arayüzüne Geri Dönün**
+   - Tarayıcınızda Azure DevOps web arayüzünü açın ve `ProductManagement` projesine gidin.
+   - Sol menüden **"Repos" > "Pull requests"** sekmesine tıklayın.
+
+2. **Yeni Pull Request Oluşturma**
+   - **New Pull Request** butonuna tıklayın.
+
+3. **PR Detaylarını Girin**
+   - **Source branch**: `feature/setup-project-structure`
+   - **Target branch**: `main`
+   - **Title**: `Setup Project Structure`
+   - **Description**: `Backend projesi için temel klasör yapısını ve gerekli dosyaları oluşturuldu.`
+
+4. **Pull Request'ı Oluşturma**
+   - Tüm bilgileri girdikten sonra, **Create** butonuna tıklayarak PR'ı oluşturun.
+
+5. **PR'ı İnceleme ve Onaylama**
+   - Ekip üyelerinden PR'ı incelemelerini isteyin.
+   - İnceleme süreci tamamlandıktan sonra, **Complete** butonuna tıklayarak PR'ı `main` branch'e merge edin.
+
+6. **Merge İşlemini Doğrulama**
+   - Visual Studio'da, **Team Explorer** panelinde **Branches** sekmesine geri dönün.
+   - `main` branch'ine geçiş yapın:
+     ```bash
+     git checkout main
+     ```
+   - Değişikliklerin başarıyla merge edildiğini doğrulamak için repoyu güncelleyin:
+     ```bash
+     git pull origin main
+     ```
+
+### 5.5.7 Lab-5'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, **Backend** repounuzu Visual Studio kullanarak lokal makinenize klonlamış, ana branch'ten yeni bir branch oluşturmuş ve temel proje yapısını kurmuş oldunuz. Yaptığınız değişiklikleri commit ve push ederek bir Pull Request oluşturmuş ve bu PR'ı main branch'e başarıyla merge etmiş oldunuz. Bu adımlar, projenizin sürüm kontrolünü etkin bir şekilde yönetmenizi ve iş akışınızı düzenli tutmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, backend reposunu yapılandırma ve geliştirme adımlarını gerçekleştireceğiz.
+
+---
