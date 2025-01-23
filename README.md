@@ -898,4 +898,119 @@ Aşağıda, tipik bir **CI Pipeline** akışının adımları yer alır:
 
 **Azure Pipelines**, DevOps ekosisteminde otomasyon ve sürekli iyileştirme felsefesinin **omurgasını** oluşturur. Ekipler, sık sık kod değişikliği yapabilir, her değişikliği derleyip test ederek sürüm kalitesini artırabilir ve hızlıca üretim ortamına taşıyabilir. Bu, yazılım projelerinin **hız, güvenilirlik ve müşteri memnuniyeti** açısından büyük avantajlar elde etmesini sağlar.
 
+## 3.4 Azure Artifacts
+
+**Azure Artifacts**, yazılım projelerinizde kullandığınız paketleri (NuGet, npm, Maven, Python vb.) **merkezi bir konumda** barındırma ve yönetme imkânı sunar. Şirket içi (on-prem) veya bulut tabanlı projelerde, bağımlılık paketlerinizi dış ortamlardan izole edebilir, özelleştirilmiş paket depoları (feed) oluşturabilir ve kurumsal güvenlik politikalarına uygun şekilde dağıtabilirsiniz. Aynı zamanda **proxy** (aracı) görevi görerek, geliştiricilerin makinelerinden direkt olarak harici paket kaynaklarına (npmjs.org, nuget.org, pypi.org vb.) bağlanma ihtiyacını ortadan kaldırabilir.
+
+> **Resmi Dokümantasyon**:  
+> [Azure Artifacts Hakkında Daha Fazla Bilgi Edinin](https://learn.microsoft.com/tr-tr/azure/devops/artifacts)
+
+---
+
+### 3.4.1 Temel Özellikler
+
+1. **Paket Depolama (Feeds)**  
+   - Takım veya organizasyon genelinde kullanılacak **NuGet**, **npm**, **Maven**, **Python** paketlerini özel depolarda saklayabilirsiniz.  
+   - Her feed, sadece belirli geliştiricilerin veya projelerin erişimine açık olacak şekilde konfigüre edilebilir.
+
+2. **Proxy (Upstream Kaynaklar)**  
+   - Kurumsal ortamlarda, geliştiricilerin **doğrudan** internet üzerindeki paket kayıtlarına (registry) erişmeleri güvenlik veya ağ politikaları gereği engellenebilir.  
+   - Azure Artifacts, **proxy** olarak çalışıp ihtiyaç duyulan paketleri harici kaynaktan (örn. npmjs, nuget.org) indirerek kendi içinde önbellekler.  
+   - Geliştiriciler ise **organizasyon içi** bir URL üzerinden paketlere erişir. Böylece hem güvenlik hem de merkezî yönetim sağlanır.
+
+3. **Sürüm ve Bağımlılık Yönetimi**  
+   - Versiyon çakışmalarını önlemek için paketleri belirli sürüm kurallarıyla yayınlayabilir, silme (deprecate) veya liste dışı bırakma (unlist) işlemleri yapabilirsiniz.  
+   - Pipeline’larda kullanılan paketlerin tam olarak hangi sürümlerinin nerede tüketildiğini görebilir, bağımlılık zincirlerini analiz edebilirsiniz.
+
+4. **Paket Paylaşımı**  
+   - Birden fazla projede kullanılan ortak kütüphaneleri (shared libraries) tek bir feed üzerinde tutarak tekrar kullanılabilir hale getirebilirsiniz.  
+   - Böylece hem kod tekrarını (duplicate) azaltır hem de güncellemeleri tek noktadan yönetirsiniz.
+
+---
+
+### 3.4.2 Nasıl Çalışır? (Proxy / Upstream Senaryosu)
+
+#### 1. Upstream Kaynak Tanımlama
+- Azure DevOps’taki **Artifacts** > **Feeds** bölümüne girip, oluşturacağınız feed için “**Upstream Sources**” sekmesinden harici kayıtları (örneğin npmjs.org veya nuget.org) ekleyebilirsiniz.  
+- Bu sayede, feed içinde bulunmayan bir paket talep edildiğinde, Azure Artifacts **harici kaynağa** gidip paketi alır ve yerel depoda önbelleğe alır.
+
+#### 2. Geliştirici Makinesinden Erişim
+- Geliştirici tarafında, `npm install` veya `nuget restore` gibi komutlar çalıştığında, adres olarak **Azure Artifacts feed URL** kullanılır.  
+- Paket yerel depoda (cache) yoksa, Azure Artifacts upstream kaynağa bağlanıp paketi alır ve geliştiriciye iletir.
+
+#### 3. Kurumsal Güvenlik ve Ağ Politikası
+- Geliştiricilerin direkt internet çıkışı yapması engellenmiş olsa bile, Azure DevOps servis hesabı (veya on-prem Azure DevOps Server) izinli bir ağ segmentinde konumlandırılabilir.  
+- Böylece tüm paket trafiği **tek bir çıkış noktası** üzerinden yönetilir, loglanır ve kontrol altında tutulur.
+
+---
+
+### 3.4.3 Azure Artifacts Menüsü ve Özellikleri
+
+1. **Feeds**  
+   - Organizasyonunuzdaki tüm feed’lerin (ör. `MyTeamFeed`, `GlobalSharedPackages`) listelendiği bölümdür.  
+   - Yeni feed oluşturmak veya mevcut feed’leri düzenlemek buradan yapılır.
+
+2. **Feed Ayarları**  
+   - Erişim seviyeleri (kimler görüntüleyebilir, kimler paket yükleyebilir?)  
+   - Otomatik paket silme stratejileri (retention policies)  
+   - Upstream kaynaklar (proxy yapılandırmaları)
+
+3. **Package Management**  
+   - Her feed’in içinde paketleri görebilirsiniz (NuGet paketleri, npm modülleri, PyPI paketleri vb.).  
+   - Bir paketin hangi sürümleri mevcut, hangi meta verilere sahip (description, license, last updated) gibi bilgileri inceleyebilirsiniz.  
+   - Paketleri tek tıkla silme, sürüm yükseltme veya indirme işlemleri mümkündür.
+
+4. **Connect to Feed**  
+   - Farklı paket yöneticileriyle (npm, NuGet, Maven, pip) feed’e bağlanmak için gereken konfigürasyon yönergelerini içeren kısım.  
+   - Örneğin, `.npmrc` veya `nuget.config` dosyasına eklemeniz gereken URL ve kimlik doğrulama bilgilerini burada bulursunuz.
+
+5. **Usage** (Kullanım)  
+   - Bazı durumlarda, feed içindeki paketlerin hangi projelerde veya pipeline’larda kullanıldığını görebilir, kullanım metrikleri çıkarabilirsiniz (özellikle kurumsal paketlerin versiyon yönetiminde faydalıdır).
+
+---
+
+### 3.4.4 Tipik Kullanım Senaryoları
+
+1. **Ortak Kütüphanelerin Paylaşımı**  
+   - Büyük bir organizasyonda, farklı takımların ortak kullandığı .NET kütüphanelerini (NuGet) tek bir feed üzerinden yönetebilirsiniz.  
+   - Güncellemeleri veya hata düzeltmelerini yapınca, paketi Azure Artifacts’e yayınlarsınız; tüm ekipler otomatik olarak yeni sürümü kullanabilir (ya da geçmeyi tercih edebilir).
+
+2. **Kurumsal Proxy / Hava Geçirmez Ağ (Air-Gapped Network) Senaryosu**  
+   - Sıkı güvenlik duvarı kuralları nedeniyle, geliştiricilerin npm veya nuget.org’a doğrudan erişimi yoktur.  
+   - Azure Artifacts, **upstream** olarak konfigüre edilerek harici paketlerin indirilmesi ve önbelleklenmesi için kullanılır.
+
+3. **Pipeline ve Sürüm Yönetimi**  
+   - Azure Pipelines, build aşamasında ihtiyaç duyduğu tüm bağımlılık paketlerini Azure Artifacts üzerinden çekebilir.  
+   - Özel bir paketi (.NET, npm modülü vb.) başka projelere dağıtmak istediğinizde, build sonucunda o paketi de Azure Artifacts’e yükleyebilirsiniz.
+
+4. **Kontrollü Paket Akışı**  
+   - Paketlerin (örneğin belirli sürümdeki npm veya NuGet paketlerinin) zararlı veya hatalı olduğu tespit edildiğinde, feed üzerinden kaldırabilir veya erişimi kısıtlayabilirsiniz.  
+   - Bu denetim sayesinde, olası güvenlik açıklarını kapatmak veya hatalı paketlerin kullanımını engellemek kolaylaşır.
+
+---
+
+### 3.4.5 En İyi Uygulamalar
+
+1. **Versiyon Politikasını Belirleme**  
+   - SemVer (Semantic Versioning) gibi endüstri standartlarını takip etmek, paket güncellemelerinin öngörülebilirliğini artırır.
+
+2. **Bağımlılık Yönetimi**  
+   - Aynı paketin farklı sürümlerine duyulan ihtiyacın farkında olun; hangi projelerin hangi sürümü kullandığını dokümante edin veya Azure Artifacts üzerinden izleyin.  
+   - Gerektiğinde eski sürümlere geri dönmek için (rollback) paketlerinizi kaldırmak yerine “deprecated” ilan edebilir veya “unlist” yapabilirsiniz.
+
+3. **Upstream Kaynak Sınırlamaları**  
+   - Her harici kaynağı (npmjs, nuget.org vb.) eklemek yerine, sadece ihtiyaç duyulanları ekleyerek saldırı yüzeyini daraltın.  
+   - Şirket politikasına uygunluk (lisans, güvenlik vb.) açısından sadece onaylı kaynaklar eklenmeli.
+
+4. **Kimlik Doğrulama ve Erişim Kontrolü**  
+   - Feed’lere erişecek kullanıcı ve servis hesapları, Azure DevOps üzerinden uygun izinlerle (Contributor, Reader, vb.) atanmalı.  
+   - Hassas iç paketlerin yanlışlıkla herkesin kullanımına açılmasını engellemek için gizlilik (private feed) ayarlarına dikkat edin.
+
+5. **Pipeline Entegrasyonu**  
+   - Yapılan her build’de üretilen paketleri Azure Artifacts’e otomatik yüklemek, sürüm takibini basitleştirir.  
+   - Varsayılan olarak feed’i pipeline’da tanımlayarak geliştiricilerin manuel ayar yapma yükünü azaltabilirsiniz.
+
+---
+
+**Azure Artifacts**, paket yönetimini **merkezi**, **güvenli** ve **izlenebilir** bir yapıya kavuşturur. Gerek kurumsal güvenlik gerekse yeniden kullanılabilirlik açısından avantaj sağlayan bu modül, **DevOps** felsefesinin “otomasyon” ve “iş birliği” prensiplerini paket yönetimi tarafında destekler. Özellikle güvenlik kısıtları olan şirketlerde, **proxy** özelliği aracılığıyla harici paket kaynaklarına **kontrollü** erişim sağlamak ve geliştiricilerin işini kolaylaştırmak için sıkça tercih edilir.
 
