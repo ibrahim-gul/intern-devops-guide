@@ -764,3 +764,138 @@ Azure Repos’a girdiğinizde, sol menüde yer alan çeşitli sekmelerle karşı
 
 Azure Repos, **DevOps** yaklaşımını benimseyen ekipler için **güçlü** ve **esnek** bir kod yönetim ortamı sunar. Hem küçük ekipler hem de büyük kurumsal projeler, Azure Repos’un dallanma stratejileri, pull request mekanizmaları ve zengin entegrasyon özellikleri sayesinde kodlarını düzenli ve güvende tutabilir. Bu sayede, geliştirme süreçleri daha şeffaf, izlenebilir ve iş birliğine dayalı hale gelir.
 
+## 3.3 Azure Pipelines
+
+**Azure Pipelines**, yazılım projelerinizi **sürekli entegrasyon (CI)** ve **sürekli teslim (CD)** süreçleriyle otomatik hale getirmenizi sağlayan bir araçtır. Kod değişiklikleriniz depo (Azure Repos, GitHub, vb.) üzerine gönderildiğinde veya belirli tetikleyiciler gerçekleştiğinde, **derleme**, **test**, **yayınlama** ve **dağıtım** (deployment) gibi aşamaları **pipeline** adını verdiğimiz iş akışları sayesinde otomatik olarak çalıştırabilirsiniz. Bu sayede yazılımlarınızı **daha hızlı**, **daha güvenilir** ve **daha tutarlı** şekilde üretim veya test ortamlarına taşımanız mümkün olur.
+
+> **Resmi Dokümantasyon**:  
+> [Azure Pipelines Hakkında Daha Fazla Bilgi Edinin](https://learn.microsoft.com/tr-tr/azure/devops/pipelines)
+
+---
+
+### 3.3.1 Pipeline Türleri: YAML ve Klasik (Classic)
+
+Azure Pipelines, iki farklı yöntemle pipeline tanımlamaya izin verir:
+
+1. **YAML Tabanlı Pipelines**  
+   - Pipeline tanımınızı bir `.yml` dosyası içinde saklarsınız. Bu dosya, **versiyon kontrol** altında olduğundan, pipeline değişiklikleri de tıpkı kod gibi sürümlenir.  
+   - Geliştiriciler, pipeline’ı doğrudan kod deposunda düzenleyebilir, dallara ayırarak (branch) farklı denemeler yapabilir.  
+   - DevOps felsefesine uygun olarak, **pipeline-as-code** yaklaşımını destekler.
+
+2. **Klasik (Classic) Pipelines**  
+   - Azure DevOps’un grafik arayüzü (UI) üzerinden adım adım oluşturulur.  
+   - Sürükle-bırak mantığıyla **derleme (build)** ve **yayınlama (release)** adımlarını tanımlayabilirsiniz.  
+   - Özellikle **Release Pipelines** (ortam yönetimi, onay mekanizmaları vb.) tarafında klasik arayüz hâlâ yaygın şekilde kullanılır.
+
+> **Not**: Microsoft, gelecekte YAML yaklaşımını daha fazla teşvik ederken, mevcut klasik pipeline’ları da desteklemeye devam ediyor. Ekip ve proje ihtiyaçlarınıza göre tercih yapabilirsiniz.
+
+---
+
+### 3.3.2 Ana Menüler ve Özellikler
+
+Azure Pipelines sekmesine girdiğinizde, sol menüde veya üst kısımda bazı alt bölümler görürsünüz:
+
+1. **Pipelines**  
+   - Mevcut tüm **CI** (build) pipeline’larını listeler.  
+   - Yeni bir pipeline oluşturabilir, varolanları düzenleyebilir, tetikleyebilir veya sonuçlarını inceleyebilirsiniz.
+
+2. **Releases**  
+   - Klasik “**Release Pipelines**” yönetimini yapar.  
+   - Ortam (environment) tanımları, aşamalar (stages), onaylar (approvals) ve dağıtım (deploy) geçmişine buradan erişebilirsiniz.
+
+3. **Environments (YAML tabanlı)**  
+   - Çok aşamalı (multi-stage) YAML pipeline’larda **staging**, **production** gibi ortamları yönetmek için kullanılır.  
+   - Manuel onaylar veya denetimler (gates) ekleyerek, belirli bir aşamadan diğerine geçişte kontrol sağlanabilir.
+
+4. **Library**  
+   - Değişken grupları (variable groups), güvenli dosyalar (secure files) veya sertifikalar gibi ortak öğelerin saklandığı alandır.  
+   - Pipeline’larda tekrar tekrar kullanmak istediğiniz gizli değerleri (ör. API anahtarları) burada yönetebilirsiniz.
+
+5. **Task Grupları (UI)**  
+   - Sık kullanılan bir dizi pipeline adımını (ör. test, derleme, dağıtım) tek bir grup olarak tanımlayarak başka projelerde de yeniden kullanabilirsiniz.
+
+---
+
+### 3.3.3 Sürekli Entegrasyon (CI) Pipeline Süreci
+
+Aşağıda, tipik bir **CI Pipeline** akışının adımları yer alır:
+
+1. **Tetikleyici (Trigger)**  
+   - Kod deposuna (Azure Repos, GitHub vb.) bir commit geldiğinde veya planlanmış bir zamanlama (cron) devreye girdiğinde pipeline tetiklenir.
+
+2. **Kaynak Kod Alımı (Checkout)**  
+   - Pipeline, build ajanına (agent) kodu klonlar veya indirir.
+
+3. **Bağımlılıkları Yükleme**  
+   - .NET, Node.js, Java gibi projelerde gerekli paketler (NuGet, npm, Maven vb.) indirilir.
+
+4. **Derleme (Build)**  
+   - Kod, proje türüne göre derlenir. (Örneğin, `dotnet build --configuration Release`)
+
+5. **Test**  
+   - Unit test, integration test veya UI test aşamaları otomatik olarak çalışır.  
+   - Başarısız olan testler pipeline’ın başarısız olmasına yol açar.
+
+6. **Sonuç ve Artefact Yayınlama**  
+   - Testler geçildiyse, derlenen çıktı (ör. DLL’ler, paketler, Docker imajı vb.) bir artefact deposuna veya kayıt deposuna (registry) yüklenebilir.  
+   - Bu artefact’lar, **Continuous Delivery** veya **Release** aşamalarında kullanılmak üzere saklanır.
+
+7. **Bildirim**  
+   - Pipeline sonuçları (başarılı/başarısız) ekibe e-posta, Teams, Slack vb. kanallar üzerinden iletilebilir.
+
+---
+
+### 3.3.4 Sürekli Teslim/Dağıtım (CD) ve Release Pipelines
+
+**Continuous Delivery (CD)** aşamasında, başarılı bir build sonrası elde edilen artefact veya imajlar, farklı ortamlara (test, staging, production) otomatik ya da yarı otomatik (manuel onayla) olarak dağıtılır.
+
+1. **Ortamlar ve Aşamalar (Stages)**  
+   - “Dev”, “Test/QA”, “Stage” ve “Prod” gibi farklı aşamalar tanımlanır.  
+   - Her aşamada farklı görevler (tasks) veya onay mekanizmaları olabilir.
+
+2. **Görevler (Tasks)**  
+   - IIS Web App Deploy, Azure App Service Deploy, Docker Push, Kubernetes rollout vb. görevler mevcuttur.  
+   - Bu görevler, uygulamanın ilgili hedef ortama veya platforma gönderilmesini (deploy) sağlar.
+
+3. **Onay Mekanizmaları (Approvals)**  
+   - Ortam geçişlerinde ekip yöneticisi, ürün sahibi veya güvenlik ekibinin manuel onay vermesi gerekebilir.  
+   - CD pipeline, onay verilene kadar bekler.
+
+4. **Dağıtım Stratejileri**  
+   - **Blue-Green**: İki farklı üretim ortamı (blue ve green) arasında trafiği yönlendirerek kesintisiz geçiş sağlanır.  
+   - **Canary**: Yeni sürüm, kullanıcıların sadece küçük bir kısmına yönlendirilir, sorunsuz çalıştığı onaylanınca tam dağıtım yapılır.  
+   - **Rolling**: Dağıtım, parça parça gerçekleştirilir ve eski versiyon kademeli olarak kapatılır.
+
+5. **Geri Dönüş (Rollback)**  
+   - Dağıtımdan sonra sorun çıkarsa, bir önceki başarılı sürüme dönmek (rollback) mümkündür.  
+   - Bu işlem için pipeline içinde geri dönüş adımları veya anlık yedekler (snapshot) kullanılabilir.
+
+---
+
+### 3.3.5 En İyi Uygulamalar
+
+1. **Küçük ve Sık Değişiklikler**  
+   - Büyük, kapsamlı değişiklikler yerine küçük parça halinde sürümler yapmak, hataları daha çabuk yakalamayı kolaylaştırır.
+
+2. **Pipeline-as-Code**  
+   - Mümkün olduğunca **YAML** yaklaşımını kullanarak, pipeline’ınızı **versiyon kontrolü** altında tutun.  
+   - Değişikliklerin kim tarafından ve ne amaçla yapıldığı şeffaf bir şekilde izlenebilir.
+
+3. **Test Otomasyonu**  
+   - Bir pipeline’da farklı test türleri (birim, entegrasyon, performans, güvenlik) otomatik olarak çalıştırılarak daha yüksek kod kalitesi elde edilir.
+
+4. **Aşamalı Dağıtım**  
+   - Tüm kullanıcıları riske atmak yerine, önce test/staging ortamında veya küçük bir kullanıcı grubunda deneme yapmak idealdir.
+
+5. **Gizli Bilgileri Güvenli Saklama**  
+   - API anahtarları, parolalar gibi hassas bilgiler “Library > Variable Groups” içinde **secret** olarak tutulmalı ve pipeline’da asla düz metin olarak yer almamalı.
+
+6. **Gözlemleme ve Geri Bildirim Döngüsü**  
+   - Dağıtım sonrası izleme (monitoring) araçlarından gelen alarmlar, log analizleri pipeline sonuçlarına dahil edilmeli.  
+   - Sorunlar erken tespit edildiğinde hızlıca yeni bir sürüm (hotfix) pipeline’la yayınlanabilir.
+
+---
+
+**Azure Pipelines**, DevOps ekosisteminde otomasyon ve sürekli iyileştirme felsefesinin **omurgasını** oluşturur. Ekipler, sık sık kod değişikliği yapabilir, her değişikliği derleyip test ederek sürüm kalitesini artırabilir ve hızlıca üretim ortamına taşıyabilir. Bu, yazılım projelerinin **hız, güvenilirlik ve müşteri memnuniyeti** açısından büyük avantajlar elde etmesini sağlar.
+
+
