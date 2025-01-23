@@ -1,4 +1,4 @@
-# DevOps ve Azure DevOps Server Rehberi
+# DevOps Rehberi
 
 ## 1. Giriş ve Temel Kavramlar
 
