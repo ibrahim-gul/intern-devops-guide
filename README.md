@@ -385,3 +385,126 @@ IaC, modern DevOps uygulamalarının **temel taşlarından** biridir. Uygulama k
 
 Monitoring ve Logging, DevOps’un “**kullandığın şeyi izle**” ve “**hatalardan ders al**” prensiplerini hayata geçiren temel yöntemlerdir. Sağlam bir izleme ve log yönetimi altyapısı, sorunların erken tespitini ve hızlı çözümünü sağlayarak hem geliştirme hem de operasyon ekiplerinin verimliliğini artırır, kesintileri ve müşteri memnuniyetsizliğini azaltır.
 
+## 2.6 DevOps Araç Ekosistemi
+
+DevOps kültürü, yalnızca bir metodoloji ya da organizasyon yapısı değil, aynı zamanda **geniş bir araç ekosistemini** de kapsar. Bu araçlar, yazılımın planlama aşamasından, geliştirme, test, dağıtım ve izleme süreçlerine kadar pek çok adımda ekiplerin işini kolaylaştırır. Doğru araç seçimi, verimliliği artırırken, hataları ve gecikmeleri azaltır.
+
+---
+
+### 2.6.1 Sürekli Entegrasyon ve Teslim (CI/CD) Araçları
+
+- **Jenkins**  
+  - Açık kaynak, Java tabanlı popüler bir CI/CD sunucusudur.  
+  - Büyük bir eklenti (plugin) ekosistemine sahiptir ve hemen her programlama diline entegre olabilir.
+
+- **GitLab CI/CD**  
+  - GitLab’ın entegre CI/CD özelliği; Git deposuyla sıkı entegrasyona sahiptir.  
+  - Pipeline konfigürasyonu `.gitlab-ci.yml` dosyasıyla yapılır.
+
+- **GitHub Actions**  
+  - GitHub platformu üzerinde çalışan, YAML tabanlı bir CI/CD altyapısıdır.  
+  - Geniş bir “action marketplace” sunarak farklı otomasyon senaryolarına olanak tanır.
+
+- **Azure Pipelines**  
+  - Azure DevOps ekosisteminin bir parçası olarak hem bulutta (Azure DevOps Services) hem de şirket içi (Azure DevOps Server) kullanılabilir.  
+  - .NET, Java, Node.js gibi birçok teknolojiyle entegre olabilir ve YAML veya klasik (UI) modunu destekler.
+
+---
+
+### 2.6.2 Konteynerleştirme ve Orkestrasyon Araçları
+
+- **Docker**  
+  - Uygulama ve bağımlılıklarını konteyner adı verilen standart birimlerde paketler.  
+  - Geliştirme ve üretim ortamları arasında **tutarlılık** sağlar, “Works on my machine” sorunlarını büyük ölçüde azaltır.
+
+- **Kubernetes (K8s)**  
+  - Google tarafından geliştirilen, konteynerleri orkestre etmek ve yönetmek için yaygın kullanılan bir platform.  
+  - Otomatik ölçeklendirme, yük dengeleme, hata iyileştirme gibi özellikler sunar.
+
+- **Docker Compose**  
+  - Birden çok konteynerin (örneğin, uygulama + veritabanı) aynı anda yönetilmesi için hafif bir araç.  
+  - Geliştirme ve test aşamalarında sıkça tercih edilir.
+
+---
+
+### 2.6.3 İzleme ve Log Analizi Araçları
+
+- **Prometheus** ve **Grafana**  
+  - Prometheus, metrik toplama ve saklama için zaman serisi veritabanı sunar.  
+  - Grafana, görsel panolar (dashboard) oluşturmaya yarar ve alarmlar da tanımlanabilir.
+
+- **Elastic Stack (ELK)**  
+  - **Elasticsearch** (veri dizini), **Logstash** (veri işleme) ve **Kibana** (görselleştirme) üçlüsünü içerir.  
+  - Log analizi ve arama konusunda oldukça yaygındır.
+
+- **Splunk**  
+  - Büyük ölçekte log ve veri analizi yapar.  
+  - Arama, korelasyon ve görselleştirme olanakları sunar.
+
+---
+
+### 2.6.4 Altyapı Otomasyonu ve Provisioning Araçları
+
+- **Terraform**  
+  - Çoklu bulut (AWS, Azure, GCP) ve on-prem altyapıları kodla yönetmek için kullanılır.  
+  - Deklaratif yaklaşımı sayesinde, istenen hedef durumu (desired state) tanımlayıp `terraform apply` ile altyapıyı oluşturur veya günceller.
+
+- **Ansible**  
+  - Agentless (ajan gerektirmeyen) bir konfigürasyon yönetimi ve provisioning aracıdır.  
+  - Basit YAML dosyaları (`playbook`) aracılığıyla sunucuların konfigürasyonunu tanımlamayı sağlar.
+
+- **Chef / Puppet**  
+  - Sunucu konfigürasyonu ve yönetimi için kullanılan diğer popüler araçlar.  
+  - Büyük kurumsal ortamlarda uzun zamandır tercih edilen çözümlerdir.
+
+---
+
+### 2.6.5 Kod Deposu ve Proje Yönetimi Araçları
+
+- **GitHub**  
+  - Dünyanın en popüler Git barındırma (hosting) platformu.  
+  - Açık kaynak ve topluluk projeleri için sıkça kullanılır; GitHub Actions gibi yerleşik CI/CD özellikleri vardır.
+
+- **GitLab**  
+  - Kendine ait Git deposu barındırma hizmeti ve entegre CI/CD, issue takibi, container registry gibi özellikler sunar.  
+  - Açık kaynak sürümü veya bulut tabanlı sürümü vardır.
+
+- **Bitbucket**  
+  - Atlassian ekosisteminin bir parçası; Jira, Confluence gibi araçlarla entegre çalışır.  
+  - Küçük takımlar ve kurumsal kullanıcılar tarafından tercih edilir.
+
+- **Azure Repos**  
+  - Azure DevOps ekosisteminin parçası olarak Git veya TFVC (Team Foundation Version Control) desteği sunar.  
+  - Azure Boards, Pipelines, Artifacts gibi diğer modüllerle entegredir.
+
+---
+
+### 2.6.6 İş Birliği ve İletişim Araçları
+
+- **Slack** / **Microsoft Teams**  
+  - Ekip içi anlık iletişim ve kanal bazlı iş birliği sağlar.  
+  - CI/CD platformlarından gelen bildirimleri entegre etmek mümkündür.
+
+- **Jira**  
+  - Yazılım geliştirme süreçlerinde iş akışı, backlog yönetimi, sprint planlama gibi konularda yaygın kullanılan bir araç.  
+  - Confluence ile dokümantasyon, Bamboo ile CI/CD gibi Atlassian ailesi ürünleriyle entegre olabilir.
+
+- **Trello**  
+  - Kolay kanban panoları ve görev yönetimi sağlayan hafif bir araç.  
+  - Küçük takımlar veya hızlı proje takibi için uygundur.
+
+---
+
+### 2.6.7 Doğru Araç Seçimi
+
+DevOps ekosisteminde her kategori için farklı seçenekler mevcuttur ve **her bir aracın güçlü/zayıf yönleri** bulunur. Doğru aracı seçerken göz önünde bulundurmanız gereken faktörler:
+
+- **Ekip Becerileri ve Deneyimi**: Ekip hangi dili, hangi araçları daha iyi biliyor?  
+- **Proje ve Altyapı Ölçeği**: Küçük ölçekli bir uygulama mı, yoksa mikroservis mimarisiyle çalışan bir devasa sistem mi?  
+- **Entegrasyon İhtiyaçları**: Mevcut sistemlerle, bulut sağlayıcılarla, güvenlik duvarlarıyla veya veritabanlarıyla uyumluluk önemli.  
+- **Lisans ve Bütçe**: Bazı araçlar açık kaynak ve ücretsizken, bazıları kurumsal lisans modelleriyle gelir.
+
+Seçilen araçlar, **DevOps** prensiplerini destekleyerek otomasyon, sürekli geri bildirim ve iş birliğini kolaylaştırmalıdır. Ekip büyüdükçe veya proje gereksinimleri değiştikçe, araç seti de gözden geçirilebilir ve uyarlanabilir. DevOps kültürü, “doğru araç” olmadan tam verimli çalışamayacağı gibi, araçlar da **iş birliği, iletişim** ve **sorumluluk paylaşımı** prensiplerine dayalı bir kültür olmadan tek başına yeterli değildir.
+
+# 3. Azure DevOps Server’a Giriş
+
