@@ -54,3 +54,38 @@ Dördüncü olarak, DevOps’un maliyet avantajları da gözden kaçmamalıdır.
 Son olarak, DevOps’un müşteri odaklı doğası, organizasyonun rekabet gücünü artırır. Müşteri geri bildirimlerinin hızlıca alınması ve yeni özelliklerin veya düzeltmelerin süratle devreye alınması, işletmenin pazar dinamiklerine daha çevik tepki vermesini sağlar. Böylece müşteri beklentilerine en hızlı uyum sağlayan ve onları memnun etmeye devam eden şirketler, piyasa liderliği yolunda önemli bir avantaj elde ederler.
 
 DevOps, bütün bu faydalarıyla birlikte bir şirketin sadece teknoloji ekibine değil, kurumsal stratejilerine de dokunan bir dönüşüm yaklaşımıdır. Şirketin hız, kalite, iletişim ve verimlilik eksenlerinde ilerlemesini desteklerken, aynı zamanda inovasyon ve müşteri memnuniyeti gibi kritik hedeflere de doğrudan katkı sunar. Bu yüzden, DevOps uygulamaları büyük veya küçük fark etmeksizin birçok organizasyon için stratejik bir gereklilik haline gelmiştir.
+
+# 2. DevOps Temel Prensipleri
+
+## 2.1 Continuous Integration (CI)
+Continuous Integration (CI), yazılım geliştirme sürecinde geliştiricilerin yaptığı her kod değişikliğini sık sık (gün içinde birden fazla kez) ortak kod deposuna (repo) entegre etmesi ve bu değişikliğin otomatik olarak derlenip test edilmesi pratiğidir. Ana hedefi, kod birleşiminden kaynaklanan hataları erken aşamada tespit etmek ve ekibe hızlı geribildirim sağlayarak geliştirme sürecini akıcı ve hatasız hale getirmektir.
+
+Aşağıdaki adımlar, tipik bir CI sürecini özetler:
+
+1. Geliştirici Kodu Yazıp Versiyon Kontrolüne Gönderir (Commit & Push)
+  * Geliştirici, lokal ortamında yaptığı değişiklikleri (kod, konfigürasyon, vb.) versiyon kontrol sistemine (Git, SVN vb.) aktarır.
+  * CI anlayışında, bu işlemin küçük ve sık commit’lerle yapılması önerilir.
+
+2. Otomatik Build (Derleme) Süreci Tetiklenir
+  * Versiyon kontrol deposuna kod gönderildiği anda, CI sunucusu (örneğin Azure DevOps, Jenkins, GitLab CI vb.) bir “build” işi başlatır.
+  * Bu aşamada kod, projenin gerektirdiği derleme süreci (örneğin .NET, Java, Node.js vb.) üzerinden geçer.
+
+3. Otomatik Testler Çalışır
+  * Derleme başarılı olursa, unit test, integration test gibi test setleri otomatik olarak devreye girer.
+  * Test süreci de tam otomasyonla yürütüldüğü için, ekibe gecikme olmadan anlık geribildirim verilir.
+
+4. Sonuç ve Raporlama
+  * Build veya test aşamalarından herhangi birinde hata oluşursa, CI aracı bunu ekibe bildirim (e-posta, Slack, Teams vb.) yoluyla duyurur.
+  * Hatalar, detaylı loglar ve raporlarla birlikte paylaşılır, böylece geliştiriciler hızlıca müdahale edebilir.
+
+5. Sürekli ve Küçük Adımlarla Entegrasyon
+  * CI felsefesinde, tüm ekip üyeleri kodu sık sık tek bir ana dal (main/trunk) üzerinde birleştirdiği için büyük çaplı çakışmalar (merge conflict) minimuma iner.
+  * Kodu küçük parçalara bölerek ve her parçayı test ederek ilerlemek, hata çözme maliyetini önemli ölçüde azaltır.
+
+**CI’nin Önemli Noktaları**
+  * Erken Uyarı Sistemi: Geliştiriciler kodun bozulduğunu (örneğin, bir testin başarısız olduğunu) çok kısa sürede öğrenir.
+  * Daha Kısa Sürüm Döngüleri: Sürekli test edilmiş ve entegre edilmiş kod, dağıtıma (release) daha hazır hale gelir.
+  * Ekip İşbirliği: Ortak bir kod deposu ve sürekli otomasyon, geliştiriciler arasındaki iş birliğini ve kod kalitesini artırır.
+  * Kod Kalitesi ve Standartlar: CI sürecinde kod analiz araçları, statik kod analizleri (örneğin SonarQube) de entegre edilerek standartlar korunabilir.
+
+Bu sayede, Continuous Integration uygulayan ekipler yazılım geliştirme hızlarını artırırken kaliteden ödün vermez ve uzun vadede teknik borcun (technical debt) büyümesini engeller. Özellikle Continuous Delivery (CD) ve Continuous Deployment süreçlerinin temeli de CI ile atılır; çünkü düzenli olarak entegre ve test edilen kod, sonraki dağıtım aşamalarına güvenle ilerleyebilir.
