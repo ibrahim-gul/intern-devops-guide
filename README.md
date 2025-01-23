@@ -1450,3 +1450,87 @@ Projenin ilk aşamasında temel ürün yönetimi işlevleri geliştirildikten so
 **Basit Ürün Yönetimi Platformu** projesi, modern yazılım geliştirme metodolojileri ve DevOps prensipleri doğrultusunda tasarlanmış, esnek ve ölçeklenebilir bir yapıya sahiptir. Bu proje üzerinden gerçekleştirilecek laboratuvar çalışmaları ile DevOps araçlarının ve süreçlerinin pratikte nasıl kullanılacağını öğrenmek mümkün olacaktır.
 
 ---
+
+## 5. Azure DevOps Lab'ları
+
+Bu bölümde, **Basit Ürün Yönetimi Platformu** projesini Azure DevOps üzerinde adım adım kurarak, DevOps süreçlerini pratikte nasıl uygulayacağınızı öğreneceksiniz. Her laboratuvar çalışması, projeyi oluşturma, yapılandırma ve geliştirme sürecinin farklı aşamalarını kapsayacak şekilde tasarlanmıştır.
+
+### 5.1 Lab-1: Azure DevOps'ta Yeni Bir Team Project Oluşturma
+
+Bu laboratuvar çalışmasında, **Azure DevOps** üzerinde yeni bir takım projesi oluşturacağız. Projemizin adı `ProductManagement` olacak ve süreç şablonu olarak **Scrum** kullanılacaktır. Aşağıdaki adımları takip ederek projenizi başarıyla oluşturabilirsiniz.
+
+#### 5.1.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Azure DevOps Hesabı**: [Azure DevOps](https://dev.azure.com/) üzerinde bir hesabınız olmalı.
+- **Giriş Bilgileri**: Azure DevOps hesabınıza giriş yapabileceğiniz kullanıcı adı ve şifreniz olmalı.
+- **İnternet Bağlantısı**: Azure DevOps web arayüzüne erişmek için stabil bir internet bağlantısı gereklidir.
+
+#### 5.1.2 Adım 1: Azure DevOps'a Giriş Yapma
+
+1. **Azure DevOps Web Sitesine Gidin**
+   - Tarayıcınızda [Azure DevOps](https://dev.azure.com/) web sitesini açın.
+
+2. **Giriş Yapın**
+   - Sağ üst köşede bulunan **"Sign in"** butonuna tıklayın.
+   - Microsoft hesabınızla giriş yapın. Eğer bir hesabınız yoksa, **"Create one!"** seçeneğiyle yeni bir hesap oluşturabilirsiniz.
+
+#### 5.1.3 Adım 2: Yeni Bir Team Project Oluşturma
+
+1. **Azure DevOps Ana Sayfasına Erişim**
+   - Giriş yaptıktan sonra, Azure DevOps ana sayfasına yönlendirileceksiniz. Burada mevcut projelerinizi görebilir veya yeni bir proje oluşturabilirsiniz.
+
+2. **Yeni Proje Oluşturma**
+   - **"New Project"** butonuna tıklayın. Bu buton genellikle ana sayfanın sağ üst köşesinde bulunur.
+
+3. **Proje Detaylarını Girin**
+   - Açılan formda aşağıdaki bilgileri doldurun:
+     - **Project Name (Proje Adı)**: `ProductManagement`
+     - **Description (Açıklama)**: *(Opsiyonel)* `Basit Ürün Yönetimi Platformu projesi için Scrum süreç şablonu kullanılarak oluşturulan takım projesi.`
+     - **Visibility (Görünürlük)**:
+       - **Private**: Sadece davet edilen üyeler projeyi görebilir ve erişebilir.
+       - **Public**: Herkes projeyi görebilir. *(Güvenlik ve gizlilik gereksinimlerinize bağlı olarak seçin.)*
+     - **Advanced (Gelişmiş)**:
+       - **Version Control (Versiyon Kontrolü)**: `Git` seçili olduğundan emin olun.
+       - **Work Item Process (İş Öğesi Süreci)**: `Scrum` şablonunu seçin.
+
+4. **Proje Oluşturma**
+   - Tüm bilgileri doldurduktan sonra, **"Create"** butonuna tıklayarak projeyi oluşturun.
+
+#### 5.1.4 Adım 3: Proje Ayarlarını Kontrol Etme
+
+1. **Proje Ana Sayfasına Gidin**
+   - Proje oluşturulduktan sonra, otomatik olarak oluşturduğunuz `ProductManagement` projesinin ana sayfasına yönlendirileceksiniz.
+
+2. **Process Şablonunun Doğrulanması**
+   - Sol menüden **"Project settings"** (Proje Ayarları) seçeneğine tıklayın.
+   - **"Overview"** altında, **"Process"** bölümünü kontrol edin. Süreç şablonunun **Scrum** olarak ayarlandığından emin olun.
+
+
+#### 5.1.5 Adım 4: Projeyi Tanıma ve Giriş
+
+1. **Boards, Repos, Pipelines, Test Plans, Artifacts Sekmelerini İnceleme**
+   - Proje ana sayfasında, sol tarafta yer alan sekmelerden **Boards**, **Repos**, **Pipelines**, **Test Plans** ve **Artifacts** gibi DevOps araçlarına erişebilirsiniz.
+
+2. **Boards Sekmesine Göz Atma**
+   - **Boards** sekmesi altında, iş öğeleri (Work Items), backlog, sprintler ve panolar (boards) gibi proje yönetimi araçlarını bulabilirsiniz.
+   - Scrum süreç şablonunu kullandığınız için, burada **Epics**, **Features**, **Product Backlog Items (PBI)** ve **Tasks** gibi iş öğelerini yönetebileceksiniz.
+
+3. **Repos Sekmesine Göz Atma**
+   - **Repos** sekmesi, projenizin Git depolarını yönetmenize olanak tanır.
+   - Başlangıçta boş bir depo oluşturduğunuz için, burada README dosyanızı görüntüleyebilir veya yeni branch'ler oluşturabilirsiniz.
+
+4. **Pipelines Sekmesine Göz Atma**
+   - **Pipelines** sekmesi, CI/CD süreçlerinizi oluşturup yönetebileceğiniz alandır.
+   - Henüz pipeline oluşturmadığınız için bu bölümde "No pipelines found" mesajı görebilirsiniz.
+
+5. **Test Plans ve Artifacts Sekmelerini İnceleme**
+   - **Test Plans** sekmesi, manuel ve otomatik test süreçlerinizi yönetmenizi sağlar.
+   - **Artifacts** sekmesi, projelerinizde kullanacağınız paketleri (NuGet, npm, Maven vb.) yönetmenize olanak tanır.
+
+### 5.1.6 Lab-1'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, Azure DevOps üzerinde `ProductManagement` adlı yeni bir takım projesi oluşturmuş oldunuz. Projeyi Scrum süreç şablonu ile yapılandırdınız ve temel DevOps araçlarına göz attınız. Bir sonraki laboratuvar çalışmasında, backlog öğelerini tanımlamaya, sprint planlaması yapmaya ve Git reposu oluşturma adımlarına geçeceğiz.
+
+---
