@@ -4619,3 +4619,460 @@ Bu laboratuvar çalışmasını tamamlayarak, **ProductManagement** projesindeki
 
 ---
 
+## 5.14 Lab-14: Agent Pool Oluşturma ve Self-Hosted Agent Kurulumu
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesi için bir **Agent Pool** oluşturacak ve kendi bilgisayarınıza **Self-Hosted Agent** kurarak CI/CD (Continuous Integration/Continuous Deployment) süreçlerinizi optimize edeceksiniz. Bu adımlar, Azure DevOps kullanarak derleme ve dağıtım işlemlerini otomatikleştirmenizi sağlayacak ve projelerinizin daha hızlı ve güvenilir bir şekilde geliştirilmesine olanak tanıyacaktır.
+
+### 5.14.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Azure DevOps Hesabı**: [Azure DevOps](https://dev.azure.com/) hesabınızın olması gerekmektedir.
+- **Proje Oluşturulmuş Olmalı**: `ProductManagement` projesi Azure DevOps üzerinde oluşturulmuş olmalıdır.
+- **Yönetici Yetkisi**: Agent Pool oluşturmak ve agent kurmak için Azure DevOps projesinde yönetici (admin) yetkisine sahip olmanız gerekmektedir.
+- **Self-Hosted Agent için Sistem Gereksinimleri**:
+  - **İşletim Sistemi**: Windows, macOS veya Linux
+  - **İnternet Bağlantısı**: Azure DevOps ile iletişim kurmak için aktif bir internet bağlantısı
+  - **Yazılım Gereksinimleri**:
+    - [.NET Core](https://dotnet.microsoft.com/download) (gerekirse)
+    - [Node.js](https://nodejs.org/en/download/) (gerekirse)
+    - Diğer proje bağımlılıkları
+
+### 5.14.2 Adım 1: Azure DevOps'ta Agent Pool Oluşturma
+
+#### 1. Azure DevOps Portalına Giriş Yapma
+
+- Tarayıcınızda [Azure DevOps](https://dev.azure.com/) portalına gidin ve hesabınıza giriş yapın.
+
+#### 2. Proje Seçimi
+
+- Sol üst köşedeki **"Organization"** seçeneğinden ilgili organizasyonu seçin.
+- **"Projects"** sekmesinden **`ProductManagement`** projesini seçin.
+
+#### 3. Agent Pools Yönetimine Gitme
+
+- Sol menüden **"Project settings"** (Proje Ayarları) seçeneğine tıklayın.
+- **"Pipelines"** altında **"Agent pools"** seçeneğini bulun ve tıklayın.
+
+#### 4. Yeni Bir Agent Pool Oluşturma
+
+- Sağ üst köşede bulunan **"Add pool"** butonuna tıklayın.
+- **Pool Name** (Havuz Adı) kısmına `Self-Hosted Agents` gibi anlamlı bir isim girin.
+- **Pool Type** (Havuz Türü) olarak **"Self-hosted"** seçeneğini işaretleyin.
+- **Description** (Açıklama) kısmına isteğe bağlı olarak havuz hakkında bilgi ekleyebilirsiniz.
+- **"Create"** butonuna tıklayarak Agent Pool'ü oluşturun.
+
+### 5.14.3 Adım 2: Self-Hosted Agent Kurulumu
+
+#### 1. Agent İndirme Sayfasına Gitme
+
+- Oluşturduğunuz **Agent Pool**'ün detay sayfasına gidin.
+- **"New agent"** butonuna tıklayın.
+
+#### 2. İşletim Sistemi Seçimi
+
+- Açılan pencerede kendi bilgisayarınızın işletim sistemini seçin (Windows, macOS veya Linux).
+
+#### 3. Agent İndirme ve Kurulum Talimatlarını Takip Etme
+
+- Seçtiğiniz işletim sistemine göre verilen talimatları takip edin. Aşağıda Windows için adımlar detaylı olarak verilmiştir.
+
+##### **Windows İçin Self-Hosted Agent Kurulumu**
+
+1. **Agent Paketini İndirme**
+
+   - Sağlanan indirme linkine tıklayarak agent paketini indirin.
+   - Örneğin: `vsts-agent-win-x64-2.195.0.zip`
+
+2. **Agent Paketini Çıkarma**
+
+   - İndirilen `.zip` dosyasını, agent'ı kurmak istediğiniz dizine çıkarın. Örneğin: `C:\agents\self-hosted`
+
+3. **Terminali Yönetici Olarak Açma**
+
+   - `cmd.exe` veya `PowerShell`'i yönetici olarak açın.
+
+4. **Agent'ı Yapılandırma**
+
+   - Agent paketinin bulunduğu dizine gidin:
+
+     ```powershell
+     cd C:\agents\self-hosted
+     ```
+
+   - Agent'ı konfigüre etmek için aşağıdaki komutu çalıştırın:
+
+     ```powershell
+     .\config.cmd
+     ```
+
+   - Aşağıdaki bilgileri girin:
+     - **Azure DevOps URL'si**: `https://dev.azure.com/your-organization`
+     - **Agent Pool**: `Self-Hosted Agents`
+     - **Agent Name**: Bilgisayarınızın adı veya anlamlı bir isim
+     - **Authentication**: **"PAT"** (Personal Access Token) kullanın
+     - **PAT Token**: Azure DevOps'ta oluşturduğunuz bir PAT (öğrenmek için [Azure DevOps PAT Oluşturma](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate)) girin
+     - **Work Folder**: Varsayılan olarak bırakabilirsiniz veya özel bir yol belirleyebilirsiniz
+
+5. **Agent'ı Hizmet Olarak Kurma**
+
+   - Agent'ı sürekli çalışacak bir hizmet olarak kurmak için:
+
+     ```powershell
+     .\svc.sh install
+     .\svc.sh start
+     ```
+
+##### **macOS ve Linux İçin Self-Hosted Agent Kurulumu**
+
+- **Terminali Açın** ve aşağıdaki adımları takip edin:
+
+1. **Agent Paketini İndirme**
+
+   ```bash
+   mkdir ~/agent && cd ~/agent
+   curl -O https://vstsagentpackage.azureedge.net/agent/2.195.0/vsts-agent-osx-x64-2.195.0.tar.gz
+   tar zxvf vsts-agent-osx-x64-2.195.0.tar.gz
+   ```
+
+2. **Agent'ı Konfigüre Etme**
+
+   ```bash
+   ./config.sh
+   ```
+
+   - Yukarıdaki Windows adımlarına benzer şekilde bilgileri girin.
+
+3. **Agent'ı Hizmet Olarak Kurma**
+
+   ```bash
+   sudo ./svc.sh install
+   sudo ./svc.sh start
+   ```
+
+#### 4. Agent'ı Doğrulama
+
+- Azure DevOps portalına geri dönün ve **Agent Pool** sayfasını yenileyin.
+- Yeni kurduğunuz agent'ın **"Online"** ve **"Ready"** durumda olduğunu doğrulayın.
+
+### 5.14.4 Adım 3: Güvenlik ve Bakım
+
+#### 1. Agent Güncellemeleri
+
+- Agent'ınızın güncel kalmasını sağlamak için düzenli olarak güncellemeleri kontrol edin.
+- Azure DevOps portalında agent durumunu izleyin ve gerekli güncellemeleri uygulayın.
+
+#### 2. Güvenlik Ayarları
+
+- Agent'ınızın bulunduğu makinenin güvenliğini sağlamak için gerekli önlemleri alın.
+- Güçlü parolalar kullanın ve düzenli olarak şifrelerinizi güncelleyin.
+- Güvenlik duvarı ve antivirüs yazılımlarını yapılandırarak yetkisiz erişimi önleyin.
+
+### 5.14.5 Lab-14'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak **ProductManagement** projesi için bir **Agent Pool** oluşturup, kendi bilgisayarınıza **Self-Hosted Agent** kurdunuz. Bu adımlar, CI/CD süreçlerinizin daha hızlı ve esnek bir şekilde çalışmasını sağlayarak geliştirme ve dağıtım süreçlerinizi optimize etmiştir. Bir sonraki laboratuvar çalışmasında, pipeline'ınızı daha da geliştirmek için otomatik testler ve dağıtım stratejileri eklemeye devam edeceğiz.
+
+---
+
+**Not:** Self-Hosted Agent kurulumunda karşılaşabileceğiniz sorunlar için [Azure DevOps Agent Documentation](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows) sayfasını ziyaret edebilirsiniz. Ayrıca, agent'ınızın güvenliğini sağlamak için en iyi uygulamaları takip ettiğinizden emin olun.
+
+## 5.15 Lab-15: Backend için YAML Formatında PR Pipeline Oluşturma ve Branch Policy Ayarları
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin backend kısmı için bir YAML formatında PR pipeline oluşturacağız. Bu pipeline'ı repository'ye commit/push ederek bir PR ile gönderecek, ardından Azure DevOps portalında bir pipeline oluşturup, `main` branch'e PR açıldığında bu pipeline'ın çalışmasını sağlayacağız. Son olarak, branch policy ayarlarını yapılandırarak pipeline'ı zorunlu hale getireceğiz.
+
+### 5.15.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Backend Repository'si Oluşturulmuş ve Yapılandırılmış Olmalı**: `ProductManagement` projesinin backend repository'si mevcut ve yapılandırılmış olmalıdır.
+- **Azure DevOps Hesabı ve Pipeline Yetkileri**: Azure DevOps'ta pipeline oluşturma yetkisine sahip bir kullanıcı hesabı.
+- **Self-Hosted Agent Pool**: Daha önce oluşturulan agent pool adını biliyor olmalısınız.
+- **YAML Formatında Pipeline Bilgisi**: YAML formatında temel pipeline bilgisi.
+
+### 5.15.2 Adım 1: YAML Pipeline Dosyasını Oluşturma
+
+1. **YAML Dosyası Oluşturma**
+   - VSCode veya tercih ettiğiniz bir editörde, backend repository'nizin kök dizininde `.azure-pipelines` adında bir klasör oluşturun.
+   - Bu klasör içinde `pr-pipeline.yml` adında bir dosya oluşturun.
+
+2. **YAML Pipeline İçeriği**
+   - Aşağıdaki YAML içeriğini `pr-pipeline.yml` dosyasına yapıştırın:
+     ```yaml
+     trigger:
+       branches:
+         exclude:
+           - "*"
+
+     pr:
+       branches:
+         include:
+           - main
+
+     pool:
+       name: 'Self-Hosted Agents' # Daha önce oluşturduğunuz agent pool adı
+
+     variables:
+       buildConfiguration: 'Release'
+
+     steps:
+       - task: UseDotNet@2
+         displayName: 'Install .NET SDK'
+         inputs:
+           packageType: 'sdk'
+           version: '6.x'
+           installationPath: $(Agent.ToolsDirectory)/dotnet
+
+       - script: |
+           dotnet restore
+           dotnet build --configuration $(buildConfiguration)
+           dotnet test --configuration $(buildConfiguration) --no-build
+         displayName: 'Restore, Build, and Test'
+
+       - task: PublishBuildArtifacts@1
+         displayName: 'Publish Artifacts'
+         inputs:
+           PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+           ArtifactName: 'drop'
+     ```
+
+3. **YAML Dosyasını Commit ve Push Etme**
+   - Terminalde aşağıdaki komutları çalıştırarak değişikliklerinizi stage edin, commit edin ve remote repository'ye push edin:
+     ```bash
+     git add .azure-pipelines/pr-pipeline.yml
+     git commit -m "Backend için PR pipeline eklendi"
+     git push origin <branch-name>
+     ```
+
+4. **Pull Request Oluşturma**
+   - GitHub veya Azure DevOps portalında, oluşturduğunuz branch'ten `main` branch'e bir pull request (PR) oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     Backend için YAML formatında PR pipeline eklendi.
+     - PR açıldığında bu pipeline çalıştırılacaktır.
+     ```
+
+### 5.15.3 Adım 2: Pipeline Oluşturma
+
+1. **Azure DevOps Portalına Giriş**
+   - Tarayıcınızda [Azure DevOps](https://dev.azure.com/) portalına gidin ve hesabınıza giriş yapın.
+
+2. **Pipeline Oluşturma**
+   - **Pipelines** sekmesine gidin ve **New Pipeline** butonuna tıklayın.
+   - Repository'yi seçin ve **Existing Azure Pipelines YAML file** seçeneğini seçin.
+   - `pr-pipeline.yml` dosyasının yolunu belirterek pipeline'ı oluşturun.
+
+3. **Pipeline'ı Kaydetme ve Çalıştırma**
+   - Pipeline'ı kaydedin ve test etmek için çalıştırın. Pipeline'ın sorunsuz bir şekilde çalıştığını doğrulayın.
+
+### 5.15.4 Adım 3: Branch Policy Ayarları
+
+1. **Branch Policy Ayarlarına Gitme**
+   - **Repos** sekmesine gidin ve sol menüden **Branches** seçeneğini seçin.
+   - `main` branch'ini bulun ve yanındaki üç nokta menüsünden **Branch policies** seçeneğine tıklayın.
+
+2. **Build Validation Ekleme**
+   - **Build validation** bölümünde **+ Add build policy** butonuna tıklayın.
+   - Açılan pencerede oluşturduğunuz pipeline'ı seçin.
+   - **Trigger on pull request validation** seçeneğini işaretleyin ve **Required** olarak ayarlayın.
+   - Kaydetmek için **Save** butonuna tıklayın.
+
+3. **Policy Ayarlarının Doğrulanması**
+   - Artık `main` branch'e bir PR açıldığında, pipeline çalıştırılacak ve başarıyla tamamlanması gerekecektir.
+
+### 5.15.5 Lab-15'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend için bir PR pipeline oluşturmuş, bu pipeline'ı YAML formatında repository'ye eklemiş, Azure DevOps üzerinde yapılandırmış ve branch policy ayarlarını tamamlamış oldunuz. Bu adımlar, PR süreçlerinizde otomatik build ve test süreçlerini devreye alarak daha güvenli ve düzenli bir geliştirme ortamı sağlamanıza yardımcı olacaktır.
+
+## 5.16 Lab-16: UI Projesi için YAML Formatında PR Pipeline Oluşturma ve Branch Policy Ayarları
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin UI kısmı için bir YAML formatında PR pipeline oluşturacağız. Bu pipeline'ı repository'ye commit/push ederek bir PR ile gönderecek, ardından Azure DevOps portalında bir pipeline oluşturup, `main` branch'e PR açıldığında bu pipeline'ın çalışmasını sağlayacağız. Son olarak, branch policy ayarlarını yapılandırarak pipeline'ı zorunlu hale getireceğiz.
+
+### 5.16.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **UI Repository'si Oluşturulmuş ve Yapılandırılmış Olmalı**: `ProductManagement` projesinin UI repository'si mevcut ve yapılandırılmış olmalıdır.
+- **Azure DevOps Hesabı ve Pipeline Yetkileri**: Azure DevOps'ta pipeline oluşturma yetkisine sahip bir kullanıcı hesabı.
+- **Self-Hosted Agent Pool**: Daha önce oluşturulan agent pool adını biliyor olmalısınız.
+- **YAML Formatında Pipeline Bilgisi**: YAML formatında temel pipeline bilgisi.
+
+### 5.16.2 Adım 1: YAML Pipeline Dosyasını Oluşturma
+
+1. **YAML Dosyası Oluşturma**
+   - VSCode veya tercih ettiğiniz bir editörde, UI repository'nizin kök dizininde `.azure-pipelines` adında bir klasör oluşturun.
+   - Bu klasör içinde `pr-pipeline.yml` adında bir dosya oluşturun.
+
+2. **YAML Pipeline İçeriği**
+   - Aşağıdaki YAML içeriğini `pr-pipeline.yml` dosyasına yapıştırın:
+     ```yaml
+     trigger:
+       branches:
+         exclude:
+           - "*"
+
+     pr:
+       branches:
+         include:
+           - main
+
+     pool:
+       name: 'Self-Hosted Agents' # Daha önce oluşturduğunuz agent pool adı
+
+     variables:
+       buildConfiguration: 'Release'
+
+     steps:
+       - task: NodeTool@0
+         displayName: 'Use Node.js'
+         inputs:
+           versionSpec: '14.x'
+           checkLatest: true
+
+       - script: |
+           npm install
+           npm run build --prod
+         displayName: 'Install Dependencies and Build UI Project'
+
+       - task: PublishBuildArtifacts@1
+         displayName: 'Publish Artifacts'
+         inputs:
+           PathtoPublish: 'dist'
+           ArtifactName: 'drop'
+     ```
+
+3. **YAML Dosyasını Commit ve Push Etme**
+   - Terminalde aşağıdaki komutları çalıştırarak değişikliklerinizi stage edin, commit edin ve remote repository'ye push edin:
+     ```bash
+     git add .azure-pipelines/pr-pipeline.yml
+     git commit -m "UI için PR pipeline eklendi"
+     git push origin <branch-name>
+     ```
+
+4. **Pull Request Oluşturma**
+   - GitHub veya Azure DevOps portalında, oluşturduğunuz branch'ten `main` branch'e bir pull request (PR) oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     UI için YAML formatında PR pipeline eklendi.
+     - PR açıldığında bu pipeline çalıştırılacaktır.
+     ```
+
+### 5.16.3 Adım 2: Pipeline Oluşturma
+
+1. **Azure DevOps Portalına Giriş**
+   - Tarayıcınızda [Azure DevOps](https://dev.azure.com/) portalına gidin ve hesabınıza giriş yapın.
+
+2. **Pipeline Oluşturma**
+   - **Pipelines** sekmesine gidin ve **New Pipeline** butonuna tıklayın.
+   - Repository'yi seçin ve **Existing Azure Pipelines YAML file** seçeneğini seçin.
+   - `pr-pipeline.yml` dosyasının yolunu belirterek pipeline'ı oluşturun.
+
+3. **Pipeline'ı Kaydetme ve Çalıştırma**
+   - Pipeline'ı kaydedin ve test etmek için çalıştırın. Pipeline'ın sorunsuz bir şekilde çalıştığını doğrulayın.
+
+### 5.16.4 Adım 3: Branch Policy Ayarları
+
+1. **Branch Policy Ayarlarına Gitme**
+   - **Repos** sekmesine gidin ve sol menüden **Branches** seçeneğini seçin.
+   - `main` branch'ini bulun ve yanındaki üç nokta menüsünden **Branch policies** seçeneğine tıklayın.
+
+2. **Build Validation Ekleme**
+   - **Build validation** bölümünde **+ Add build policy** butonuna tıklayın.
+   - Açılan pencerede oluşturduğunuz pipeline'ı seçin.
+   - **Trigger on pull request validation** seçeneğini işaretleyin ve **Required** olarak ayarlayın.
+   - Kaydetmek için **Save** butonuna tıklayın.
+
+3. **Policy Ayarlarının Doğrulanması**
+   - Artık `main` branch'e bir PR açıldığında, pipeline çalıştırılacak ve başarıyla tamamlanması gerekecektir.
+
+### 5.16.5 Lab-16'nın Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak UI projesi için bir PR pipeline oluşturmuş, bu pipeline'ı YAML formatında repository'ye eklemiş, Azure DevOps üzerinde yapılandırmış ve branch policy ayarlarını tamamlamış oldunuz. Bu adımlar, PR süreçlerinizde otomatik build ve test süreçlerini devreye alarak daha güvenli ve düzenli bir geliştirme ortamı sağlamanıza yardımcı olacaktır.
+
+## 5.17 Lab-17: Backend ve UI Projelerinde Basit Değişiklikler Yaparak PR Pipeline'ların Çalıştığını Doğrulama
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin backend ve UI projelerinde küçük değişiklikler yaparak oluşturduğunuz PR pipeline'ların çalışıp çalışmadığını doğrulayacağız. Her iki proje için de değişiklik yapacak, bu değişiklikleri PR oluşturup pipeline'ın tetiklendiğini gözlemleyeceğiz.
+
+### 5.17.1 Backend Projesinde Değişiklik Yapma
+
+1. **Backend Projesini Klonlama**
+   - Backend repository'sini klonlayın (eğer daha önce klonlanmadıysa):
+     ```bash
+     git clone <backend-repository-url>
+     cd <backend-repository-folder>
+     ```
+
+2. **Değişiklik Yapma**
+   - Projede basit bir değişiklik yapın. Örneğin, `ProductController` dosyasına bir yorum ekleyin:
+     ```csharp
+     // Bu bir test değişikliğidir.
+     ```
+
+3. **Değişiklikleri Commit ve Push Etme**
+   - Yeni bir feature branch oluşturun:
+     ```bash
+     git checkout -b feature/test-backend-pr-pipeline
+     ```
+   - Değişiklikleri stage edin ve commit yapın:
+     ```bash
+     git add .
+     git commit -m "Backend PR pipeline testi için değişiklik yapıldı"
+     git push origin feature/test-backend-pr-pipeline
+     ```
+
+4. **Pull Request Oluşturma**
+   - Azure DevOps portalına gidin ve `feature/test-backend-pr-pipeline` branch'inden `main` branch'e bir PR oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     Backend PR pipeline testi için küçük bir değişiklik yapıldı.
+     ```
+
+5. **Pipeline'ı Doğrulama**
+   - PR oluşturulduktan sonra pipeline otomatik olarak tetiklenecektir.
+   - Pipeline sekmesine giderek, pipeline'ın başarılı bir şekilde çalışıp çalışmadığını gözlemleyin.
+
+---
+
+### 5.17.2 UI Projesinde Değişiklik Yapma
+
+1. **UI Projesini Klonlama**
+   - UI repository'sini klonlayın (eğer daha önce klonlanmadıysa):
+     ```bash
+     git clone <ui-repository-url>
+     cd <ui-repository-folder>
+     ```
+
+2. **Değişiklik Yapma**
+   - Projede basit bir değişiklik yapın. Örneğin, `app.component.html` dosyasına bir yorum ekleyin:
+     ```html
+     <!-- Bu bir test değişikliğidir -->
+     ```
+
+3. **Değişiklikleri Commit ve Push Etme**
+   - Yeni bir feature branch oluşturun:
+     ```bash
+     git checkout -b feature/test-ui-pr-pipeline
+     ```
+   - Değişiklikleri stage edin ve commit yapın:
+     ```bash
+     git add .
+     git commit -m "UI PR pipeline testi için değişiklik yapıldı"
+     git push origin feature/test-ui-pr-pipeline
+     ```
+
+4. **Pull Request Oluşturma**
+   - Azure DevOps portalına gidin ve `feature/test-ui-pr-pipeline` branch'inden `main` branch'e bir PR oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     UI PR pipeline testi için küçük bir değişiklik yapıldı.
+     ```
+
+5. **Pipeline'ı Doğrulama**
+   - PR oluşturulduktan sonra pipeline otomatik olarak tetiklenecektir.
+   - Pipeline sekmesine giderek, pipeline'ın başarılı bir şekilde çalışıp çalışmadığını gözlemleyin.
+
+---
+
+### 5.17.3 Lab-17'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend ve UI projelerinde PR pipeline'ların doğru şekilde tetiklendiğini ve çalıştığını doğruladınız. Bu adımlar, oluşturulan pipeline'ların işlevselliğini test etmek ve PR süreçlerinin sorunsuz bir şekilde işlediğinden emin olmak için önemlidir.
+
