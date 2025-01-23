@@ -4490,3 +4490,244 @@ Bu laboratuvar çalışmasını tamamlayarak **ProductManagement** projesine ür
 
 **Not:** Angular projenizin backend API'sine erişebilmesi için CORS ayarlarının doğru yapılandırıldığından emin olun. Ayrıca, `apiUrl` değişkeninin doğru backend URL'sini işaret ettiğinden emin olun.
 
+## 5.13 Lab-13: Tüm Değişiklikleri Commit/Push Yapma, PR Oluşturma ve Main'e Merge Etme
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesindeki tüm değişiklikleri Git kullanarak commit ve push edeceğiz. Ardından, GitHub üzerinde bir Pull Request (PR) oluşturacak ve bu PR'yi **main** dalına (branch) merge edeceğiz. Bu adımlar, projenizin versiyon kontrolünü yönetmek ve takım çalışmasını kolaylaştırmak için gereklidir.
+
+### 5.13.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'den Lab-12'ye Kadar Tüm Laboratuvarların Tamamlanması**: Önceki laboratuvar adımlarını başarıyla tamamlamış olun.
+- **Git Kurulu Olmalı**: Bilgisayarınızda [Git](https://git-scm.com/downloads) yüklü ve yapılandırılmış olmalı.
+- **GitHub Hesabı**: [GitHub](https://github.com/) hesabınızın olması gerekmektedir.
+- **Uzak (Remote) Repository Oluşturulmuş Olmalı**: GitHub üzerinde projeniz için bir repository oluşturmuş olun.
+- **VSCode veya Tercih Ettiğiniz Bir Kod Editörü**: [Visual Studio Code](https://code.visualstudio.com/) gibi bir kod editörü kullanmanız önerilir.
+- **İnternet Bağlantısı**: Değişiklikleri push etmek ve PR oluşturmak için aktif bir internet bağlantısına sahip olun.
+
+### 5.13.2 Adım 1: Git Repository'yi Başlatma
+
+Eğer projeniz için bir Git repository'si henüz başlatılmadıysa, aşağıdaki adımları izleyin.
+
+1. **Terminali Açma**
+   - VSCode'da veya bilgisayarınızdaki terminali açın.
+
+2. **Proje Dizini'ne Gitme**
+   - Aşağıdaki komutla projenizin kök dizinine gidin:
+     ```bash
+     cd path/to/ProductManagement
+     ```
+
+3. **Git Repository Başlatma**
+   - Git repository'sini başlatmak için şu komutu çalıştırın:
+     ```bash
+     git init
+     ```
+
+4. **Uzak Repository Ekleme**
+   - GitHub üzerinde oluşturduğunuz repository'nin URL'sini kullanarak uzak repository'yi ekleyin:
+     ```bash
+     git remote add origin https://github.com/kullanici-adi/ProductManagement.git
+     ```
+
+### 5.13.3 Adım 2: Değişiklikleri Stage Etme
+
+Projede yaptığınız tüm değişiklikleri Git'e eklemek için aşağıdaki adımları izleyin.
+
+1. **Tüm Değişiklikleri Stage Etme**
+   - Tüm değişiklikleri stage etmek için şu komutu kullanın:
+     ```bash
+     git add .
+     ```
+   - Alternatif olarak, belirli dosyaları eklemek için:
+     ```bash
+     git add src/app/add-product/add-product.component.ts
+     ```
+
+### 5.13.4 Adım 3: Değişiklikleri Commit Etme
+
+Stage edilen değişiklikleri commit etmek için aşağıdaki adımları izleyin.
+
+1. **Commit Mesajı ile Commit Etme**
+   - Anlamlı bir commit mesajı ile değişiklikleri commit edin:
+     ```bash
+     git commit -m "Ürün ekleme, güncelleme ve silme özelliklerini ekledim"
+     ```
+
+### 5.13.5 Adım 4: Değişiklikleri Push Etme
+
+Commit ettiğiniz değişiklikleri GitHub üzerindeki uzak repository'ye push edeceğiz.
+
+1. **Değişiklikleri Push Etme**
+   - İlk push işlemi için aşağıdaki komutu kullanın:
+     ```bash
+     git push -u origin main
+     ```
+   - Eğer ana dalınız **main** değilse, doğru dal adını kullanın (örneğin, **master**).
+
+### 5.13.6 Adım 5: Pull Request (PR) Oluşturma
+
+Değişikliklerinizi ana dal ile birleştirmek için bir Pull Request oluşturacağız.
+
+1. **GitHub'da Repository'yi Açma**
+   - Tarayıcınızda GitHub hesabınıza giriş yapın ve projenizin repository'sini açın.
+
+2. **Compare & Pull Request Butonuna Tıklama**
+   - Repository ana sayfasında, yapılan push sonrası görünen "Compare & pull request" butonuna tıklayın.
+
+3. **PR Başlığını ve Açıklamasını Girme**
+   - PR için anlamlı bir başlık ve açıklama yazın:
+     - **Başlık**: Ürün Ekleme, Güncelleme ve Silme Özellikleri
+     - **Açıklama**:
+       ```
+       Bu PR ile ürün ekleme, güncelleme ve silme özelliklerini projeye ekledim. Backend tarafında gerekli API endpoint'lerini oluşturup, UI tarafında da Angular bileşenlerini güncelledim. Ayrıca, kullanıcı onayı ile ürün silme işlemini gerçekleştirdim.
+       ```
+
+4. **Create Pull Request Butonuna Tıklama**
+   - Tüm bilgileri girdikten sonra, **Create pull request** butonuna tıklayın.
+
+### 5.13.7 Adım 6: Pull Request'i Gözden Geçirme ve Merge Etme
+
+Oluşturduğunuz PR'yi gözden geçirip ana dala (main) merge edeceğiz.
+
+1. **Pull Request'i İnceleme**
+   - PR sayfasında, yapılan değişiklikleri gözden geçirin. Dosya değişikliklerini kontrol edin ve gerektiğinde yorum bırakın.
+
+2. **Merge Butonuna Tıklama**
+   - Her şeyin doğru olduğundan emin olduktan sonra, **Merge pull request** butonuna tıklayın.
+
+3. **Merge İşlemini Onaylama**
+   - Açılan pencerede, merge işlemini onaylamak için **Confirm merge** butonuna tıklayın.
+
+4. **Pull Request'i Kapatma**
+   - Merge işleminden sonra, PR'yi kapatmak için **Close pull request** butonuna tıklayın.
+
+### 5.13.8 Adım 7: Ana Dalı Güncelleme
+
+Ana dalı (main) güncellediğinizden emin olun.
+
+1. **Ana Dalı Güncelleme**
+   - Yerel repository'nizde ana dalın güncel olduğundan emin olmak için şu komutu çalıştırın:
+     ```bash
+     git checkout main
+     git pull origin main
+     ```
+
+### 5.13.9 Lab-13'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, **ProductManagement** projesindeki tüm değişiklikleri Git kullanarak commit ve push ettiniz. Ardından, GitHub üzerinde bir Pull Request oluşturarak bu PR'yi **main** dalına merge ettiniz. Bu adımlar, projenizin versiyon kontrolünü etkin bir şekilde yönetmenizi ve takım çalışmasını kolaylaştırmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, projenize CI/CD entegrasyonu ekleyerek otomatik test ve dağıtım süreçlerini yapılandırmaya devam edeceğiz.
+
+---
+
+## 5.14 Lab-14: Agent Pool Oluşturma ve Self-Hosted Agent Kurulumu
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesi için bir **Agent Pool** oluşturacak ve kendi bilgisayarınıza **Self-Hosted Agent** kurarak CI/CD (Continuous Integration/Continuous Deployment) süreçlerinizi optimize edeceksiniz. Bu adımlar, Azure DevOps kullanarak derleme ve dağıtım işlemlerini otomatikleştirmenizi sağlayacak ve projelerinizin daha hızlı ve güvenilir bir şekilde geliştirilmesine olanak tanıyacaktır.
+
+### 5.14.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Azure DevOps Hesabı**: [Azure DevOps](https://dev.azure.com/) hesabınızın olması gerekmektedir.
+- **Proje Oluşturulmuş Olmalı**: `ProductManagement` projesi Azure DevOps üzerinde oluşturulmuş olmalıdır.
+- **Yönetici Yetkisi**: Agent Pool oluşturmak ve agent kurmak için Azure DevOps projesinde yönetici (admin) yetkisine sahip olmanız gerekmektedir.
+- **Self-Hosted Agent için Sistem Gereksinimleri**:
+  - **İşletim Sistemi**: Windows, macOS veya Linux
+  - **İnternet Bağlantısı**: Azure DevOps ile iletişim kurmak için aktif bir internet bağlantısı
+  - **Yazılım Gereksinimleri**:
+    - [.NET Core](https://dotnet.microsoft.com/download) (gerekirse)
+    - [Node.js](https://nodejs.org/en/download/) (gerekirse)
+    - Diğer proje bağımlılıkları
+
+### 5.14.2 Adım 1: Azure DevOps'ta Agent Pool Oluşturma
+
+#### 1. Azure DevOps Portalına Giriş Yapma
+
+- Tarayıcınızda [Azure DevOps](https://dev.azure.com/) portalına gidin ve hesabınıza giriş yapın.
+
+#### 2. Proje Seçimi
+
+- Sol üst köşedeki **"Organization"** seçeneğinden ilgili organizasyonu seçin.
+- **"Projects"** sekmesinden **`ProductManagement`** projesini seçin.
+
+#### 3. Agent Pools Yönetimine Gitme
+
+- Sol menüden **"Project settings"** (Proje Ayarları) seçeneğine tıklayın.
+- **"Pipelines"** altında **"Agent pools"** seçeneğini bulun ve tıklayın.
+
+#### 4. Yeni Bir Agent Pool Oluşturma
+
+- Sağ üst köşede bulunan **"Add pool"** butonuna tıklayın.
+- **Pool Name** (Havuz Adı) kısmına `Self-Hosted Agents` gibi anlamlı bir isim girin.
+- **Pool Type** (Havuz Türü) olarak **"Self-hosted"** seçeneğini işaretleyin.
+- **Description** (Açıklama) kısmına isteğe bağlı olarak havuz hakkında bilgi ekleyebilirsiniz.
+- **"Create"** butonuna tıklayarak Agent Pool'ü oluşturun.
+
+![Agent Pool Oluşturma](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/media/pools/agent-pool-create.png)
+
+### 5.14.3 Adım 2: Self-Hosted Agent Kurulumu
+
+#### 1. Agent İndirme Sayfasına Gitme
+
+- Oluşturduğunuz **Agent Pool**'ün detay sayfasına gidin.
+- **"New agent"** butonuna tıklayın.
+
+#### 2. İşletim Sistemi Seçimi
+
+- Açılan pencerede kendi bilgisayarınızın işletim sistemini seçin (Windows, macOS veya Linux).
+
+#### 3. Agent İndirme ve Kurulum Talimatlarını Takip Etme
+
+- Seçtiğiniz işletim sistemine göre verilen talimatları takip edin. Aşağıda Windows için adımlar detaylı olarak verilmiştir.
+
+##### **Windows İçin Self-Hosted Agent Kurulumu**
+
+1. **Agent Paketini İndirme**
+
+   - Sağlanan indirme linkine tıklayarak agent paketini indirin.
+   - Örneğin: `vsts-agent-win-x64-2.195.0.zip`
+
+2. **Agent Paketini Çıkarma**
+
+   - İndirilen `.zip` dosyasını, agent'ı kurmak istediğiniz dizine çıkarın. Örneğin: `C:\agents\self-hosted`
+
+3. **Terminali Yönetici Olarak Açma**
+
+   - `cmd.exe` veya `PowerShell`'i yönetici olarak açın.
+
+4. **Agent'ı Yapılandırma**
+
+   - Agent paketinin bulunduğu dizine gidin:
+     ```powershell
+     cd C:\agents\self-hosted
+     ```
+   - Agent'ı konfigüre etmek için aşağıdaki komutu çalıştırın:
+     ```powershell
+     .\config.cmd
+     ```
+   - Aşağıdaki bilgileri girin:
+     - **Azure DevOps URL'si**: `https://dev.azure.com/your-organization`
+     - **Agent Pool**: `Self-Hosted Agents`
+     - **Agent Name**: Bilgisayarınızın adı veya anlamlı bir isim
+     - **Authentication**: **"PAT"** (Personal Access Token) kullanın
+     - **PAT Token**: Azure DevOps'ta oluşturduğunuz bir PAT (öğrenmek için [Azure DevOps PAT Oluşturma](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate)) girin
+     - **Work Folder**: Varsayılan olarak bırakabilirsiniz veya özel bir yol belirleyebilirsiniz
+
+5. **Agent'ı Hizmet Olarak Kurma**
+
+   - Agent'ı sürekli çalışacak bir hizmet olarak kurmak için:
+     ```powershell
+     .\svc.sh install
+     .\svc.sh start
+     ```
+
+##### **macOS ve Linux İçin Self-Hosted Agent Kurulumu**
+
+- **Terminali Açın** ve aşağıdaki adımları takip edin:
+
+1. **Agent Paketini İndirme**
+   ```bash
+   mkdir ~/agent && cd ~/agent
+   curl -O https://vstsagentpackage.azureedge.net/agent/2.195.0/vsts-agent-osx-x64-2.195.0.tar.gz
+   tar zxvf vsts-agent-osx-x64-2.195.0.tar.gz
+   ```
+
