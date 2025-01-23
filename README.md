@@ -1014,3 +1014,322 @@ Aşağıda, tipik bir **CI Pipeline** akışının adımları yer alır:
 
 **Azure Artifacts**, paket yönetimini **merkezi**, **güvenli** ve **izlenebilir** bir yapıya kavuşturur. Gerek kurumsal güvenlik gerekse yeniden kullanılabilirlik açısından avantaj sağlayan bu modül, **DevOps** felsefesinin “otomasyon” ve “iş birliği” prensiplerini paket yönetimi tarafında destekler. Özellikle güvenlik kısıtları olan şirketlerde, **proxy** özelliği aracılığıyla harici paket kaynaklarına **kontrollü** erişim sağlamak ve geliştiricilerin işini kolaylaştırmak için sıkça tercih edilir.
 
+## 3.5 Azure Test Plans
+
+**Azure Test Plans**, yazılım projeleriniz için kapsamlı **test yönetimi** çözümleri sunan bir hizmettir. Manuel testler, keşif testleri ve otomatik testler gibi farklı test türlerini planlamak, yürütmek ve izlemek için kullanılır. Azure Test Plans, kalite güvencesi süreçlerini sistematik hale getirerek, hataların erken tespit edilmesini ve çözülmesini sağlar. Bu sayede, yazılımın **yüksek kalitede** ve **güvenilir** olarak teslim edilmesine katkıda bulunur.
+
+> **Resmi Dokümantasyon**:  
+> [Azure Test Plans Hakkında Daha Fazla Bilgi Edinin](https://learn.microsoft.com/tr-tr/azure/devops/test/overview)
+
+---
+
+### 3.5.1 Temel Kavramlar
+
+Azure Test Plans, test süreçlerinizi organize etmek ve yönetmek için aşağıdaki temel bileşenleri kullanır:
+
+1. **Test Plan (Test Planı)**
+   - Projenizdeki tüm test aktivitelerini kapsayan yüksek seviyeli bir plandır.
+   - Test planları, farklı sürümler, özellikler veya sprint’ler için ayrı ayrı oluşturulabilir.
+   - Her test planı, belirli bir hedefi veya kapsamı temsil eder ve ilgili test suite’leri içerir.
+
+2. **Test Suite (Test Takımı)**
+   - Test planı içinde organize edilen testlerin gruplandırıldığı bölümdür.
+   - Farklı test türlerine veya işlevsel alanlara göre ayrılabilir.
+   - Üç ana test suite türü vardır:
+     - **Static Test Suite**: Belirli test case’lerinin manuel olarak eklenip çıkarıldığı sabit bir test grubudur.
+     - **Requirement-based Test Suite**: Belirli bir gereksinime (user story, epic) bağlı test case’lerini otomatik olarak toplar.
+     - **Query-based Test Suite**: Belirli bir sorguya (query) göre dinamik olarak test case’lerini toplar.
+
+3. **Test Case (Test Durumu)**
+   - Belirli bir işlevin veya gereksinimin doğrulanmasını sağlayan ayrıntılı adımlardır.
+   - Her test case, **girdi**, **beklenen çıktı** ve **adımlar** gibi bilgileri içerir.
+   - Test case’leri, manuel testler için ayrılır veya otomatik test senaryolarına entegre edilebilir.
+
+4. **Test Run (Test Çalıştırması)**
+   - Test case’lerinin belirli bir zaman diliminde veya sprint içerisinde yürütüldüğü oturumdur.
+   - Test run’lar, testlerin durumu (başarılı, başarısız, atlanmış) hakkında bilgi sağlar.
+   - Hatalar veya eksiklikler olduğunda, ilgili test case’ler üzerinden geri bildirim sağlanır.
+
+---
+
+### 3.5.2 Test Plan -> Test Suite -> Test Case Hiyerarşisi
+
+Azure Test Plans içerisinde, test aktiviteleri **hiyerarşik** bir yapı ile organize edilir. Bu yapı, testlerin sistematik bir şekilde yönetilmesini ve izlenmesini sağlar.
+
+#### 1. Test Planı (Test Plan)
+   - **Tanım**: Projenizin genel test stratejisini ve kapsamını belirleyen üst seviye plandır.
+   - **Örnek**: "Sprint 1 Test Planı" veya "Release 1.0 Test Planı"
+   - **İçerik**: Birden fazla test suite’i barındırır.
+
+#### 2. Test Takımı (Test Suite)
+   - **Tanım**: Test planı içinde belirli bir alana veya işlevselliğe odaklanan testlerin toplandığı gruptur.
+   - **Örnek**:
+     - "Kullanıcı Girişi Test Takımı"
+     - "Ödeme İşlemleri Test Takımı"
+   - **İçerik**: Birden fazla test case’i içerir.
+
+#### 3. Test Durumu (Test Case)
+   - **Tanım**: Belirli bir işlevin veya gereksinimin doğrulanmasını sağlayan ayrıntılı adımlardır.
+   - **Örnek**:
+     - **Başlık**: "Kullanıcı adı ve şifre ile giriş yapabilme"
+     - **Açıklama**: "Geçerli kullanıcı adı ve şifre ile giriş yapıldığında, kullanıcı ana sayfaya yönlendirilmelidir."
+     - **Adımlar**:
+       1. Giriş sayfasını açın.
+       2. Kullanıcı adı alanına geçerli bir kullanıcı adı girin.
+       3. Şifre alanına geçerli bir şifre girin.
+       4. "Giriş Yap" butonuna tıklayın.
+     - **Beklenen Sonuç**: Kullanıcı, ana sayfaya yönlendirilir ve başarı mesajı görüntülenir.
+
+#### Hiyerarşi Örneği
+
+Aşağıda, bir test planı içindeki hiyerarşik yapının nasıl olabileceğine dair bir örnek verilmiştir:
+
+- **Test Planı**: "Sprint 1 Test Planı"
+  - **Test Takımı**: "Kullanıcı Girişi Test Takımı"
+    - **Test Durumu 1**: "Geçerli kullanıcı adı ve şifre ile giriş yapabilme"
+      - **Adımlar ve Beklenen Sonuçlar**
+    - **Test Durumu 2**: "Geçersiz şifre ile giriş yapılamaması"
+      - **Adımlar ve Beklenen Sonuçlar**
+  - **Test Takımı**: "Ödeme İşlemleri Test Takımı"
+    - **Test Durumu 3**: "Kredi kartı ile ödeme yapabilme"
+      - **Adımlar ve Beklenen Sonuçlar**
+    - **Test Durumu 4**: "Geçersiz kredi kartı bilgileri ile ödeme yapılamaması"
+      - **Adımlar ve Beklenen Sonuçlar**
+
+Bu yapı sayesinde, her bir test case’in hangi test takımına ve test planına ait olduğu net bir şekilde görülebilir. Ayrıca, belirli bir işlevselliğin test edilip edilmediği kolayca kontrol edilebilir.
+
+---
+
+### 3.5.3 Test Run'lar
+
+**Test Run**, belirli bir zaman diliminde veya sprint içerisinde gerçekleştirilen testlerin toplandığı oturumdur. Test run’lar, test planındaki test case’lerinin yürütülmesini ve sonuçların kaydedilmesini sağlar. Bu sayede, testlerin ne kadarının başarılı, ne kadarının başarısız olduğu, hangi hataların ortaya çıktığı ve hangi iyileştirmelerin gerektiği hakkında bilgi sahibi olunur.
+
+#### Test Run Oluşturma
+
+1. **Yeni Test Run Başlatma**
+   - Azure Test Plans ana sayfasında, ilgili **Test Planı** seçilir.
+   - Sağ üst köşedeki “**Run Tests**” butonuna tıklanarak yeni bir test run başlatılır.
+
+2. **Test Case’leri Seçme**
+   - Yürütülecek test case’leri seçin veya tüm test case’lerini dahil edin.
+   - Filtreler kullanarak belirli koşullara uyan test case’lerini seçebilirsiniz.
+
+3. **Ortam ve Ayarlar**
+   - Test run’un hangi ortamda (test, staging, production) yürütüleceği belirlenir.
+   - Gerekli ayarlar (örneğin, özel test ortamları veya cihazlar) yapılır.
+
+4. **Test Run’u Başlatma**
+   - Seçilen test case’leri için test run başlatılır.
+   - Her bir test case, manuel olarak veya otomatik olarak yürütülür.
+
+#### Test Run Sonuçları
+
+- **Durumlar**: Her bir test case’in durumu “Passed”, “Failed”, “Blocked” veya “Not Executed” gibi kategorilere ayrılır.
+- **Hatalar ve Notlar**: Başarısız olan test case’leri için hata detayları ve geliştirici notları eklenebilir.
+- **Raporlama**: Test run sonuçları, **raporlar** ve **grafikler** aracılığıyla analiz edilebilir. Bu sayede, hangi alanlarda iyileştirme gerektiği belirlenir.
+
+#### Test Run Yönetimi
+
+- **Tekrarlama (Rerun)**: Başarısız olan test case’leri yeniden çalıştırabilirsiniz.
+- **İptal Etme (Abort)**: Gerekirse, devam eden bir test run’u iptal edebilirsiniz.
+- **Tarihçe**: Önceki test run’ların sonuçlarını inceleyerek, zaman içindeki gelişmeleri ve trendleri takip edebilirsiniz.
+
+---
+
+### 3.5.4 Örnek Bir Test Planı Süreci
+
+Aşağıda, **Epic -> Feature -> PBI -> Test Plan -> Test Suite -> Test Case** hiyerarşisi içinde bir test planının nasıl oluşturulabileceğine dair bir örnek senaryo verilmiştir:
+
+#### 1. Epic ve Feature Oluşturma
+
+- **Epic**: "Kullanıcı Yönetimi Modülü"
+  - **Feature 1**: "Kullanıcı Kaydı"
+    - **PBI 1.1**: "Yeni kullanıcı kayıt olabilmeli"
+      - **Test Planı**: "Kullanıcı Kaydı Test Planı"
+        - **Test Takımı**: "Kullanıcı Kaydı Test Suite"
+          - **Test Case 1**: "Geçerli bilgilerle kayıt olma"
+          - **Test Case 2**: "Eksik bilgilerle kayıt olmama"
+    - **PBI 1.2**: "Kullanıcı doğrulama e-postası alabilmeli"
+      - **Test Planı**: "Kullanıcı Doğrulama Test Planı"
+        - **Test Takımı**: "Doğrulama E-postası Test Suite"
+          - **Test Case 3**: "Doğrulama e-postasının gönderilmesi"
+          - **Test Case 4**: "Doğrulama bağlantısının çalışması"
+
+#### 2. Test Planı ve Test Suite Oluşturma
+
+- **Test Planı**: "Kullanıcı Kaydı Test Planı"
+  - **Test Suite**: "Kullanıcı Kaydı Test Suite"
+    - **Test Case 1**: "Geçerli bilgilerle kayıt olma"
+      - **Adımlar**:
+        1. Kayıt sayfasını açın.
+        2. Geçerli kullanıcı bilgilerini girin.
+        3. "Kayıt Ol" butonuna tıklayın.
+      - **Beklenen Sonuç**: Kullanıcı başarıyla kayıt olur ve giriş sayfasına yönlendirilir.
+    - **Test Case 2**: "Eksik bilgilerle kayıt olmama"
+      - **Adımlar**:
+        1. Kayıt sayfasını açın.
+        2. Bazı zorunlu alanları boş bırakın.
+        3. "Kayıt Ol" butonuna tıklayın.
+      - **Beklenen Sonuç**: Kullanıcıya eksik alanlarla ilgili hata mesajları gösterilir.
+
+#### 3. Test Run Yürütme
+
+- **Test Run**: "Sprint 1 Test Run"
+  - **Test Planı**: "Kullanıcı Kaydı Test Planı"
+    - **Test Case 1**: "Geçerli bilgilerle kayıt olma" - **Passed**
+    - **Test Case 2**: "Eksik bilgilerle kayıt olmama" - **Failed**
+      - **Hata Detayı**: "Kayıt olma işlemi sırasında eksik alan uyarısı gösterilmiyor."
+      - **Not**: "Frontend validasyonunda eksiklik var, düzeltme gereklidir."
+
+Bu örnek senaryo, bir Epic altında nasıl test planlarının, test suite’lerinin ve test case’lerinin organize edilebileceğini göstermektedir. Her bir adım, kalite güvencesi süreçlerinin nasıl yapılandırılabileceği ve izlenebileceği konusunda net bir yol haritası sunar.
+
+---
+
+### 3.5.5 En İyi Uygulamalar
+
+1. **Test Hiyerarşisini Net Belirleyin**
+   - Epic, Feature, PBI ve Test Plan gibi hiyerarşik yapıları belirlerken, her seviyenin amacını ve kapsamını netleştirin. Bu, test süreçlerinin daha düzenli ve yönetilebilir olmasını sağlar.
+
+2. **Detaylı ve Net Test Case’ler Oluşturun**
+   - Her test case’in adımları ve beklenen sonuçları açık ve net olmalıdır. Bu, testlerin tekrarlanabilirliğini ve doğruluğunu artırır.
+
+3. **Düzenli Test Run’lar Yapın**
+   - Test run’ları düzenli aralıklarla (örneğin, her sprint sonunda) gerçekleştirerek, yazılımın kalitesini sürekli olarak değerlendirin ve iyileştirin.
+
+4. **Otomatik Testlerle Entegrasyonu Sağlayın**
+   - Mümkün olduğunca, manuel testlerin yanında otomatik testleri de kullanarak test süreçlerini hızlandırın ve hata payını azaltın.
+
+5. **Geri Bildirim Döngülerini Hızlandırın**
+   - Test sonuçlarını hızlıca ekibe ileterek, hataların hızlıca düzeltilmesini sağlayın. Bu, geliştirme sürecinin verimliliğini artırır.
+
+6. **Test Verilerini Yönetim Altına Alın**
+   - Testler için kullanılan verilerin doğru ve güncel olduğundan emin olun. Test ortamlarında gerçekçi ve çeşitli veri setleri kullanmak, testlerin etkinliğini artırır.
+
+7. **İzlenebilirlik Sağlayın**
+   - Her test case’in hangi gereksinime veya kullanıcı hikayesine karşılık geldiğini izleyebilmek için ilişkilendirme yapın. Bu, gereksinimlerin karşılanıp karşılanmadığını değerlendirmeyi kolaylaştırır.
+
+8. **Düzenli Backlog Refinement ve Grooming Yapın**
+   - Test planlarınızı ve test case’lerinizi düzenli olarak gözden geçirerek güncelleyin. Yeni gereksinimler ortaya çıktıkça test planlarınıza eklemeler yapın.
+
+---
+
+Azure Test Plans, **DevOps** süreçlerinin **kalite güvencesi** kısmını güçlü bir şekilde destekler. Test planlama, yürütme ve izleme aşamalarında sağladığı kapsamlı özelliklerle, yazılım geliştirme sürecinde kaliteyi en üst düzeye çıkarmak için vazgeçilmez bir araçtır. Ekipler, Azure Test Plans’ı etkin kullanarak daha **iyi test stratejileri** geliştirebilir, hataları erken aşamalarda tespit edip düzelterek müşteri memnuniyetini artırabilir ve yazılım teslim süreçlerini **daha güvenilir** hale getirebilirler.
+
+## 3.6 Azure DevOps Server ve Azure DevOps Services Farkları
+
+**Azure DevOps Server** ve **Azure DevOps Services**, Microsoft’un sunduğu iki farklı DevOps çözümüdür. Her ikisi de yazılım geliştirme süreçlerini yönetmek, işbirliğini artırmak ve CI/CD (Continuous Integration/Continuous Deployment) süreçlerini otomatikleştirmek için kapsamlı araçlar sağlar. Ancak, bu iki hizmet arasında çeşitli farklar bulunmaktadır. Bu bölümde, Azure DevOps Server ile Azure DevOps Services arasındaki temel farkları detaylı bir şekilde inceleyeceğiz.
+
+> **Resmi Dokümantasyon**:
+> - [Azure DevOps Server](https://learn.microsoft.com/tr-tr/azure/devops/server/?view=azure-devops)
+> - [Azure DevOps Services](https://learn.microsoft.com/tr-tr/azure/devops/?view=azure-devops)
+
+---
+
+### 3.6.1 Temel Tanımlar
+
+1. **Azure DevOps Server**
+   - **Tanım**: Önceden **Team Foundation Server (TFS)** olarak bilinen, şirket içi (on-premises) kurulumlar için tasarlanmış bir DevOps platformudur.
+   - **Kullanım Alanı**: Güvenlik, uyumluluk veya veri yönetimi gibi nedenlerle bulut çözümlerini tercih etmeyen kurumsal şirketler tarafından kullanılır.
+
+2. **Azure DevOps Services**
+   - **Tanım**: Microsoft’un bulut tabanlı DevOps çözümüdür. Tamamen bulutta barındırılır ve internet üzerinden erişilir.
+   - **Kullanım Alanı**: Esneklik, ölçeklenebilirlik ve hızlı kurulum gerektiren projeler için idealdir. Küçük ve orta ölçekli işletmelerden büyük kurumsal yapılar kadar geniş bir kullanıcı kitlesine hitap eder.
+
+---
+
+### 3.6.2 Dağıtım Modeli
+
+| **Özellik**                     | **Azure DevOps Server**                                    | **Azure DevOps Services**                            |
+|---------------------------------|------------------------------------------------------------|------------------------------------------------------|
+| **Dağıtım**                     | Şirket içi (on-premises) sunucular üzerinde kurulur.        | Microsoft’un bulut altyapısı üzerinde barındırılır.   |
+| **Bakım ve Güncellemeler**      | Kullanıcı tarafından yönetilir ve güncellenir.               | Microsoft tarafından otomatik olarak güncellenir.     |
+| **Erişim**                      | Şirket içi ağlar veya VPN üzerinden erişim sağlanır.        | İnternet üzerinden her yerden erişilebilir.          |
+
+---
+
+### 3.6.3 Özellikler ve Entegrasyon
+
+1. **Özellik Seti**
+   - **Azure DevOps Server** ve **Azure DevOps Services**, temelde aynı temel özelliklere sahiptir: Boards, Repos, Pipelines, Test Plans ve Artifacts. Ancak, bazı ileri düzey özellikler ve entegrasyon seçenekleri sadece Azure DevOps Services’te bulunabilir.
+   - **Bulut Özellikleri**: Azure DevOps Services, bulut tabanlı avantajlarından dolayı, yapay zeka destekli araçlar, daha hızlı entegrasyon güncellemeleri ve gelişmiş güvenlik özellikleri sunar.
+
+2. **Entegrasyonlar**
+   - **Azure DevOps Server**: Kurumsal iç sistemlerle (örneğin Active Directory) daha derin entegrasyon imkânı sağlar.
+   - **Azure DevOps Services**: Diğer bulut hizmetleri ve üçüncü parti uygulamalarla daha geniş entegrasyon seçenekleri sunar. Örneğin, GitHub, Slack, Jira gibi popüler araçlarla kolay entegrasyon sağlanır.
+
+---
+
+### 3.6.4 Maliyet ve Lisanslama
+
+1. **Azure DevOps Server**
+   - **Lisanslama**: Sunucu tabanlı lisanslama modeli kullanır. Kullanıcı başına lisans gerektirir ve genellikle büyük kuruluşlar için maliyetli olabilir.
+   - **Maliyet**: Kurulum ve bakım maliyetleri, donanım gereksinimleri ve lisans ücretleri dikkate alınmalıdır.
+   - **Avantaj**: Büyük ölçekli ve karmaşık projeler için özelleştirilebilirlik sunar.
+
+2. **Azure DevOps Services**
+   - **Lisanslama**: Abonelik tabanlı fiyatlandırma modeli kullanır. Kullanıcı başına aylık veya yıllık ücretlendirme yapılır.
+   - **Maliyet**: Başlangıçta düşük maliyetli olabilir ve kullanım arttıkça esnek bir şekilde ölçeklenebilir.
+   - **Avantaj**: Küçük ve orta ölçekli işletmeler için uygun maliyetli çözümler sunar.
+
+---
+
+### 3.6.5 Güvenlik ve Uyum
+
+1. **Azure DevOps Server**
+   - **Veri Kontrolü**: Tüm veriler şirketin kendi altyapısında tutulduğu için, veri kontrolü ve gizliliği üzerinde tam hakimiyet sağlar.
+   - **Uyum**: Özellikle GDPR, HIPAA gibi sıkı veri koruma standartlarına uyum sağlamak isteyen kurumlar için uygundur.
+
+2. **Azure DevOps Services**
+   - **Güvenlik**: Microsoft’un sağladığı bulut güvenlik önlemleri ve sürekli güncellenen güvenlik yamaları sayesinde yüksek güvenlik sunar.
+   - **Uyum**: Microsoft, Azure DevOps Services’in birçok uluslararası uyum sertifikasına sahip olmasını sağlar, bu da global ölçekte uyum gereksinimleri olan şirketler için idealdir.
+
+---
+
+### 3.6.6 Performans ve Ölçeklenebilirlik
+
+1. **Azure DevOps Server**
+   - **Performans**: Şirketin kendi donanım kaynaklarına bağlıdır. Büyük projeler ve yüksek kullanım durumları için yeterli donanım yatırımı yapılması gerekebilir.
+   - **Ölçeklenebilirlik**: Donanım kapasitesine bağlı olarak ölçeklendirilir. Daha fazla kaynak eklemek manuel bir süreç gerektirebilir.
+
+2. **Azure DevOps Services**
+   - **Performans**: Microsoft’un bulut altyapısı sayesinde yüksek performans ve düşük gecikme süreleri sunar.
+   - **Ölçeklenebilirlik**: Otomatik olarak ölçeklenebilir, bu sayede talep arttıkça hizmetin performansı düşmez.
+
+---
+
+### 3.6.7 Yedekleme ve Felaket Kurtarma
+
+1. **Azure DevOps Server**
+   - **Yedekleme**: Şirketin kendi yedekleme stratejisini uygulaması gerekir. Yedeklemeler düzenli olarak yapılmalı ve güvenli bir şekilde saklanmalıdır.
+   - **Felaket Kurtarma**: Şirketin kendi felaket kurtarma planını oluşturması ve uygulaması gerekir.
+
+2. **Azure DevOps Services**
+   - **Yedekleme**: Microsoft tarafından otomatik olarak yedeklenir ve veri kurtarma süreçleri yönetilir.
+   - **Felaket Kurtarma**: Yüksek düzeyde felaket kurtarma desteği sunar; veri kaybı riski minimuma indirilmiştir.
+
+---
+
+### 3.6.8 Kullanım Senaryoları
+
+1. **Azure DevOps Server**
+   - **Güvenlik Gereksinimi Yüksek Kurumlar**: Verilerin kendi altyapısında saklanması gereken büyük finansal kurumlar, devlet daireleri ve sağlık kuruluşları.
+   - **Özelleştirme İhtiyacı Olan Projeler**: Mevcut sistemlerle derin entegrasyon ve özel geliştirmeler gerektiren projeler.
+
+2. **Azure DevOps Services**
+   - **Hızlı Başlangıç Gerektiren Projeler**: Hızlı kurulum ve ölçeklenebilirlik isteyen start-up’lar ve küçük işletmeler.
+   - **Dağıtık Takımlar**: Farklı coğrafi konumlarda çalışan ekipler için idealdir, çünkü internet üzerinden her yerden erişim sağlar.
+   - **Esnek ve Dinamik Projeler**: Sürekli değişen gereksinimlere hızlıca uyum sağlaması gereken projeler.
+
+---
+
+### 3.6.9 Özet ve Seçim Kriterleri
+
+| **Özellik**                  | **Azure DevOps Server**                                    | **Azure DevOps Services**                            |
+|------------------------------|------------------------------------------------------------|------------------------------------------------------|
+| **Dağıtım Modeli**           | On-premises                                                | Bulut (Cloud)                                        |
+| **Bakım ve Güncellemeler**   | Kullanıcı tarafından yönetilir                              | Microsoft tarafından otomatik olarak yönetilir       |
+| **Maliyet**                  | Yüksek başlangıç maliyeti, lisans ve donanım gerektirir    | Esnek abonelik modeli, düşük başlangıç maliyeti      |
+| **Ölçeklenebilirlik**        | Donanım kaynaklarına bağlı olarak manuel ölçeklenir        | Otomatik ve esnek ölçeklenebilir                      |
+| **Güvenlik ve Uyum**         | Tam veri kontrolü, yüksek uyum gereksinimleri için ideal   | Gelişmiş bulut güvenliği, geniş uyum sertifikaları    |
+| **Entegrasyonlar**           | Kurumsal iç sistemlerle derin entegrasyon                  | Geniş bulut ve üçüncü parti entegrasyon seçenekleri    |
+| **Yedekleme ve Kurtarma**   | Kullanıcı sorumluluğunda                                    |
