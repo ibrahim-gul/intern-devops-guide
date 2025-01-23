@@ -2639,3 +2639,146 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 Bu laboratuvar çalışmasını tamamlayarak, **ProductManagement** projesi için veritabanı tablolarını oluşturmuş, **Entity Framework Core** ile veritabanı entegrasyonunu sağlamış ve ürünleri listelemek için gerekli metotları eklemiş oldunuz. Bu adımlar, veritabanı ile uygulamanız arasındaki etkileşimi yönetmenizi ve veri işlemlerini kolaylaştırmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, CRUD işlemleri için diğer metotları eklemeye ve API'yi genişletmeye devam edeceğiz.
 
 ---
+
+## 5.8 Lab-8: UI İçin Yeni Bir Feature Branch Açma, Temel Proje Oluşturma ve Pull Request ile Merge Etme
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin **UI** reposu üzerinde yeni bir feature branch açacak, Visual Studio Code (VSCode) kullanarak temel bir UI projesi oluşturacak ve yaptığınız değişiklikleri commit/push ederek bir Pull Request (PR) oluşturup `main` branch'e merge edeceksiniz. Bu adımlar, frontend geliştirme sürecinizi düzenli ve sürüm kontrolü altında tutmanıza yardımcı olacaktır.
+
+### 5.8.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'in Tamamlanması**: Azure DevOps üzerinde `ProductManagement` adlı takım projesini başarıyla oluşturmuş olun.
+- **Lab-2'nin Tamamlanması**: Epic, Feature, PBI ve Task'ları başarıyla oluşturmuş olun.
+- **Lab-3'ün Tamamlanması**: Sprint oluşturmuş ve Task'ları sprint'e atamış olun.
+- **Lab-4'ün Tamamlanması**: Backend ve UI için Git repolarını başarıyla oluşturmuş olun.
+- **Lab-5'in Tamamlanması**: Backend reposunu Visual Studio kullanarak klonlamış, yeni bir branch oluşturmuş ve temel proje yapısını kurmuş olun.
+- **Lab-6'nın Tamamlanması**: SQL Server'ı lokal makinenize kurmuş ve `ProductManagementDB` veritabanını oluşturmuş olun.
+- **Lab-7'nin Tamamlanması**: Backend için Entity Framework Core ile veritabanı entegrasyonunu gerçekleştirmiş olun.
+- **Visual Studio Code (VSCode)**: [Download](https://code.visualstudio.com/) edilerek kurulmuş ve yapılandırılmış olmalı.
+- **Node.js ve npm**: [Download](https://nodejs.org/) edilerek kurulmuş olmalı (UI projesi için).
+- **Git Yüklü Olmalı**: Bilgisayarınıza [Git](https://git-scm.com/downloads) yüklü olmalıdır.
+- **Azure DevOps'a Erişim**: Azure DevOps hesabınıza erişim sağlayabilecek kullanıcı adı ve şifreniz olmalı.
+- **İnternet Bağlantısı**: Azure DevOps web arayüzüne ve Git'e erişmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.8.2 Adım 1: UI Reposunu Klonlama ve Yeni Bir Branch Oluşturma
+
+1. **Azure DevOps'ta UI Reposunu Bulma**
+   - Azure DevOps hesabınıza giriş yapın ve `ProductManagement` projesini seçin.
+   - Sol menüden **"Repos"** sekmesine tıklayın ve **UI** reposunu seçin.
+
+2. **Klonlama URL'sini Alma**
+   - **UI** reposunun ana sayfasında, sağ üst köşede bulunan **"Clone"** butonuna tıklayın.
+   - Açılan pencerede **HTTPS** URL'sini kopyalayın.
+     ```
+     https://dev.azure.com/yourorganization/ProductManagement/_git/UI
+     ```
+
+3. **UI Reposunu Lokal Makinenize Klonlama**
+   - Visual Studio Code'u açın.
+   - Başlangıç ekranında **"Clone Repository"** seçeneğine tıklayın. Eğer VSCode açıksa, **View > Command Palette...** yolunu izleyin ve `Git: Clone` komutunu seçin.
+   - Kopyaladığınız HTTPS URL'sini yapıştırın ve **Enter** tuşuna basın.
+   - Klonlamak istediğiniz lokal dizini seçin ve **Select Repository Location** butonuna tıklayın.
+   - Klonlama işlemi tamamlandığında, VSCode size klonlanan repoyu açma seçeneği sunacaktır. **Open** butonuna tıklayarak repoyu açın.
+
+4. **Yeni Feature Branch Oluşturma**
+   - VSCode'un sol alt köşesinde bulunan branch adını (genellikle `main`) tıklayın.
+   - Açılan menüde **Create new branch** seçeneğine tıklayın.
+   - Yeni branch adı olarak `feature/setup-ui-project` yazın ve **Enter** tuşuna basın.
+   - VSCode, yeni oluşturulan branch'e geçiş yapacaktır.
+
+### 5.8.3 Adım 2: Visual Studio Code ile Temel UI Projesi Oluşturma
+
+1. **Terminali Açma**
+   - VSCode'da üst menüden **Terminal > New Terminal** yolunu izleyin. Bu, VSCode içerisinde entegre bir terminal açacaktır.
+
+2. **UI Projesini Oluşturma**
+   - UI projesi olarak React kullanacaksanız, terminalde aşağıdaki komutu çalıştırın:
+     ```
+     npx create-react-app frontend
+     ```
+   - Bu komut, `frontend` adlı yeni bir React projesi oluşturur ve gerekli dosya yapısını sağlar.
+
+3. **Proje Yapısını İnceleme**
+   - **Explorer** panelinde, oluşturulan `frontend` klasörünü göreceksiniz. Temel dosyaların ve klasörlerin oluşturulduğunu doğrulayın:
+     ```
+     UI/
+     ├── frontend/
+     │   ├── node_modules/
+     │   ├── public/
+     │   ├── src/
+     │   ├── package.json
+     │   └── README.md
+     ├── .gitignore
+     └── README.md
+     ```
+
+4. **README Dosyasını Güncelleme (Opsiyonel)**
+   - **frontend** klasöründe bulunan `README.md` dosyasını açın ve proje hakkında bilgi ekleyebilirsiniz.
+
+### 5.8.4 Adım 3: Değişiklikleri Commit ve Push Etme
+
+1. **Source Control Panelini Açma**
+   - VSCode'un sol yan panelinde bulunan **Source Control** simgesine tıklayın (genellikle bir dallı ağ simgesi).
+   - Yapmış olduğunuz değişiklikler listelenecektir.
+
+2. **Değişiklikleri Stage Etme**
+   - **Changes** bölümünde, tüm değişikliklerin yanındaki **+** işaretine tıklayarak değişiklikleri stage edin. Tüm değişiklikleri stage etmek için üstteki **Stage All Changes** simgesine tıklayabilirsiniz.
+
+3. **Commit Mesajını Girme**
+   - **Message** alanına açıklayıcı bir commit mesajı yazın:
+     ```
+     Setup basic React UI project structure
+     ```
+   - **Commit** butonuna tıklayarak değişiklikleri commit edin.
+
+4. **Branch'i Uzak Reposuna Push Etme**
+   - VSCode'un altındaki **Sync Changes** butonuna tıklayın. Bu, oluşturduğunuz `feature/setup-ui-project` branch'ini uzak repoya push edecektir.
+   - Eğer **Sync Changes** butonu görünmüyorsa, **...** menüsüne tıklayın ve **Push** seçeneğini seçin.
+
+### 5.8.5 Adım 4: Pull Request (PR) Oluşturma ve Merge Etme
+
+1. **Azure DevOps Web Arayüzüne Geri Dönün**
+   - Tarayıcınızda Azure DevOps web arayüzünü açın ve `ProductManagement` projesine gidin.
+   - Sol menüden **"Repos" > "Pull requests"** sekmesine tıklayın.
+
+2. **Yeni Pull Request Başlatma**
+   - **New Pull Request** butonuna tıklayın.
+
+3. **PR Detaylarını Girin**
+   - **Source branch**: `feature/setup-ui-project`
+   - **Target branch**: `main`
+   - **Title**: `Setup Basic React UI Project Structure`
+   - **Description**: `UI projesi için temel React yapılandırması oluşturuldu. Frontend klasörü altında create-react-app ile başlangıç yapıldı.`
+
+4. **Pull Request'ı Oluşturma**
+   - Tüm bilgileri girdikten sonra, **Create** butonuna tıklayarak PR'ı oluşturun.
+
+5. **PR'ı İnceleme ve Onaylama**
+   - Ekip üyelerinden PR'ı incelemelerini isteyin.
+   - İnceleme süreci tamamlandıktan sonra, **Complete** butonuna tıklayarak PR'ı `main` branch'e merge edin.
+   - Gerekirse **Squash Commit** veya **Rebase and Merge** seçeneklerini kullanabilirsiniz.
+
+6. **Merge İşlemini Doğrulama**
+   - VSCode'da, **Source Control** paneline geri dönün.
+   - **Pull** butonuna tıklayarak `main` branch'ini güncelleyin ve merge edilen değişiklikleri alın.
+
+### 5.8.6 Adım 5: Merge İşlemi Sonrası Kontroller
+
+1. **Proje Yapısını İnceleme**
+   - VSCode'da `main` branch'ine geçtiğinizden emin olun ve `frontend` klasörünün doğru şekilde oluşturulduğunu doğrulayın.
+
+2. **Uygulamayı Test Etme (Opsiyonel)**
+   - Terminalde, `frontend` dizinine geçin ve uygulamayı çalıştırın:
+     ```
+     cd frontend
+     npm start
+     ```
+   - Tarayıcınızda `http://localhost:3000` adresinde React uygulamasının sorunsuz çalıştığını doğrulayın.
+   - Uygulama çalıştıktan sonra terminalde `Ctrl + C` tuş kombinasyonuyla durdurabilirsiniz.
+
+### 5.8.7 Lab-8'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, **UI** repounuz üzerinde yeni bir feature branch oluşturmuş, Visual Studio Code kullanarak temel bir React UI projesi oluşturmuş, yaptığınız değişiklikleri commit/push etmiş ve bir Pull Request aracılığıyla bu değişiklikleri `main` branch'e başarıyla merge etmiş oldunuz. Bu adımlar, frontend geliştirme sürecinizi düzenli ve sürüm kontrolü altında tutmanızı sağlamıştır. Bir sonraki laboratuvar çalışmasında, UI projesine daha fazla özellik ekleyerek geliştirmeye devam edeceğiz.
+
+---
