@@ -1534,3 +1534,370 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 Bu laboratuvar çalışmasını tamamlayarak, Azure DevOps üzerinde `ProductManagement` adlı yeni bir takım projesi oluşturmuş oldunuz. Projeyi Scrum süreç şablonu ile yapılandırdınız ve temel DevOps araçlarına göz attınız. Bir sonraki laboratuvar çalışmasında, backlog öğelerini tanımlamaya, sprint planlaması yapmaya ve Git reposu oluşturma adımlarına geçeceğiz.
 
 ---
+
+## 5.2 Lab-2: Epic, Feature, PBI ve Task'ları Ayrı Ayrı Oluşturma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesi için **Epic**, **Feature**, **Product Backlog Item (PBI)** ve **Task** öğelerini ayrı ayrı oluşturacağız. Bu adımlar, Scrum metodolojisi kapsamında iş öğelerini hiyerarşik olarak organize etmenizi sağlayacak ve proje yönetimini kolaylaştıracaktır. Ayrıca, her bir temel işlev (listeleme, ekleme, düzenleme, silme) için ayrı iş öğeleri oluşturarak daha detaylı bir yapı kuracağız.
+
+### 5.2.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'in Tamamlanması**: Azure DevOps üzerinde `ProductManagement` adlı takım projesini başarıyla oluşturmuş olun.
+- **Giriş Bilgileri**: Azure DevOps hesabınıza erişim sağlayabilecek kullanıcı adı ve şifreniz olmalı.
+- **İnternet Bağlantısı**: Azure DevOps web arayüzüne erişmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.2.2 Adım 1: Boards'a Erişim ve Backlog Görünümüne Geçiş
+
+1. **Azure DevOps'a Giriş Yapın**
+   - [Azure DevOps](https://dev.azure.com/) hesabınıza giriş yapın ve `ProductManagement` projesini seçin.
+
+2. **Boards Sekmesine Gidin**
+   - Sol taraftaki menüden **"Boards"** sekmesine tıklayın.
+
+3. **Backlog Görünümünü Açın**
+   - **Boards** menüsünden **"Backlogs"** seçeneğine tıklayın. Bu sayede projenizin backlog'unu görebilir ve yönetebilirsiniz.
+
+### 5.2.3 Adım 2: Epic Oluşturma
+
+**Epic**, büyük ve geniş kapsamlı iş öğelerini temsil eder. Projenizin ana hedeflerini veya önemli işlevlerini kapsar.
+
+1. **Yeni Epic Ekleyin**
+   - Backlog listesinin üst kısmında bulunan **"New Work Item"** butonuna tıklayın ve **"Epic"** seçeneğini seçin.
+
+2. **Epic Detaylarını Girin**
+   - **Title (Başlık)**: `Ürün Yönetimi Modülü`
+   - **Description (Açıklama)**: `Ürünlerin listelenmesi, eklenmesi, düzenlenmesi ve silinmesi işlevlerini içeren modül.`
+   - **Save** butonuna tıklayarak Epic'i oluşturun.
+
+### 5.2.4 Adım 3: Feature Oluşturma
+
+**Feature**, bir Epic'in altında yer alan ve belirli bir işlevselliği temsil eden daha küçük iş öğeleridir.
+
+1. **Yeni Feature Ekleyin**
+   - Oluşturduğunuz **Epic**'e tıklayın.
+   - **"Add"** butonuna tıklayarak yeni bir **Feature** ekleyin.
+
+2. **Feature Detaylarını Girin**
+   - **Title (Başlık)**: `Ürün İşlemleri`
+   - **Description (Açıklama)**: `Ürünlerin listelenmesi, eklenmesi, düzenlenmesi ve silinmesi işlevlerini kapsayan özellikler.`
+   - **Save** butonuna tıklayarak Feature'ı oluşturun.
+
+### 5.2.5 Adım 4: Product Backlog Item (PBI) Oluşturma
+
+**Product Backlog Item (PBI)**, kullanıcı hikayelerini veya ürün gereksinimlerini temsil eden iş öğeleridir. Her PBI, belirli bir işlevin veya özelliğin geliştirilmesini sağlar. Bu adımda, her temel işlev için ayrı PBI'lar oluşturacağız.
+
+#### 1. **Ürün Listeleme PBI'si Oluşturma**
+
+1. **Yeni PBI Ekleyin**
+   - Oluşturduğunuz **Feature**'ın altında, **"Add"** butonuna tıklayarak yeni bir **PBI** ekleyin.
+
+2. **PBI Detaylarını Girin**
+   - **Title (Başlık)**: `Ürünleri Listelenebilir Hale Getirme`
+   - **Description (Açıklama)**: `Veritabanından ürün verilerini çekip arayüzde listelemek için gerekli API ve frontend bileşenlerini oluşturmak.`
+   - **Acceptance Criteria (Kabul Kriterleri)**:
+     - Ürün listesi, ürün adı, açıklaması, fiyatı ve stok durumunu içermelidir.
+     - Arayüzde sayfalama ve arama özellikleri bulunmalıdır.
+   - **Save** butonuna tıklayarak PBI'yi oluşturun.
+
+#### 2. **Ürün Ekleme PBI'si Oluşturma**
+
+1. **Yeni PBI Ekleyin**
+   - **Feature** altında **"Add"** butonuna tıklayarak yeni bir **PBI** ekleyin.
+
+2. **PBI Detaylarını Girin**
+   - **Title (Başlık)**: `Yeni Ürün Eklenebilir Hale Getirme`
+   - **Description (Açıklama)**: `Kullanıcıların yeni ürünler ekleyebilmesi için gerekli API ve frontend bileşenlerini oluşturmak.`
+   - **Acceptance Criteria (Kabul Kriterleri)**:
+     - Ürün ekleme formu, ürün adı, açıklaması, fiyatı ve stok miktarı gibi alanları içermelidir.
+     - Form doğrulama ile eksik veya hatalı bilgilerin girilmesi engellenmelidir.
+   - **Save** butonuna tıklayarak PBI'yi oluşturun.
+
+#### 3. **Ürün Düzenleme PBI'si Oluşturma**
+
+1. **Yeni PBI Ekleyin**
+   - **Feature** altında **"Add"** butonuna tıklayarak yeni bir **PBI** ekleyin.
+
+2. **PBI Detaylarını Girin**
+   - **Title (Başlık)**: `Ürün Düzenlenebilir Hale Getirme`
+   - **Description (Açıklama)**: `Kullanıcıların mevcut ürünlerin bilgilerini güncelleyebilmesi için gerekli API ve frontend bileşenlerini oluşturmak.`
+   - **Acceptance Criteria (Kabul Kriterleri)**:
+     - Mevcut ürün bilgileri önceden doldurulmuş şekilde gösterilmelidir.
+     - Kullanıcılar, bilgileri güncelleyip kaydedebilmelidir.
+   - **Save** butonuna tıklayarak PBI'yi oluşturun.
+
+#### 4. **Ürün Silme PBI'si Oluşturma**
+
+1. **Yeni PBI Ekleyin**
+   - **Feature** altında **"Add"** butonuna tıklayarak yeni bir **PBI** ekleyin.
+
+2. **PBI Detaylarını Girin**
+   - **Title (Başlık)**: `Ürün Silinebilir Hale Getirme`
+   - **Description (Açıklama)**: `Kullanıcıların mevcut ürünleri silebilmesi için gerekli API ve frontend bileşenlerini oluşturmak.`
+   - **Acceptance Criteria (Kabul Kriterleri)**:
+     - Ürün silme işlemi onaylanmadan gerçekleştirilmemelidir.
+     - Silinen ürünler veritabanından kaldırılmalı ve listeden çıkarılmalıdır.
+   - **Save** butonuna tıklayarak PBI'yi oluşturun.
+
+### 5.2.6 Adım 5: Task Oluşturma
+
+Her bir **PBI** için gerekli olan **Task**'ları oluşturacağız. Bu adımda, her temel işlevin gerçekleştirilmesi için spesifik görevler tanımlayacağız.
+
+#### 1. **Ürünleri Listelenebilir Hale Getirme için Task'lar**
+
+##### a. Backend API Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - `Ürünleri Listelenebilir Hale Getirme` PBI'sine tıklayın.
+   - **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Backend API Oluşturma`
+   - **Description (Açıklama)**: `ASP.NET Core Web API kullanarak ürünleri listeleyen endpoint oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### b. Frontend Ürün Listesi Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Frontend Ürün Listesi Oluşturma`
+   - **Description (Açıklama)**: `Angular kullanarak ürünlerin listelendiği bileşeni oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### c. Veritabanı Tablolarını Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Veritabanı Tablolarını Oluşturma`
+   - **Description (Açıklama)**: `SQL Server üzerinde gerekli tabloları ve ilişkileri tanımlamak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+#### 2. **Yeni Ürün Eklenebilir Hale Getirme için Task'lar**
+
+##### a. Backend API Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - `Yeni Ürün Eklenebilir Hale Getirme` PBI'sine tıklayın.
+   - **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Backend API Oluşturma`
+   - **Description (Açıklama)**: `ASP.NET Core Web API kullanarak yeni ürün ekleme endpoint'i oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### b. Frontend Ürün Ekleme Formu Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Frontend Ürün Ekleme Formu Oluşturma`
+   - **Description (Açıklama)**: `Angular kullanarak yeni ürün eklemek için form bileşenini oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### c. Form Doğrulama Eklemek
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Form Doğrulama Eklemek`
+   - **Description (Açıklama)**: `Ürün ekleme formunda gerekli alanlar için doğrulama kuralları eklemek.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+#### 3. **Ürün Düzenlenebilir Hale Getirme için Task'lar**
+
+##### a. Backend API Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - `Ürün Düzenlenebilir Hale Getirme` PBI'sine tıklayın.
+   - **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Backend API Oluşturma`
+   - **Description (Açıklama)**: `ASP.NET Core Web API kullanarak ürün düzenleme endpoint'i oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### b. Frontend Ürün Düzenleme Formu Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Frontend Ürün Düzenleme Formu Oluşturma`
+   - **Description (Açıklama)**: `Angular kullanarak mevcut ürün bilgilerini düzenlemek için form bileşenini oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### c. Form Doğrulama ve Güncelleme İşlemleri
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Form Doğrulama ve Güncelleme İşlemleri`
+   - **Description (Açıklama)**: `Ürün düzenleme formunda gerekli alanlar için doğrulama kuralları eklemek ve güncelleme işlemlerini gerçekleştirmek.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+#### 4. **Ürün Silinebilir Hale Getirme için Task'lar**
+
+##### a. Backend API Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - `Ürün Silinebilir Hale Getirme` PBI'sine tıklayın.
+   - **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Backend API Oluşturma`
+   - **Description (Açıklama)**: `ASP.NET Core Web API kullanarak ürün silme endpoint'i oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### b. Frontend Ürün Silme İşlevi Oluşturma
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Frontend Ürün Silme İşlevi Oluşturma`
+   - **Description (Açıklama)**: `Angular kullanarak ürünleri silmek için gerekli bileşen ve işlevleri oluşturmak.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+##### c. Silme İşlemi Onayı Eklemek
+
+1. **Yeni Task Ekleyin**
+   - Aynı **PBI** altında **"Add"** butonuna tıklayarak yeni bir **Task** ekleyin.
+
+2. **Task Detaylarını Girin**
+   - **Title (Başlık)**: `Silme İşlemi Onayı Eklemek`
+   - **Description (Açıklama)**: `Kullanıcıların yanlışlıkla silme yapmasını önlemek için onay diyaloğu eklemek.`
+   - **Save** butonuna tıklayarak Task'ı oluşturun.
+
+### 5.2.7 Adım 6: Backlog Hiyerarşisini İnceleme
+
+Oluşturduğunuz **Epic**, **Feature**, **PBI** ve **Task**'ların hiyerarşik yapısını kontrol ederek, iş öğelerinin doğru bir şekilde organize edildiğinden emin olun.
+
+1. **Backlog'da Hiyerarşi Kontrolü**
+   - **Boards > Backlogs** sekmesinde, sol tarafta oluşturduğunuz **Epic**'i genişleterek altındaki **Feature**, **PBI** ve **Task**'ları görüntüleyin.
+
+2. **Gerekirse Düzenleme Yapın**
+   - Yanlış yerleştirilmiş iş öğelerini sürükle-bırak yöntemiyle doğru konuma taşıyabilirsiniz.
+   - **PBI**'lere veya **Feature**'lara ek açıklamalar ekleyerek iş öğelerini daha ayrıntılı hale getirebilirsiniz.
+
+### 5.2.8 Örnek Hiyerarşi
+
+Aşağıda, oluşturduğunuz **Epic** altında nasıl bir hiyerarşi oluşturduğunuza dair bir örnek verilmiştir:
+
+- **Epic**: `Ürün Yönetimi Modülü`
+  - **Feature**: `Ürün İşlemleri`
+    - **PBI**: `Ürünleri Listelenebilir Hale Getirme`
+      - **Task**: `Backend API Oluşturma`
+      - **Task**: `Frontend Ürün Listesi Oluşturma`
+      - **Task**: `Veritabanı Tablolarını Oluşturma`
+    - **PBI**: `Yeni Ürün Eklenebilir Hale Getirme`
+      - **Task**: `Backend API Oluşturma`
+      - **Task**: `Frontend Ürün Ekleme Formu Oluşturma`
+      - **Task**: `Form Doğrulama Eklemek`
+    - **PBI**: `Ürün Düzenlenebilir Hale Getirme`
+      - **Task**: `Backend API Oluşturma`
+      - **Task**: `Frontend Ürün Düzenleme Formu Oluşturma`
+      - **Task**: `Form Doğrulama ve Güncelleme İşlemleri`
+    - **PBI**: `Ürün Silinebilir Hale Getirme`
+      - **Task**: `Backend API Oluşturma`
+      - **Task**: `Frontend Ürün Silme İşlevi Oluşturma`
+      - **Task**: `Silme İşlemi Onayı Eklemek`
+
+### 5.2.9 Lab-2'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, `ProductManagement` projesi için **Epic**, **Feature**, **PBI** ve **Task** iş öğelerini başarıyla ayrı ayrı oluşturmuş oldunuz. Her temel işlev için ayrı PBI'lar ve bunlara bağlı Task'lar oluşturarak, projenizin iş akışını daha detaylı ve yönetilebilir hale getirdiniz. Bir sonraki laboratuvar çalışmasında, sprint oluşturma ve iş öğelerini sprint'e atama adımlarını gerçekleştireceğiz.
+
+---
+
+## 5.3 Lab-3: Yeni Bir Sprint Oluşturma ve Task'ları İlgili Sprint'e Atama
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesi için yeni bir sprint oluşturacak ve oluşturduğunuz **Task**'ları bu sprint'e atayacaksınız. Bu adımlar, Scrum metodolojisi kapsamında sprint planlamasını gerçekleştirmenizi ve iş öğelerinin sprint'e dahil edilmesini sağlayacaktır.
+
+### 5.3.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Lab-1'in Tamamlanması**: Azure DevOps üzerinde `ProductManagement` adlı takım projesini başarıyla oluşturmuş olun.
+- **Lab-2'nin Tamamlanması**: Epic, Feature, PBI ve Task'ları başarıyla oluşturmuş olun.
+- **Giriş Bilgileri**: Azure DevOps hesabınıza erişim sağlayabilecek kullanıcı adı ve şifreniz olmalı.
+- **İnternet Bağlantısı**: Azure DevOps web arayüzüne erişmek için stabil bir internet bağlantısı gereklidir.
+
+### 5.3.2 Adım 1: Boards Sekmesine Giriş ve Sprint Görünümüne Geçiş
+
+1. **Azure DevOps'a Giriş Yapın**
+   - [Azure DevOps](https://dev.azure.com/) hesabınıza giriş yapın ve `ProductManagement` projesini seçin.
+
+2. **Boards Sekmesine Gidin**
+   - Sol taraftaki menüden **"Boards"** sekmesine tıklayın.
+
+3. **Sprints Görünümüne Geçiş Yapın**
+   - **Boards** menüsünden **"Sprints"** seçeneğine tıklayın. Bu sayede mevcut sprint'lerinizi görebilir ve yeni sprint'ler oluşturabilirsiniz.
+
+### 5.3.3 Adım 2: Yeni Bir Sprint Oluşturma
+
+1. **Yeni Sprint Ekleme**
+   - **Sprints** sayfasında, sağ üst köşede bulunan **"New Sprint"** butonuna tıklayın.
+
+2. **Sprint Detaylarını Girin**
+   - **Sprint Name (Sprint Adı)**: `Sprint 1`
+   - **Start Date (Başlangıç Tarihi)**: Projenizin zaman çizelgesine uygun bir başlangıç tarihi belirleyin.
+   - **End Date (Bitiş Tarihi)**: Sprint süresini belirleyin (genellikle 2-4 hafta arası).
+   - **Add Sprint** butonuna tıklayarak sprint'i oluşturun.
+
+3. **Sprint'in Doğrulanması**
+   - Oluşturduğunuz `Sprint 1`'in **Sprints** listesindeki yerini kontrol edin ve doğru tarihlerle oluşturulduğundan emin olun.
+
+### 5.3.4 Adım 3: Task'ları Sprint'e Atama
+
+1. **Backlogs Sekmesine Geri Dönün**
+   - Sol menüden **"Boards"** sekmesine, ardından **"Backlogs"** seçeneğine tıklayın.
+
+2. **Sprint 1'e Geçiş Yapın**
+   - Backlog görünümünde, sağ üst köşede bulunan **"Iteration Path"** dropdown menüsünden `Sprint 1`'i seçin. Bu, backlog öğelerinizin sadece `Sprint 1` için filtrelenmesini sağlar.
+
+3. **Task'ları Sprint'e Sürükleyip Bırakma**
+   - Oluşturduğunuz **Task**'ları sprint'e atamak için aşağıdaki adımları izleyin:
+     - Backlog listesinde yer alan **Task**'ları bulun.
+     - Her bir **Task**'ı seçin ve sürükleyip `Sprint 1` kutusuna bırakın.
+     - Alternatif olarak, **Task**'ın üzerine gelip açılan detay panelinde **"Iteration Path"** alanını `Sprint 1` olarak değiştirin.
+
+4. **Atanan Task'ları Doğrulama**
+   - `Sprint 1`'e atadığınız tüm **Task**'ların doğru şekilde eklendiğinden emin olmak için **Sprints** sekmesine geri dönün.
+   - **Sprint 1**'i seçin ve atanmış **Task**'ların listelendiğini doğrulayın.
+
+### 5.3.5 Adım 4: Sprint'in Durumunu İzleme
+
+1. **Sprint Board'u İnceleme**
+   - **Sprints** sekmesinde, `Sprint 1`'i seçin.
+   - **Sprint Board** üzerinde, **Task**'ların durumlarını (To Do, In Progress, Done) takip edebilirsiniz.
+   - **Task**'ların ilerleme durumlarına göre board üzerinde sürükle-bırak yöntemiyle taşınmasını sağlayın.
+
+2. **Burndown Chart Görüntüleme**
+   - **Sprints** sekmesinde, `Sprint 1`'i seçtikten sonra, sağ üst köşede bulunan **"Burndown"** sekmesine tıklayın.
+   - Burndown chart, sprint süresince tamamlanan iş miktarını görsel olarak takip etmenizi sağlar.
+
+### 5.3.6 Adım 5: Sprint Planlaması ve Takip
+
+1. **Sprint Hedeflerini Belirleme**
+   - `Sprint 1` için belirlediğiniz **Feature**, **PBI** ve **Task**'ları gözden geçirerek sprint hedeflerinizi netleştirin.
+   - Hangi **Task**'ların öncelikli olduğunu ve sprint süresince tamamlanması gerekenleri belirleyin.
+
+2. **Daily Stand-up Toplantıları**
+   - Sprint süresince günlük kısa toplantılar düzenleyerek ekip üyelerinin ilerlemelerini, karşılaştıkları engelleri ve günlük hedeflerini paylaşmalarını sağlayın.
+   - **Sprint Board** üzerindeki **Task**'ların güncel durumlarını takip edin ve gerektiğinde yeniden önceliklendirme yapın.
+
+3. **Sprint İncelemesi ve Retrospektif**
+   - Sprint sonunda, tamamlanan işlerin gözden geçirilmesi için bir sprint inceleme toplantısı düzenleyin.
+   - Sprint sürecinde nelerin iyi gittiğini, nelerin geliştirilmesi gerektiğini belirlemek için retrospektif toplantısı yapın.
+
+### 5.3.7 Lab-3'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, `ProductManagement` projesi için yeni bir sprint oluşturmuş ve mevcut **Task**'ları bu sprint'e başarıyla atamış oldunuz. Sprint planlaması ve takip süreçlerini uygulayarak, proje yönetimini daha düzenli ve verimli hale getirdiniz. Bir sonraki laboratuvar çalışmasında, backend ve frontend için Git reposu oluşturma adımlarını gerçekleştireceğiz.
+
+---
