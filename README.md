@@ -6006,3 +6006,134 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 ### 5.24.7 Lab-24'ün Tamamlanması
 
 Bu laboratuvar çalışmasını tamamlayarak backend ve UI projeleriniz için ayrı ortamlar oluşturup, deploy adımı öncesinde manuel onay eklediniz. Bu ayarlar, her bir proje için bağımsız kontrol ve güvenlik sağlayarak dağıtım süreçlerinizi daha güvenilir hale getirir.
+
+## 5.25 Lab-25: Backend Projesine Unit Testleri Eklemek ve Visual Studio Üzerinden Çalıştırmak
+
+Bu laboratuvar çalışmasında, backend projesine **unit testler** ekleyecek ve Visual Studio üzerinden bu testleri çalıştırarak başarılı olup olmadıklarını gözlemleyeceğiz. Unit testler, kodun doğru çalıştığını kontrol etmek ve hataları erken aşamada tespit etmek için önemlidir.
+
+---
+
+### 5.25.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Visual Studio Yüklü Olmalı**: Backend projenizi açabileceğiniz ve unit test yazabileceğiniz bir Visual Studio kurulumuna sahip olmalısınız.
+- **Backend Projesi**: Daha önce oluşturduğunuz backend projesi çalışır durumda olmalıdır.
+- **Unit Test Frameworkleri**: `xUnit`, `MSTest` veya `NUnit` gibi bir test framework'ü kullanabilirsiniz. Bu laboratuvarda `xUnit` kullanılacaktır.
+
+---
+
+### 5.25.2 Adım 1: Unit Test Projesi Eklemek
+
+1. **Unit Test Projesi Ekleme**
+   - Visual Studio'da backend projenizi açın.
+   - **Solution Explorer**'da çözüm adına sağ tıklayın ve **Add > New Project** seçeneğini seçin.
+   - Açılan pencerede **Unit Test Project (.NET Core)** şablonunu bulun ve seçin.
+   - Proje adını `ProductManagement.Tests` olarak belirleyin ve **Create** butonuna tıklayın.
+
+2. **xUnit Framework'ünü Yükleme**
+   - Unit test projesine sağ tıklayın ve **Manage NuGet Packages** seçeneğini seçin.
+   - **Browse** sekmesinde `xunit` paketini arayın ve yükleyin.
+   - Ayrıca `xunit.runner.visualstudio` paketini de yükleyerek Visual Studio Test Explorer ile entegrasyonu sağlayın.
+
+3. **Backend Projesini Referans Ekleme**
+   - Unit test projesine sağ tıklayın ve **Add > Project Reference** seçeneğini seçin.
+   - Açılan listeden backend projenizi seçin ve **OK** butonuna tıklayın.
+
+---
+
+### 5.25.3 Adım 2: Test Sınıfı ve Metotları Yazma
+
+1. **Yeni Test Sınıfı Oluşturma**
+   - `ProductManagement.Tests` projesinde `Tests` adında bir klasör oluşturun.
+   - Bu klasörün içine `ProductServiceTests.cs` adında yeni bir sınıf ekleyin.
+
+2. **Test Metotlarını Yazma**
+   - Aşağıdaki örnek kodu `ProductServiceTests.cs` dosyasına ekleyin:
+     ```csharp
+     using Xunit;
+     using Moq;
+     using ProductManagement.Services;
+     using ProductManagement.Models;
+
+     public class ProductServiceTests
+     {
+         private readonly ProductService _productService;
+         private readonly Mock<IProductRepository> _mockRepository;
+
+         public ProductServiceTests()
+         {
+             _mockRepository = new Mock<IProductRepository>();
+             _productService = new ProductService(_mockRepository.Object);
+         }
+
+         [Fact]
+         public void GetAllProducts_ShouldReturnListOfProducts()
+         {
+             // Arrange
+             var products = new List<Product>
+             {
+                 new Product { Id = 1, ProductName = "Product A", Price = 10.0, Stock = 100 },
+                 new Product { Id = 2, ProductName = "Product B", Price = 20.0, Stock = 200 }
+             };
+
+             _mockRepository.Setup(repo => repo.GetAll()).Returns(products);
+
+             // Act
+             var result = _productService.GetAllProducts();
+
+             // Assert
+             Assert.NotNull(result);
+             Assert.Equal(2, result.Count);
+         }
+
+         [Fact]
+         public void AddProduct_ShouldCallRepositoryAdd()
+         {
+             // Arrange
+             var product = new Product { Id = 3, ProductName = "Product C", Price = 30.0, Stock = 300 };
+
+             // Act
+             _productService.AddProduct(product);
+
+             // Assert
+             _mockRepository.Verify(repo => repo.Add(It.IsAny<Product>()), Times.Once);
+         }
+     }
+     ```
+
+3. **Mocking Kütüphanesi Yükleme**
+   - `MoQ` kütüphanesini eklemek için **Manage NuGet Packages** üzerinden `Moq` paketini yükleyin.
+
+---
+
+### 5.25.4 Adım 3: Unit Testleri Çalıştırma
+
+1. **Test Explorer'ı Açma**
+   - Visual Studio'da **Test > Test Explorer** menüsüne giderek Test Explorer penceresini açın.
+
+2. **Testleri Çalıştırma**
+   - **Test Explorer** penceresinde testlerin yüklendiğini göreceksiniz.
+   - Tüm testleri çalıştırmak için **Run All** butonuna tıklayın.
+   - Çalıştırılan testlerin durumunu Test Explorer'da gözlemleyin:
+     - Geçen testler yeşil olarak işaretlenecektir.
+     - Başarısız olan testler kırmızı olarak işaretlenecektir.
+
+---
+
+### 5.25.5 Adım 4: Test Sonuçlarını Analiz Etme
+
+1. **Geçen Testleri Kontrol Etme**
+   - Testler yeşil olarak işaretlendiyse, ilgili kodun beklendiği gibi çalıştığını doğrular.
+
+2. **Başarısız Olan Testleri Düzeltme**
+   - Başarısız olan testler için Test Explorer'da testin üzerine tıklayın.
+   - Hatanın nedenini öğrenmek için detayları inceleyin ve ilgili kodu düzeltin.
+   - Düzeltmelerden sonra tekrar **Run All** butonuna tıklayarak testleri yeniden çalıştırın.
+
+---
+
+### 5.25.6 Lab-25'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend projenize unit testler eklediniz, testlerinizi Visual Studio üzerinden çalıştırdınız ve test sonuçlarını analiz ettiniz. Bu süreç, projenizin kalite güvencesini artırmak ve potansiyel hataları erken aşamada tespit etmek için önemli bir adımdır.
+
