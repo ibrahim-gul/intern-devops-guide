@@ -6262,3 +6262,227 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 
 Bu laboratuvar çalışmasını tamamlayarak backend pipeline'ınıza testleri çalıştıran bir adım eklediniz ve test sonuçlarını Azure DevOps pipeline arayüzüne yayınladınız. Bu işlem, kod kalitesini artırarak potansiyel hataların erken tespit edilmesini sağlar.
 
+## 5.28 Lab-28: Container ve Sanal Makine Teknolojileri Karşılaştırması ve Docker Desktop Kurulumu
+
+Bu laboratuvar çalışmasında, container teknolojileri ile sanal makine (VM) teknolojilerini karşılaştıracak ve ardından Docker Desktop kurulumunu adım adım anlatacağız. Öncesinde, sanal makinelerin ve container teknolojilerinin tarihçesini inceleyeceğiz.
+
+---
+
+### 5.28.1 Sanal Makineler ve Container Teknolojilerinin Tarihçesi
+
+#### 5.28.1.1 Sanal Makinelerin Tarihçesi
+Sanal makineler, donanım seviyesinde yalıtım sağlayarak birden fazla işletim sisteminin aynı fiziksel sunucuda çalışmasına olanak tanır. 
+
+- **1960'lar**:
+  - IBM, büyük sunucuların farklı görevleri aynı anda yerine getirebilmesi için **IBM CP-40** ve **CP-67** projelerini geliştirdi. Bu, sanal makine konseptinin temellerini attı.
+  - İlk sanallaştırma teknolojileri, donanımın verimli kullanılmasını ve maliyetlerin azaltılmasını hedefliyordu.
+
+- **1990'lar**:
+  - VMware, 1999'da **VMware Workstation**'ı piyasaya sürdü. Bu, modern sanal makinelerin başlangıcı oldu ve kişisel bilgisayarlarda sanallaştırmayı mümkün kıldı.
+  - Sanal makineler, özellikle veri merkezlerinde büyük ölçekli uygulamalarda popüler hale geldi.
+
+- **2000'ler**:
+  - Microsoft, 2008 yılında **Hyper-V**'yi piyasaya sürdü. Bu, Windows işletim sistemine entegre bir hipervizör sunuyordu.
+  - Sanal makineler, bulut bilişim ile birleştirildi ve **Amazon EC2** gibi hizmetler ortaya çıktı.
+
+#### 5.28.1.2 Container Teknolojilerinin Tarihçesi
+Container teknolojileri, sanal makinelerden farklı olarak işletim sistemi seviyesinde yalıtım sağlar ve daha hafiftir.
+
+- **1970'ler**:
+  - **chroot** komutu, 1979'da Unix için tanıtıldı. Bu, bir işlemi dosya sistemi seviyesinde izole etmek için kullanılan ilk teknolojiydi.
+  - chroot, modern container teknolojilerinin öncüsü olarak kabul edilir.
+
+- **2000'ler**:
+  - 2001 yılında **FreeBSD Jail** teknolojisi tanıtıldı. Bu, bir işletim sistemi içinde birden fazla izole edilmiş ortam oluşturmayı mümkün kıldı.
+  - **OpenVZ** ve **Linux VServer** gibi projeler, Linux üzerinde container benzeri çözümler geliştirdi.
+
+- **2010'lar**:
+  - 2013 yılında **Docker** tanıtıldı. Docker, container teknolojisini standartlaştırdı ve kullanımı kolay bir platform sundu. Bu, container'ların popülerliğini artırdı.
+  - Kubernetes, 2014 yılında Google tarafından açık kaynaklı olarak yayınlandı. Kubernetes, container'ların otomatik olarak yönetilmesini sağladı ve DevOps süreçlerinde devrim yarattı.
+
+#### 5.28.1.3 Modern Dönem
+- **2020'ler**:
+  - Container teknolojileri, mikroservis mimarilerinin ve bulut tabanlı uygulamaların temel taşı haline geldi.
+  - Docker, Kubernetes ve Podman gibi araçlar, DevOps ve sürekli entegrasyon/sürekli dağıtım (CI/CD) süreçlerinin ayrılmaz bir parçası oldu.
+  - Sanal makineler ise veri merkezleri ve güvenlik gereksinimleri yüksek olan uygulamalar için tercih edilmeye devam etti.
+
+---
+
+### 5.28.2 Container ve Sanal Makine Teknolojilerinin Karşılaştırılması
+
+| Özellik                  | Container                                          | Sanal Makine (VM)                                   |
+|--------------------------|---------------------------------------------------|----------------------------------------------------|
+| **Tanım**                | Uygulamaları ve bağımlılıklarını izole eder.       | İşletim sistemi seviyesinde tamamen izole edilmiş bir ortam sağlar. |
+| **Performans**           | Host işletim sistemi kaynaklarını doğrudan kullanır, daha hızlıdır. | Kendi işletim sistemi çekirdeği ile çalıştığı için daha ağırdır. |
+| **Boyut**                | Hafiftir, birkaç MB büyüklüğünde olabilir.        | Genellikle birkaç GB büyüklüğündedir.             |
+| **Başlatma Süresi**      | Milisaniyeler içinde başlatılabilir.              | Dakikalar sürebilir.                              |
+| **Kaynak Kullanımı**     | Paylaşımlı çekirdek kullanımı nedeniyle az kaynak tüketir. | Daha fazla CPU, bellek ve disk alanı gerektirir.  |
+| **Esneklik**             | Mikroservis tabanlı mimarilere daha uygundur.      | Monolitik uygulamalar için daha uygundur.         |
+| **Yalıtım**              | İşlem seviyesinde yalıtım sağlar.                 | Donanım seviyesinde yalıtım sağlar.              |
+| **Kullanım Alanı**       | Modern yazılım geliştirme, CI/CD, bulut tabanlı uygulamalar. | Yüksek güvenlik gereksinimleri ve legacy uygulamalar. |
+
+**Özet**: Container teknolojileri, hafif ve hızlı olmaları nedeniyle modern yazılım geliştirme ve dağıtım süreçlerinde daha yaygın olarak kullanılmaktadır. Sanal makineler ise yüksek güvenlik ve izolasyon gereksinimlerinde tercih edilmektedir.
+
+---
+
+### 5.28.3 Docker Desktop Kurulumu
+
+#### 5.28.3.1 Ön Gereksinimler
+
+- **İşletim Sistemi**: Windows 10 (64-bit) Pro, Enterprise veya Education; macOS; veya Linux.
+- **Sanalizasyon Desteği**: BIOS/UEFI üzerinden sanallaştırmanın etkinleştirilmiş olması gerekir.
+- **Donanım Gereksinimleri**:
+  - 4 GB RAM veya daha fazla.
+  - 64-bit işlemci.
+
+#### 5.28.3.2 Kurulum Adımları (Windows)
+
+1. **Docker Desktop İndirme**
+   - [Docker Resmi Web Sitesi](https://www.docker.com/products/docker-desktop) adresine gidin.
+   - **Download for Windows** butonuna tıklayarak Docker Desktop kurulum dosyasını indirin.
+
+2. **Kurulum Dosyasını Çalıştırma**
+   - İndirdiğiniz `Docker Desktop Installer.exe` dosyasını çift tıklayarak çalıştırın.
+   - Açılan pencerede **Install** butonuna tıklayın.
+
+3. **Kurulum Seçeneklerini Yapılandırma**
+   - **WSL 2 Backend Kullanımı**: WSL 2 (Windows Subsystem for Linux) backend'ini kullanmayı tercih edin. WSL 2 kurulumu otomatik yapılmazsa, [WSL Kurulum Kılavuzu](https://learn.microsoft.com/en-us/windows/wsl/install) adresini takip ederek WSL 2'yi etkinleştirin.
+
+4. **Docker Desktop Kurulumunu Tamamlama**
+   - Kurulum tamamlandıktan sonra bilgisayarınızı yeniden başlatmanız gerekebilir.
+   - Docker Desktop uygulamasını başlatın.
+
+5. **Docker Desktop İlk Ayarları**
+   - Docker Desktop ilk kez başlatıldığında, lisans koşullarını kabul edin.
+   - **Start Docker Desktop** butonuna tıklayın.
+
+6. **Kurulumu Doğrulama**
+   - PowerShell veya terminali açın ve şu komutu çalıştırın:
+     ```bash
+     docker --version
+     ```
+   - Çıktıda Docker sürümünü görüyorsanız, kurulum başarılı olmuştur.
+
+---
+
+### 5.28.4 Docker Desktop Kurulumunu Test Etme
+
+1. **Hello World Container Çalıştırma**
+   - Docker'ın doğru kurulduğunu test etmek için şu komutu çalıştırın:
+     ```bash
+     docker run hello-world
+     ```
+   - Bu komut, Docker Hub'dan `hello-world` image'ini indirir ve bir container olarak çalıştırır. Çıktıda Docker'ın başarıyla çalıştığını belirten bir mesaj göreceksiniz.
+
+2. **Docker Dashboard Kullanımı**
+   - Docker Desktop uygulamasını açarak çalışmakta olan container'ları ve diğer kaynakları görsel olarak kontrol edebilirsiniz.
+
+---
+
+### 5.28.5 Lab-28'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak sanal makineler ve container teknolojilerinin tarihçesini incelediniz, Docker Desktop kurulumunu gerçekleştirdiniz ve kurulumu başarıyla test ettiniz. Bir sonraki laboratuvarda Docker container'larını daha ayrıntılı bir şekilde inceleyeceğiz.
+
+## 5.29 Lab-29: Backend Projesine Docker Desteği Eklemek ve Container İçerisinde Debug Yapmak
+
+Bu laboratuvar çalışmasında, **ProductManagement** backend projesine Docker desteği ekleyeceğiz. Visual Studio kullanarak bir **Dockerfile** oluşturacak ve projenizi container içerisinde çalıştırıp debug edeceksiniz. Bu işlem, Docker container'ları ile çalışırken geliştirme ve hata ayıklama süreçlerini kolaylaştıracaktır.
+
+---
+
+### 5.29.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Docker Desktop**: Lab-28'de anlatıldığı şekilde Docker Desktop kurulu ve çalışır durumda olmalıdır.
+- **Visual Studio**: Docker desteği olan bir Visual Studio sürümü (ör. Visual Studio 2022) yüklü olmalıdır.
+- **Backend Projesi**: ASP.NET Core tabanlı backend projesi mevcut olmalıdır.
+
+---
+
+### 5.29.2 Adım 1: Backend Projesine Docker Desteği Eklemek
+
+1. **Docker Desteği Ekleme**
+   - Visual Studio'da backend projenizi açın.
+   - **Solution Explorer**'da projenize sağ tıklayın ve **Add > Docker Support** seçeneğini seçin.
+   - Açılan pencerede **Target OS** olarak **Linux** veya **Windows** seçeneğini seçin (Linux önerilir).
+   - Visual Studio, projenize bir **Dockerfile** ve **docker-compose** dosyaları ekleyecektir.
+
+2. **Dockerfile İçeriğini İnceleme**
+   - Visual Studio tarafından otomatik oluşturulan `Dockerfile` şu şekilde görünebilir:
+     ```dockerfile
+     # Use the official .NET image as a base image
+     FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+     WORKDIR /app
+     EXPOSE 80
+     EXPOSE 443
+
+     FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+     WORKDIR /src
+     COPY ["ProductManagement/ProductManagement.csproj", "ProductManagement/"]
+     RUN dotnet restore "ProductManagement/ProductManagement.csproj"
+     COPY . .
+     WORKDIR "/src/ProductManagement"
+     RUN dotnet build "ProductManagement.csproj" -c Release -o /app/build
+
+     FROM build AS publish
+     RUN dotnet publish "ProductManagement.csproj" -c Release -o /app/publish
+
+     FROM base AS final
+     WORKDIR /app
+     COPY --from=publish /app/publish .
+     ENTRYPOINT ["dotnet", "ProductManagement.dll"]
+     ```
+
+3. **Proje Dosyalarını Düzenleme**
+   - Projenizdeki `Dockerfile` dosyasını inceleyin ve ihtiyaçlarınıza göre düzenleyin. Örneğin, özel portlar eklemek veya ek bağımlılıklar yüklemek için `EXPOSE` veya `RUN` komutlarını güncelleyebilirsiniz.
+
+---
+
+### 5.29.3 Adım 2: Docker Container Oluşturma ve Çalıştırma
+
+1. **Container Oluşturma**
+   - Visual Studio'nun üst menüsünden **Docker** profilini seçin.
+   - Projeyi **F5 (Start Debugging)** ile başlatın.
+   - Visual Studio, Docker container'ını oluşturacak, gerekli image'i build edecek ve uygulamayı container içerisinde çalıştıracaktır.
+
+2. **Container Çalıştırma Durumunu Kontrol Etme**
+   - Docker Desktop uygulamasını açarak container'ın çalıştığını doğrulayabilirsiniz.
+   - Alternatif olarak terminalde şu komutu çalıştırabilirsiniz:
+     ```bash
+     docker ps
+     ```
+   - Çalışan container'ın adını ve durumunu listeleyebilirsiniz.
+
+3. **Uygulamayı Test Etme**
+   - Tarayıcınızda, Docker container'ınızın host ettiği uygulamayı kontrol etmek için `http://localhost:<mapped-port>` adresine gidin.
+   - Uygulamanızın doğru bir şekilde çalıştığını doğrulayın.
+
+---
+
+### 5.29.4 Adım 3: Container İçerisinde Debug Yapmak
+
+1. **Visual Studio ile Debug Modu**
+   - Visual Studio'da **Docker** profilinin seçili olduğundan emin olun.
+   - **Breakpoint** eklemek istediğiniz dosyayı açın ve bir veya daha fazla satıra breakpoint ekleyin.
+   - Uygulamayı başlatmak için **F5** tuşuna basın.
+   - Uygulama bir Docker container içerisinde çalışırken, Visual Studio otomatik olarak container'a bağlanacak ve breakpoint'ler tetiklenince debug işlemini başlatacaktır.
+
+2. **Hata Ayıklama Süreci**
+   - Debugging sırasında Visual Studio'dan aşağıdaki işlemleri yapabilirsiniz:
+     - Kod adımlarını takip etme (Step Over, Step Into, Step Out).
+     - Değişken değerlerini izleme.
+     - Uygulama performansını gözlemleme.
+   - Debugging tamamlandıktan sonra **Shift + F5** tuşlarına basarak debugging modundan çıkabilirsiniz.
+
+3. **Logları İnceleme**
+   - Docker container loglarını terminal üzerinden kontrol etmek için şu komutu çalıştırabilirsiniz:
+     ```bash
+     docker logs <container-id>
+     ```
+   - Bu loglar, container içerisinde çalıştırılan uygulamanızla ilgili önemli bilgiler sunar.
+
+---
+
+### 5.29.5 Lab-29'un Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend projenize Docker desteği eklediniz, Visual Studio üzerinden container oluşturup çalıştırdınız ve container içerisinde debugging yaptınız. Docker container'larında hata ayıklama yapmak, container tabanlı uygulamaları geliştirirken oldukça kullanışlıdır.
