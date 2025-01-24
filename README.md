@@ -6598,4 +6598,64 @@ Bu laboratuvar çalışmasında, backend projesini IIS üzerinde host etmek yeri
 
 Bu laboratuvar çalışmasını tamamlayarak backend projenizi Docker üzerinde çalışacak şekilde yapılandırdınız, IIS üzerindeki host işlemlerini durdurdunuz, UI projesini Docker backend ile entegre ettiniz ve tüm değişiklikleri **main** branch'e merge ettiniz. Artık projeniz container tabanlı bir geliştirme ve dağıtım ortamında çalışmaktadır.
 
+## 5.31 Lab-31: Docker Hub Kullanıcısı Oluşturma ve Azure DevOps'a Docker Hub'ı Service Connection Olarak Ekleme
+
+Bu laboratuvar çalışmasında, Docker Hub üzerinde bir kullanıcı oluşturacak ve Azure DevOps üzerinde bir **service connection** oluşturarak Docker Hub ile entegrasyonu sağlayacağız. Bu adım, Docker image'lerini Azure DevOps pipeline'larından Docker Hub'a push edebilmek için gereklidir.
+
+---
+
+### 5.31.1 Docker Hub Kullanıcısı Oluşturma
+
+1. **Docker Hub Web Sitesine Gidin**
+   - Tarayıcınızda [https://hub.docker.com](https://hub.docker.com) adresine gidin.
+
+2. **Yeni Hesap Oluşturma**
+   - Sağ üst köşedeki **Sign Up** butonuna tıklayın.
+   - Gerekli bilgileri doldurun:
+     - **Username**: Docker Hub'da kullanılacak benzersiz bir kullanıcı adı.
+     - **Email Address**: Aktif bir e-posta adresi.
+     - **Password**: Güçlü bir şifre.
+   - **Sign Up** butonuna tıklayarak hesabınızı oluşturun.
+
+3. **E-posta Doğrulaması**
+   - Docker Hub, kayıt sırasında belirtilen e-posta adresine bir doğrulama e-postası gönderecektir.
+   - E-posta gelen kutunuza giderek doğrulama bağlantısına tıklayın.
+
+4. **Hesabınızın Oluşturulması**
+   - Doğrulama işleminden sonra hesabınız aktif hale gelecektir.
+
+---
+
+### 5.31.2 Azure DevOps Üzerinde Docker Hub Service Connection Oluşturma
+
+1. **Azure DevOps Portalına Giriş Yapma**
+   - [Azure DevOps](https://dev.azure.com/) portalına giriş yapın.
+
+2. **Proje Ayarlarına Gitme**
+   - Azure DevOps'ta entegrasyonu yapmak istediğiniz projeyi seçin.
+   - Sol alt köşede bulunan **Project Settings** sekmesine tıklayın.
+
+3. **Service Connections Ayarlarına Gitme**
+   - **Pipelines** altında bulunan **Service Connections** sekmesine tıklayın.
+   - Sağ üst köşedeki **New Service Connection** butonuna tıklayın.
+
+4. **Docker Registry Seçimi**
+   - Açılan pencerede **Docker Registry** seçeneğini seçin ve **Next** butonuna tıklayın.
+
+5. **Docker Hub Bilgilerini Girme**
+   - **Registry Type**: Docker Hub.
+   - **Docker Hub Access**:
+     - **Username**: Docker Hub kullanıcı adınızı girin.
+     - **Password**: Docker Hub şifrenizi girin.
+   - **Service Connection Name**: Örneğin, `docker-hub-connection` yazabilirsiniz.
+
+6. **Service Connection'ı Test Etme**
+   - **Verify and Save** butonuna tıklayarak bağlantıyı test edin.
+   - Test başarılı olursa, service connection otomatik olarak oluşturulacaktır.
+
+---
+
+### 5.31.3 Lab-31'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak Docker Hub üzerinde bir kullanıcı oluşturdunuz ve Azure DevOps'ta Docker Hub için bir service connection tanımladınız. Bu yapılandırma, Docker image'lerini Azure DevOps pipeline'ları aracılığıyla Docker Hub'a push edebilmek için temel oluşturur.
 
