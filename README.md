@@ -6486,3 +6486,110 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 ### 5.29.5 Lab-29'un Tamamlanması
 
 Bu laboratuvar çalışmasını tamamlayarak backend projenize Docker desteği eklediniz, Visual Studio üzerinden container oluşturup çalıştırdınız ve container içerisinde debugging yaptınız. Docker container'larında hata ayıklama yapmak, container tabanlı uygulamaları geliştirirken oldukça kullanışlıdır.
+
+## 5.30 Lab-30: Backend Projesini IIS Üzerinde Host Etmek Yerine Docker Üzerinde Host Etmek
+
+Bu laboratuvar çalışmasında, backend projesini IIS üzerinde host etmek yerine Docker container içerisinde çalıştıracağız. IIS üzerindeki siteyi durduracak ve Docker üzerinden çalışacak şekilde konfigüre edeceğiz. Ayrıca, UI projesinin Docker üzerinde çalışan backend ile uyumlu şekilde çalıştığını test edeceğiz. **Backend için Docker portu 10101 olarak ayarlanacaktır.**
+
+---
+
+### 5.30.1 Ön Hazırlıklar
+
+- **Docker Desktop**: Docker Desktop yüklü ve çalışır durumda olmalıdır.
+- **Dockerfile**: Backend projenizde Lab-29'da oluşturulan Dockerfile mevcut olmalıdır.
+- **IIS**: IIS üzerinde çalışan backend sitesi durdurulacak ve kaldırılacaktır.
+- **UI Projesi**: UI projesi backend ile haberleşecek şekilde yapılandırılmış olmalıdır.
+
+---
+
+### 5.30.2 Adım 1: IIS Üzerindeki Backend Sitesini Durdurmak
+
+1. **IIS Manager'ı Açma**
+   - Windows'da `inetmgr` komutunu çalıştırarak IIS Manager'ı açın.
+
+2. **Backend Sitesini Durdurma**
+   - IIS Manager'da backend sitenizi bulun (`ProductManagement_Backend`).
+   - Siteye sağ tıklayın ve **Stop** seçeneğini seçin.
+
+3. **Application Pool'u Durdurma**
+   - Sol menüden **Application Pools** sekmesine gidin.
+   - Backend için kullanılan Application Pool'u bulun ve sağ tıklayarak **Stop** seçeneğini seçin.
+
+---
+
+### 5.30.3 Adım 2: Backend Projesini Docker Üzerinde Host Etmek
+
+1. **Docker Image Oluşturma**
+   - Backend projesinin bulunduğu dizinde terminali açın.
+   - Docker image oluşturmak için şu komutu çalıştırın:
+     ```bash
+     docker build -t productmanagement-backend .
+     ```
+   - Bu komut, `Dockerfile` dosyasını kullanarak bir Docker image oluşturacaktır.
+
+2. **Container Oluşturma ve Çalıştırma**
+   - Oluşturulan image'den bir container çalıştırmak için şu komutu çalıştırın:
+     ```bash
+     docker run -d -p 10101:80 --name productmanagement-backend-container productmanagement-backend
+     ```
+   - Bu komut, Docker container'ını başlatır ve localhost üzerindeki 10101 portunu container içindeki 80 portuna yönlendirir.
+
+3. **Container'ın Çalıştığını Doğrulama**
+   - Terminalde şu komutu çalıştırarak çalışan container'ları listeleyin:
+     ```bash
+     docker ps
+     ```
+   - Çıktıda `productmanagement-backend-container` adında bir container görüyorsanız, backend doğru şekilde çalışıyordur.
+
+4. **API'yi Test Etme**
+   - Tarayıcınızda veya Postman'de `http://localhost:10101/api/products` gibi bir endpoint'e giderek backend API'sinin çalıştığını doğrulayın.
+
+---
+
+### 5.30.4 Adım 3: UI Projesini Docker Backend ile Çalışacak Şekilde Yapılandırma
+
+1. **UI Projesinde Backend API URL'sini Güncelleme**
+   - UI projesindeki `environment.ts` dosyasını açın ve `apiUrl` değerini Docker'daki backend'e yönlendirin:
+     ```typescript
+     export const environment = {
+       production: true,
+       apiUrl: 'http://localhost:10101/api'
+     };
+     ```
+
+2. **UI Projesini Çalıştırma**
+   - UI projesini Docker üzerinden çalıştırıyorsanız, `docker-compose` veya ilgili container ayarlarının doğru olduğundan emin olun.
+   - Eğer lokal olarak çalıştırıyorsanız, şu komutla başlatın:
+     ```bash
+     ng serve
+     ```
+
+3. **UI'da Backend Entegrasyonunu Test Etme**
+   - Tarayıcınızda `http://localhost:4200` adresine gidin ve UI üzerinden backend ile iletişimi test edin.
+   - Örneğin, ürün listeleme sayfasında backend'den gelen ürünlerin başarıyla yüklendiğini doğrulayın.
+
+---
+
+### 5.30.5 Adım 4: Sistem Genelini Test Etme
+
+1. **UI ve Backend Uyumluluğunu Kontrol Etme**
+   - Docker üzerinde çalışan backend ile UI projesinin tüm özelliklerini test edin:
+     - Ürün listeleme.
+     - Ürün ekleme, güncelleme ve silme.
+   - Tüm işlemlerin doğru şekilde çalıştığından emin olun.
+
+2. **Hataları Gözlemleme ve Çözme**
+   - Eğer bir hata ile karşılaşırsanız:
+     - Backend için Docker container loglarını incelemek için:
+       ```bash
+       docker logs productmanagement-backend-container
+       ```
+     - UI projesinin konsol hatalarını inceleyin ve gerekli düzenlemeleri yapın.
+
+---
+
+### 5.30.6 Lab-30'un Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend projenizi Docker üzerinde çalışacak şekilde yapılandırdınız, IIS üzerindeki host işlemlerini durdurdunuz ve UI projesini Docker üzerinde çalışan backend ile entegre bir şekilde çalıştırdınız. Backend container'ını 10101 portunda çalıştırarak container tabanlı geliştirme ve dağıtım sürecine geçiş yaptınız.
+
+
