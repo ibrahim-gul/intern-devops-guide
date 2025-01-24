@@ -5287,3 +5287,529 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 ### 5.19.5 Lab-19'un Tamamlanması
 
 Bu laboratuvar çalışmasını tamamlayarak UI projesi için bir CI pipeline oluşturmuş, pipeline'ı repository'ye YAML formatında eklemiş, Azure DevOps üzerinde yapılandırmış ve pipeline'ın doğru şekilde çalıştığını doğrulamış oldunuz. Bu süreç, projenizin sürekli entegrasyonunu sağlamanın temel bir adımıdır.
+
+## 5.20 Lab-20: Backend ve UI için IIS Üzerinde Site Kurma ve Konfigürasyon Yapma
+
+Bu laboratuvar çalışmasında, **ProductManagement** projesinin backend ve UI kısımları için IIS üzerinde iki ayrı site kuracak ve gerekli konfigürasyonları yapacağız. IIS üzerinde kurulan bu sitelerin dosya kökleri, projeyi klonladığınız dizinlerden farklı bir klasörde bulunacaktır. Kullanılacak portlar, lokal geliştirme sırasında kullanılan portlardan farklı olacak şekilde ayarlanacaktır: **Backend için 10100** ve **UI için 10200**.
+
+---
+
+### 5.20.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **IIS Yüklü Olmalı**: IIS (Internet Information Services) bilgisayarınıza yüklü ve etkinleştirilmiş olmalıdır.
+- **Proje Build Edilmiş Olmalı**: Backend ve UI projeleriniz build edilmiş ve çalışır durumda olmalıdır.
+- **Ayrı Klasörler Oluşturulmuş Olmalı**:
+  - Backend için: `C:\inetpub\ProductManagement_Backend`
+  - UI için: `C:\inetpub\ProductManagement_UI`
+- **Administrator Yetkisi**: IIS üzerinde site oluşturma ve yönetme yetkiniz olmalıdır.
+
+---
+
+### 5.20.2 Adım 1: IIS Üzerinde Backend Sitesini Kurma
+
+1. **Backend için Klasör Hazırlama**
+   - Backend projenizi build edin:
+     ```bash
+     dotnet publish -c Release -o C:\inetpub\ProductManagement_Backend
+     ```
+   - Build işlemi tamamlandıktan sonra `C:\inetpub\ProductManagement_Backend` klasörüne giderek dosyaların doğru bir şekilde kopyalandığını kontrol edin.
+
+2. **IIS Üzerinde Yeni Site Oluşturma**
+   - **IIS Manager**'ı açın (Windows'da `inetmgr` komutunu çalıştırarak erişebilirsiniz).
+   - Sol menüdeki **Sites** üzerine sağ tıklayın ve **Add Website** seçeneğini seçin.
+   - Aşağıdaki bilgileri girin:
+     - **Site Name**: `ProductManagement_Backend`
+     - **Physical Path**: `C:\inetpub\ProductManagement_Backend`
+     - **Binding**:
+       - **Type**: `http`
+       - **IP Address**: `All Unassigned`
+       - **Port**: `10100`
+       - **Host Name**: Boş bırakabilirsiniz.
+   - **OK** butonuna tıklayarak siteyi oluşturun.
+
+3. **Backend Sitesini Test Etme**
+   - Tarayıcınızda `http://localhost:10100` adresine giderek backend API'sinin çalıştığını doğrulayın.
+   - Eğer bir hata alırsanız, IIS loglarını ve backend loglarını kontrol edin.
+
+---
+
+### 5.20.3 Adım 2: IIS Üzerinde UI Sitesini Kurma
+
+1. **UI için Klasör Hazırlama**
+   - UI projenizi build edin:
+     ```bash
+     npm install
+     npm run build --prod
+     ```
+   - Build işlemi tamamlandıktan sonra `dist` klasörünün içeriğini `C:\inetpub\ProductManagement_UI` klasörüne kopyalayın.
+
+2. **IIS Üzerinde Yeni Site Oluşturma**
+   - IIS Manager'da **Sites** üzerine sağ tıklayın ve **Add Website** seçeneğini seçin.
+   - Aşağıdaki bilgileri girin:
+     - **Site Name**: `ProductManagement_UI`
+     - **Physical Path**: `C:\inetpub\ProductManagement_UI`
+     - **Binding**:
+       - **Type**: `http`
+       - **IP Address**: `All Unassigned`
+       - **Port**: `10200`
+       - **Host Name**: Boş bırakabilirsiniz.
+   - **OK** butonuna tıklayarak siteyi oluşturun.
+
+3. **UI Sitesini Test Etme**
+   - Tarayıcınızda `http://localhost:10200` adresine giderek UI uygulamasının çalıştığını doğrulayın.
+   - Eğer bir hata alırsanız, IIS loglarını ve browser console hatalarını kontrol edin.
+
+---
+
+### 5.20.4 Adım 3: CORS ve API Bağlantılarını Yapılandırma
+
+1. **Backend Projesinde CORS Ayarları**
+   - Backend projesinin CORS ayarlarına, UI sitesinden gelen istekleri kabul edecek şekilde izin ekleyin:
+     ```csharp
+     builder.Services.AddCors(options =>
+     {
+         options.AddPolicy("AllowUI",
+             builder =>
+             {
+                 builder.WithOrigins("http://localhost:10200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+             });
+     });
+
+     app.UseCors("AllowUI");
+     ```
+
+2. **UI Projesinde API URL'sini Güncelleme**
+   - UI projesinde `environment.ts` dosyasını açın ve API URL'sini şu şekilde güncelleyin:
+     ```typescript
+     export const environment = {
+       production: true,
+       apiUrl: 'http://localhost:10100/api'
+     };
+     ```
+
+3. **Değişiklikleri Uygulama**
+   - Backend ve UI projelerini yeniden build edin ve ilgili IIS klasörlerine yeniden kopyalayın.
+
+---
+
+### 5.20.5 Lab-20'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend ve UI projeleriniz için IIS üzerinde iki ayrı site kurmuş, gerekli yapılandırmaları yapmış ve bu sitelerin farklı dizinlerden çalışmasını sağlamış oldunuz. Backend için **10100**, UI için **10200** portunu kullanarak lokal sunucuda test işlemlerini gerçekleştirdiniz. Bu adımlar, projelerinizi lokal sunucuda test etme ve dağıtım süreçlerini daha gerçekçi bir şekilde simüle etme imkanı sunar.
+
+## 5.21 Lab-21: Backend CI Pipeline'ını CI/CD Pipeline'a Dönüştürme ve Deploy Adımı Eklemek
+
+Bu laboratuvar çalışmasında, daha önce oluşturduğumuz backend CI pipeline'ını CI/CD pipeline'a dönüştüreceğiz. Mevcut pipeline'da bir **Build** aşaması tanımlayacağız ve buna ek olarak bir **Deploy** aşaması ekleyerek build sonucunda oluşan dosyaları IIS'de oluşturduğumuz siteye kopyalayacağız. Kopyalama işlemi sırasında **Application Pool**'u durdurup tekrar başlatacağız. Tüm işlemler **Visual Studio** kullanılarak gerçekleştirilecektir.
+
+---
+
+### 5.21.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **IIS Üzerinde Backend Sitesi Kurulmuş Olmalı**: Lab-20'de oluşturduğumuz backend sitesi çalışır durumda olmalıdır.
+- **Self-Hosted Agent Kullanımı**: Pipeline işlemleri için self-hosted agent kullanılacaktır.
+- **Visual Studio Kurulmuş Olmalı**: Proje üzerinde işlem yapmak için Visual Studio kurulu olmalıdır.
+
+---
+
+### 5.21.2 Adım 1: Visual Studio'da Branch Oluşturma
+
+1. **Visual Studio'da Projeyi Açma**
+   - Visual Studio'yu açın ve backend projenizi açın.
+   - **Git Changes** penceresini açmak için Visual Studio'nun altındaki **Git** sekmesine gidin veya `View > Git Changes` seçeneğini seçin.
+
+2. **Yeni Branch Oluşturma**
+   - **Git Changes** penceresinden **Manage Branches** seçeneğine tıklayın.
+   - Açılan pencerede **New Branch** butonuna tıklayın.
+   - Branch adı olarak `feature/ci-cd-pipeline-update` yazın ve **Create Branch** butonuna tıklayın.
+
+---
+
+### 5.21.3 Adım 2: Pipeline Dosyasını Güncelleme
+
+1. **Pipeline Dosyasını Açma**
+   - Projenin kök dizinindeki `.azure-pipelines/ci-pipeline.yml` dosyasını bulun.
+   - Dosya adını **ci-cd-pipeline.yml** olarak değiştirin.
+
+2. **Pipeline İçeriğini Güncelleme**
+   - **ci-cd-pipeline.yml** dosyasını açın ve aşağıdaki içerik ile güncelleyin:
+
+     ```yaml
+     trigger:
+       branches:
+         include:
+           - main
+
+     pool:
+       name: 'Self-Hosted Agents' # Daha önce oluşturduğunuz agent pool adı
+
+     variables:
+       buildConfiguration: 'Release'
+       deployPath: 'C:\\inetpub\\ProductManagement_Backend' # IIS Backend sitesi için hedef klasör
+       appPoolName: 'ProductManagement_Backend' # IIS Application Pool adı
+
+     stages:
+       - stage: Build
+         displayName: "Build Stage"
+         jobs:
+           - job: BuildJob
+             displayName: "Build Backend Project"
+             steps:
+               - task: UseDotNet@2
+                 displayName: 'Install .NET SDK'
+                 inputs:
+                   packageType: 'sdk'
+                   version: '6.x'
+                   installationPath: $(Agent.ToolsDirectory)/dotnet
+
+               - script: |
+                   dotnet restore
+                   dotnet build --configuration $(buildConfiguration)
+                   dotnet publish --configuration $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+                 displayName: 'Restore, Build, and Publish'
+
+               - task: PublishBuildArtifacts@1
+                 displayName: 'Publish Artifacts'
+                 inputs:
+                   PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+                   ArtifactName: 'drop'
+
+       - stage: Deploy
+         displayName: "Deploy Stage"
+         dependsOn: Build
+         jobs:
+           - job: DeployJob
+             displayName: "Deploy to IIS"
+             steps:
+               - task: PowerShell@2
+                 displayName: "Stop Application Pool"
+                 inputs:
+                   targetType: 'inline'
+                   script: |
+                     Import-Module WebAdministration
+                     Stop-WebAppPool -Name $(appPoolName)
+
+               - task: DownloadBuildArtifacts@0
+                 displayName: "Download Build Artifacts"
+                 inputs:
+                   artifactName: 'drop'
+                   downloadPath: '$(System.ArtifactsDirectory)'
+
+               - task: PowerShell@2
+                 displayName: "Copy Files to IIS"
+                 inputs:
+                   targetType: 'inline'
+                   script: |
+                     Remove-Item -Recurse -Force $(deployPath)\*
+                     Copy-Item -Path "$(System.ArtifactsDirectory)\drop\*" -Destination $(deployPath) -Recurse
+
+               - task: PowerShell@2
+                 displayName: "Start Application Pool"
+                 inputs:
+                   targetType: 'inline'
+                   script: |
+                     Import-Module WebAdministration
+                     Start-WebAppPool -Name $(appPoolName)
+     ```
+
+3. **Değişiklikleri Kaydetme**
+   - Visual Studio'da yaptığınız değişiklikleri kaydedin (`Ctrl+S`).
+
+---
+
+### 5.21.4 Adım 3: Commit, Push ve PR Oluşturma
+
+1. **Değişiklikleri Commit Etme**
+   - **Git Changes** penceresine gidin.
+   - **Commit Message** olarak `CI/CD pipeline güncellendi, deploy adımı eklendi` yazın.
+   - **Commit All and Push** butonuna tıklayın.
+
+2. **Pull Request (PR) Oluşturma**
+   - Visual Studio'da sağ alt köşede **Create Pull Request** seçeneğine tıklayın.
+   - Açılan pencerede **Title** olarak `CI/CD pipeline güncellemesi` yazın.
+   - PR açıklamasını şu şekilde ekleyin:
+     ```
+     CI/CD pipeline güncellendi. Build ve Deploy aşamaları eklendi.
+     ```
+   - **Create** butonuna tıklayarak PR'ı oluşturun.
+
+---
+
+### 5.21.5 Adım 4: Pipeline'ın Çalışmasını Test Etme
+
+1. **Basit Bir Değişiklik Yapma**
+   - Backend projesinde küçük bir değişiklik yapın, örneğin bir yorum ekleyin:
+     ```csharp
+     // CI/CD Pipeline testi için değişiklik.
+     ```
+
+2. **Değişikliği Commit ve Push Etme**
+   - Değişiklikleri commit ve push edin:
+     - **Commit Message**: `Basit değişiklik yapıldı, CI/CD pipeline testi için.`
+     - **Commit All and Push** butonuna tıklayın.
+
+3. **Pipeline'ın Tetiklenmesini Gözlemleme**
+   - Azure DevOps portalında pipeline'ın çalıştığını doğrulayın.
+   - **Build Stage** tamamlandıktan sonra **Deploy Stage**'in başladığını ve IIS'deki dosyaların güncellendiğini kontrol edin.
+
+4. **IIS Sitesini Test Etme**
+   - Tarayıcınızda `http://localhost:10100` adresine giderek backend API'sinin doğru bir şekilde çalıştığını doğrulayın.
+
+---
+
+### 5.21.6 Lab-21'in Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend CI pipeline'ını CI/CD pipeline'a dönüştürmüş, deploy işlemini içerecek şekilde güncellemiş ve pipeline'ın Visual Studio kullanılarak başarıyla çalıştığını doğrulamış oldunuz.
+
+## 5.22 Lab-22: UI CI Pipeline'ını CI/CD Pipeline'a Dönüştürme ve Deploy Adımı Eklemek
+
+Bu laboratuvar çalışmasında, daha önce oluşturduğumuz UI CI pipeline'ını CI/CD pipeline'a dönüştüreceğiz. Mevcut pipeline'da bir **Build** aşaması tanımlayacağız ve buna ek olarak bir **Deploy** aşaması ekleyerek build sonucunda oluşan dosyaları IIS'de oluşturduğumuz UI sitesine kopyalayacağız. Tüm işlemler **Visual Studio** kullanılarak gerçekleştirilecektir.
+
+---
+
+### 5.22.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **IIS Üzerinde UI Sitesi Kurulmuş Olmalı**: Lab-20'de oluşturduğumuz UI sitesi çalışır durumda olmalıdır.
+- **Self-Hosted Agent Kullanımı**: Pipeline işlemleri için self-hosted agent kullanılacaktır.
+- **Visual Studio Kurulmuş Olmalı**: Proje üzerinde işlem yapmak için Visual Studio kurulu olmalıdır.
+
+---
+
+### 5.22.2 Adım 1: Visual Studio'da Branch Oluşturma
+
+1. **Visual Studio'da Projeyi Açma**
+   - Visual Studio'yu açın ve UI projenizi açın.
+   - **Git Changes** penceresini açmak için Visual Studio'nun altındaki **Git** sekmesine gidin veya `View > Git Changes` seçeneğini seçin.
+
+2. **Yeni Branch Oluşturma**
+   - **Git Changes** penceresinden **Manage Branches** seçeneğine tıklayın.
+   - Açılan pencerede **New Branch** butonuna tıklayın.
+   - Branch adı olarak `feature/ui-ci-cd-pipeline-update` yazın ve **Create Branch** butonuna tıklayın.
+
+---
+
+### 5.22.3 Adım 2: Pipeline Dosyasını Güncelleme
+
+1. **Pipeline Dosyasını Açma**
+   - Projenin kök dizinindeki `.azure-pipelines/ci-pipeline.yml` dosyasını bulun.
+   - Dosya adını **ci-cd-pipeline.yml** olarak değiştirin.
+
+2. **Pipeline İçeriğini Güncelleme**
+   - **ci-cd-pipeline.yml** dosyasını açın ve aşağıdaki içerik ile güncelleyin:
+
+     ```yaml
+     trigger:
+       branches:
+         include:
+           - main
+
+     pool:
+       name: 'Self-Hosted Agents' # Daha önce oluşturduğunuz agent pool adı
+
+     variables:
+       buildConfiguration: 'Release'
+       deployPath: 'C:\\inetpub\\ProductManagement_UI' # IIS UI sitesi için hedef klasör
+       appPoolName: 'ProductManagement_UI' # IIS Application Pool adı
+
+     stages:
+       - stage: Build
+         displayName: "Build Stage"
+         jobs:
+           - job: BuildJob
+             displayName: "Build UI Project"
+             steps:
+               - task: NodeTool@0
+                 displayName: 'Use Node.js'
+                 inputs:
+                   versionSpec: '14.x'
+                   checkLatest: true
+
+               - script: |
+                   npm install
+                   npm run build --prod
+                 displayName: 'Install Dependencies and Build'
+
+               - task: PublishBuildArtifacts@1
+                 displayName: 'Publish Artifacts'
+                 inputs:
+                   PathtoPublish: 'dist'
+                   ArtifactName: 'drop'
+
+       - stage: Deploy
+         displayName: "Deploy Stage"
+         dependsOn: Build
+         jobs:
+           - job: DeployJob
+             displayName: "Deploy to IIS"
+             steps:
+               - task: PowerShell@2
+                 displayName: "Stop Application Pool"
+                 inputs:
+                   targetType: 'inline'
+                   script: |
+                     Import-Module WebAdministration
+                     Stop-WebAppPool -Name $(appPoolName)
+
+               - task: DownloadBuildArtifacts@0
+                 displayName: "Download Build Artifacts"
+                 inputs:
+                   artifactName: 'drop'
+                   downloadPath: '$(System.ArtifactsDirectory)'
+
+               - task: PowerShell@2
+                 displayName: "Copy Files to IIS"
+                 inputs:
+                   targetType: 'inline'
+                   script: |
+                     Remove-Item -Recurse -Force $(deployPath)\*
+                     Copy-Item -Path "$(System.ArtifactsDirectory)\drop\*" -Destination $(deployPath) -Recurse
+
+               - task: PowerShell@2
+                 displayName: "Start Application Pool"
+                 inputs:
+                   targetType: 'inline'
+                   script: |
+                     Import-Module WebAdministration
+                     Start-WebAppPool -Name $(appPoolName)
+     ```
+
+3. **Değişiklikleri Kaydetme**
+   - Visual Studio'da yaptığınız değişiklikleri kaydedin (`Ctrl+S`).
+
+---
+
+### 5.22.4 Adım 3: Commit, Push ve PR Oluşturma
+
+1. **Değişiklikleri Commit Etme**
+   - **Git Changes** penceresine gidin.
+   - **Commit Message** olarak `CI/CD pipeline güncellendi, deploy adımı eklendi` yazın.
+   - **Commit All and Push** butonuna tıklayın.
+
+2. **Pull Request (PR) Oluşturma**
+   - Visual Studio'da sağ alt köşede **Create Pull Request** seçeneğine tıklayın.
+   - Açılan pencerede **Title** olarak `UI CI/CD pipeline güncellemesi` yazın.
+   - PR açıklamasını şu şekilde ekleyin:
+     ```
+     CI/CD pipeline güncellendi. Build ve Deploy aşamaları eklendi.
+     ```
+   - **Create** butonuna tıklayarak PR'ı oluşturun.
+
+---
+
+### 5.22.5 Adım 4: Pipeline'ın Çalışmasını Test Etme
+
+1. **Basit Bir Değişiklik Yapma**
+   - UI projesinde küçük bir değişiklik yapın, örneğin `app.component.html` dosyasına bir yorum ekleyin:
+     ```html
+     <!-- CI/CD Pipeline testi için değişiklik -->
+     ```
+
+2. **Değişikliği Commit ve Push Etme**
+   - Değişiklikleri commit ve push edin:
+     - **Commit Message**: `Basit değişiklik yapıldı, CI/CD pipeline testi için.`
+     - **Commit All and Push** butonuna tıklayın.
+
+3. **Pipeline'ın Tetiklenmesini Gözlemleme**
+   - Azure DevOps portalında pipeline'ın çalıştığını doğrulayın.
+   - **Build Stage** tamamlandıktan sonra **Deploy Stage**'in başladığını ve IIS'deki dosyaların güncellendiğini kontrol edin.
+
+4. **IIS Sitesini Test Etme**
+   - Tarayıcınızda `http://localhost:10200` adresine giderek UI uygulamasının doğru bir şekilde çalıştığını doğrulayın.
+
+---
+
+### 5.22.6 Lab-22'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak UI CI pipeline'ını CI/CD pipeline'a dönüştürmüş, deploy işlemini içerecek şekilde güncellemiş ve pipeline'ın Visual Studio kullanılarak başarıyla çalıştığını doğrulamış oldunuz. Bu süreç, UI projesinin otomatik dağıtım süreçlerini etkinleştirmeye yönelik temel bir adımdır.
+
+## 5.23 Lab-23: YAML Dosyalarında Değişiklik Olduğunda PR Pipeline'ların Çalışmamasını Sağlamak için Branch Policy Ayarı Yapma
+
+Bu laboratuvar çalışmasında, Azure DevOps üzerinde branch policy ayarlarını yapılandırarak YAML dosyalarında değişiklik yapıldığında PR pipeline'ların çalışmasını engelleyeceğiz. Bu ayar, pipeline'ın kendisiyle ilgili yapılan değişikliklerin otomatik tetiklenmesini önleyerek gereksiz pipeline çalıştırmalarını engeller.
+
+---
+
+### 5.23.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Azure DevOps Hesabı ve Pipeline Yetkileri**: Pipeline ve branch policy ayarlarını değiştirebilecek yönetici (admin) yetkisine sahip olmanız gerekir.
+- **Pipeline ve Branch Policy**: Daha önce oluşturduğunuz backend ve UI projelerinin pipeline'ları ve branch policy'leri aktif olmalıdır.
+
+---
+
+### 5.23.2 Adım 1: YAML Dosyalarını İzleme Kapsamından Çıkarma
+
+1. **Azure DevOps Portalına Giriş Yapma**
+   - [Azure DevOps](https://dev.azure.com/) portalına gidin ve hesabınıza giriş yapın.
+
+2. **Pipeline Ayarlarına Gitme**
+   - **Pipelines** sekmesine gidin ve PR pipeline'ınızı seçin.
+   - Sol tarafta bulunan **Triggers** sekmesine tıklayın.
+
+3. **YAML Dosyalarını Hariç Tutma**
+   - **Path filters** (Yol filtreleri) bölümüne gidin.
+   - **Include** ve **Exclude** seçeneklerini göreceksiniz.
+     - **Exclude** seçeneğine aşağıdaki yolu ekleyin:
+       ```
+       /.azure-pipelines/**
+       ```
+
+   - Bu ayar, `.azure-pipelines` klasörü içindeki tüm YAML dosyalarındaki değişikliklerin pipeline'ı tetiklemesini engelleyecektir.
+
+4. **Ayarları Kaydetme**
+   - **Save** butonuna tıklayarak ayarları kaydedin.
+
+---
+
+### 5.23.3 Adım 2: Branch Policy Ayarlarını Güncelleme
+
+1. **Branch Policy Ayarlarına Gitme**
+   - Sol menüden **Repos > Branches** sekmesine gidin.
+   - `main` branch'ini bulun ve yanındaki üç nokta menüsünden **Branch policies** seçeneğine tıklayın.
+
+2. **Build Validation Ayarlarını Güncelleme**
+   - **Build validation** bölümünde ilgili pipeline'ı seçin ve düzenleyin.
+   - **Path filters** (Yol filtreleri) kısmında:
+     - **Exclude** kısmına aşağıdaki yolu ekleyin:
+       ```
+       /.azure-pipelines/**
+       ```
+
+   - Bu ayar, `main` branch'e yapılan PR'larda YAML dosyalarında değişiklik varsa pipeline'ı tetiklemeyecek şekilde yapılandırır.
+
+3. **Ayarları Kaydetme**
+   - **Save** butonuna tıklayarak değişiklikleri kaydedin.
+
+---
+
+### 5.23.4 Adım 3: Test Etme
+
+1. **YAML Dosyasında Basit Bir Değişiklik Yapma**
+   - Projenizdeki herhangi bir YAML dosyasına bir yorum ekleyin. Örneğin:
+     ```yaml
+     # Test değişikliği
+     ```
+
+2. **Değişikliği Commit ve Push Etme**
+   - Visual Studio'da değişiklikleri commit ve push edin:
+     - **Commit Message**: `YAML dosyasında test değişikliği.`
+     - **Commit All and Push** butonuna tıklayın.
+
+3. **Pull Request Oluşturma**
+   - Azure DevOps portalında ilgili branch için bir pull request (PR) oluşturun.
+
+4. **Pipeline'ın Çalışmadığını Doğrulama**
+   - Pipeline sekmesine giderek, değişiklikleriniz için pipeline'ın tetiklenmediğini doğrulayın.
+
+---
+
+### 5.23.5 Lab-23'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak, YAML dosyalarında yapılan değişikliklerin PR pipeline'ları tetiklemesini engellediniz. Bu ayar, pipeline yapılandırmalarında yapılan değişikliklerin gereksiz çalıştırmaları önlemesini sağlayarak CI/CD süreçlerinizi optimize eder.
+
