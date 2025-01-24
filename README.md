@@ -6659,3 +6659,170 @@ Bu laboratuvar çalışmasında, Docker Hub üzerinde bir kullanıcı oluşturac
 
 Bu laboratuvar çalışmasını tamamlayarak Docker Hub üzerinde bir kullanıcı oluşturdunuz ve Azure DevOps'ta Docker Hub için bir service connection tanımladınız. Bu yapılandırma, Docker image'lerini Azure DevOps pipeline'ları aracılığıyla Docker Hub'a push edebilmek için temel oluşturur.
 
+## 5.32 Lab-32: Backend Pipeline'da Docker Image Oluşturma ve Docker Hub'a Gönderme, Sonrasında Docker Hub'dan Deploy Etme
+
+Bu laboratuvar çalışmasında, backend pipeline'ını güncelleyerek **build** adımında Docker image oluşturacağız ve bu image'i **Docker Hub**'a göndereceğiz. **Deploy** adımında ise Docker Hub'dan son image'i çekerek bunu Docker üzerinde çalıştıracağız.
+
+---
+
+### 5.32.1 Adım 1: Pipeline'da Build Adımını Güncelleme
+
+**Build** aşamasına şu işlemleri ekleyeceğiz:
+
+1. **.NET SDK'nın Yüklenmesi**:
+   - Build sırasında kullanılacak .NET SDK'yı yüklemek için bir adım ekleyeceğiz.
+
+2. **Projenin Build Edilmesi**:
+   - `dotnet build` komutuyla backend projesinin derlenmesini sağlayacağız.
+
+3. **Docker Image'in Oluşturulması**:
+   - Pipeline'da Docker image oluşturmak için `docker build` komutunu çalıştıracağız. Bu adım, projenin bir container olarak çalıştırılmasını mümkün kılacaktır.
+
+4. **Docker Image'in Docker Hub'a Push Edilmesi**:
+   - Oluşturulan image, Docker Hub'a gönderilerek merkezi bir depoda saklanacaktır.
+
+---
+
+### 5.32.2 Adım 2: Pipeline'da Deploy Adımını Güncelleme
+
+**Deploy** aşamasına şu işlemleri ekleyeceğiz:
+
+1. **Docker Hub'dan Image Çekme**:
+   - Docker Hub'daki en son image pipeline sırasında çekilecektir. Bu işlem, son değişikliklerin kullanılmasını sağlar.
+
+2. **Mevcut Container'ın Durdurulması ve Silinmesi**:
+   - Daha önce çalışan container durdurulacak ve silinecektir.
+
+3. **Yeni Container'ın Başlatılması**:
+   - Docker Hub'dan çekilen image kullanılarak yeni bir container başlatılacaktır. Container, belirtilen portlar üzerinden çalışacaktır (ör. 10101 portu).
+
+---
+
+### 5.32.3 Adım 3: Pipeline Dosyasının Tamamı
+
+Güncellenmiş pipeline dosyasının tamamı aşağıdaki gibidir:
+
+```yaml
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+  - stage: Build
+    displayName: "Build and Push Docker Image"
+    jobs:
+      - job: BuildJob
+        displayName: "Build and Push Docker Image"
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install .NET SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '6.x'
+              installationPath: $(Agent.ToolsDirectory)/dotnet
+
+          - script: |
+              dotnet restore
+              dotnet build --configuration $(buildConfiguration)
+            displayName: "Restore and Build"
+
+          - task: Docker@2
+            displayName: "Build Docker Image"
+            inputs:
+              command: "build"
+              dockerfile: "Dockerfile"
+              tags: "$(Build.BuildId)"
+              containerRegistry: "docker-hub-connection"
+
+          - task: Docker@2
+            displayName: "Push Docker Image to Docker Hub"
+            inputs:
+              command: "push"
+              containerRegistry: "docker-hub-connection"
+              imageName: "productmanagement-backend"
+              tags: "$(Build.BuildId)"
+
+  - stage: Deploy
+    displayName: "Deploy from Docker Hub"
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - job: DeployJob
+        displayName: "Deploy Backend"
+        steps:
+          - task: Docker@2
+            displayName: "Pull Latest Docker Image from Docker Hub"
+            inputs:
+              command: "pull"
+              containerRegistry: "docker-hub-connection"
+              imageName: "productmanagement-backend"
+              tags: "$(Build.BuildId)"
+
+          - script: |
+              docker stop productmanagement-backend-container || true
+              docker rm productmanagement-backend-container || true
+              docker run -d -p 10101:80 --name productmanagement-backend-container productmanagement-backend:$(Build.BuildId)
+            displayName: "Deploy Docker Image"
+```
+
+---
+
+### 5.32.4 Adım 4: Pipeline Dosyasını Commit ve Push Etme
+
+1. **Değişiklikleri Kaydetme**
+   - Yaptığınız değişiklikleri kaydedin (`Ctrl+S`).
+
+2. **Değişiklikleri Commit Etme**
+   - Visual Studio'da **Git Changes** sekmesini açın.
+   - **Commit Message** kısmına şu mesajı yazın:
+     ```
+     Pipeline güncellendi: Docker image oluşturma, push ve deploy işlemleri eklendi.
+     ```
+   - **Commit All** butonuna tıklayın.
+
+3. **Değişiklikleri Push Etme**
+   - Commit işleminden sonra **Push** butonuna tıklayarak değişikliklerinizi remote branch'e gönderin.
+
+4. **Pull Request (PR) Oluşturma**
+   - Azure DevOps portalına giderek backend projesi için **main** branch'e merge edilmek üzere bir PR oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     - Build adımında Docker image oluşturuluyor ve Docker Hub'a gönderiliyor.
+     - Deploy adımında Docker Hub'dan son image çekilerek çalıştırılıyor.
+     ```
+
+5. **PR Onayı ve Merge İşlemi**
+   - PR'ınız için gerekli onayları aldıktan sonra **Complete Merge** butonuna tıklayarak değişiklikleri `main` branch'e merge edin.
+
+---
+
+### 5.32.5 Adım 5: Pipeline'ı Test Etme
+
+1. **Pipeline'ı Çalıştırma**
+   - Pipeline'ınızı manuel olarak çalıştırın veya bir PR oluşturup tetikleyin.
+
+2. **Pipeline Çalışmasını İzleme**
+   - Azure DevOps portalında pipeline'ın her iki aşamasını gözlemleyin:
+     - **Build Stage**: Docker image'in oluşturulması ve Docker Hub'a gönderilmesi.
+     - **Deploy Stage**: Docker Hub'dan image'in çekilmesi ve container olarak çalıştırılması.
+
+3. **Container'ın Çalıştığını Doğrulama**
+   - Terminalde şu komutu çalıştırarak çalışan container'ı listeleyin:
+     ```bash
+     docker ps
+     ```
+   - Çıktıda `productmanagement-backend-container` adında bir container görüyorsanız, deploy işlemi başarıyla tamamlanmıştır.
+
+4. **API'yi Test Etme**
+   - Tarayıcınızda veya Postman'de `http://localhost:10101/api/products` gibi bir endpoint'e giderek backend API'sinin çalıştığını doğrulayın.
+
+---
+
+### 5.32.6 Lab-32'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend pipeline'ınızı güncellediniz. Artık Docker image'leri pipeline'da oluşturuluyor, Docker Hub'a gönderiliyor ve sonrasında Docker Hub'dan çekilerek deploy ediliyor. Bu süreç, modern CI/CD yöntemlerini benimseyerek daha hızlı ve güvenilir bir dağıtım sağlar.
