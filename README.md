@@ -6487,18 +6487,18 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 
 Bu laboratuvar çalışmasını tamamlayarak backend projenize Docker desteği eklediniz, Visual Studio üzerinden container oluşturup çalıştırdınız ve container içerisinde debugging yaptınız. Docker container'larında hata ayıklama yapmak, container tabanlı uygulamaları geliştirirken oldukça kullanışlıdır.
 
-## 5.30 Lab-30: Backend Projesini IIS Üzerinde Host Etmek Yerine Docker Üzerinde Host Etmek
+## 5.30 Lab-30: Backend Projesini IIS Üzerinde Host Etmek Yerine Docker Üzerinde Host Etmek ve Değişiklikleri Main Branch'e Atmak
 
-Bu laboratuvar çalışmasında, backend projesini IIS üzerinde host etmek yerine Docker container içerisinde çalıştıracağız. IIS üzerindeki siteyi durduracak ve Docker üzerinden çalışacak şekilde konfigüre edeceğiz. Ayrıca, UI projesinin Docker üzerinde çalışan backend ile uyumlu şekilde çalıştığını test edeceğiz. **Backend için Docker portu 10101 olarak ayarlanacaktır.**
+Bu laboratuvar çalışmasında, backend projesini IIS üzerinde host etmek yerine Docker container içerisinde çalıştıracağız. IIS üzerindeki siteyi durduracak ve Docker üzerinden çalışacak şekilde konfigüre edeceğiz. Ayrıca, UI projesinin Docker üzerinde çalışan backend ile uyumlu şekilde çalıştığını test edeceğiz. Backend ve UI projelerindeki değişiklikleri **main** branch'e göndererek tamamlanmış bir yapı oluşturacağız.
 
 ---
 
 ### 5.30.1 Ön Hazırlıklar
 
 - **Docker Desktop**: Docker Desktop yüklü ve çalışır durumda olmalıdır.
-- **Dockerfile**: Backend projenizde Lab-29'da oluşturulan Dockerfile mevcut olmalıdır.
+- **Dockerfile**: Backend ve UI projelerinizde `Dockerfile` dosyaları mevcut olmalıdır.
 - **IIS**: IIS üzerinde çalışan backend sitesi durdurulacak ve kaldırılacaktır.
-- **UI Projesi**: UI projesi backend ile haberleşecek şekilde yapılandırılmış olmalıdır.
+- **Git Yetkileri**: Değişiklikleri `main` branch'e göndermek için gerekli yetkilere sahip olmalısınız.
 
 ---
 
@@ -6525,21 +6525,18 @@ Bu laboratuvar çalışmasında, backend projesini IIS üzerinde host etmek yeri
      ```bash
      docker build -t productmanagement-backend .
      ```
-   - Bu komut, `Dockerfile` dosyasını kullanarak bir Docker image oluşturacaktır.
 
 2. **Container Oluşturma ve Çalıştırma**
    - Oluşturulan image'den bir container çalıştırmak için şu komutu çalıştırın:
      ```bash
      docker run -d -p 10101:80 --name productmanagement-backend-container productmanagement-backend
      ```
-   - Bu komut, Docker container'ını başlatır ve localhost üzerindeki 10101 portunu container içindeki 80 portuna yönlendirir.
 
 3. **Container'ın Çalıştığını Doğrulama**
    - Terminalde şu komutu çalıştırarak çalışan container'ları listeleyin:
      ```bash
      docker ps
      ```
-   - Çıktıda `productmanagement-backend-container` adında bir container görüyorsanız, backend doğru şekilde çalışıyordur.
 
 4. **API'yi Test Etme**
    - Tarayıcınızda veya Postman'de `http://localhost:10101/api/products` gibi bir endpoint'e giderek backend API'sinin çalıştığını doğrulayın.
@@ -6570,26 +6567,35 @@ Bu laboratuvar çalışmasında, backend projesini IIS üzerinde host etmek yeri
 
 ---
 
-### 5.30.5 Adım 4: Sistem Genelini Test Etme
+### 5.30.5 Adım 4: Değişiklikleri Main Branch'e Gönderme
 
-1. **UI ve Backend Uyumluluğunu Kontrol Etme**
-   - Docker üzerinde çalışan backend ile UI projesinin tüm özelliklerini test edin:
-     - Ürün listeleme.
-     - Ürün ekleme, güncelleme ve silme.
-   - Tüm işlemlerin doğru şekilde çalıştığından emin olun.
+1. **Değişiklikleri Commit Etme**
+   - Visual Studio'da **Git Changes** sekmesini açın.
+   - **Commit Message** kısmına şu mesajı yazın:
+     ```
+     Docker konfigürasyonu tamamlandı. Backend ve UI projeleri Docker üzerinde çalışacak şekilde yapılandırıldı.
+     ```
+   - **Commit All** butonuna tıklayın.
 
-2. **Hataları Gözlemleme ve Çözme**
-   - Eğer bir hata ile karşılaşırsanız:
-     - Backend için Docker container loglarını incelemek için:
-       ```bash
-       docker logs productmanagement-backend-container
-       ```
-     - UI projesinin konsol hatalarını inceleyin ve gerekli düzenlemeleri yapın.
+2. **Değişiklikleri Push Etme**
+   - Commit işleminden sonra **Push** butonuna tıklayarak değişikliklerinizi remote branch'e gönderin.
+
+3. **Pull Request (PR) Oluşturma**
+   - Azure DevOps portalına giderek backend ve UI projeleriniz için **main** branch'e merge edilmek üzere bir PR oluşturun.
+   - PR açıklamasına şu bilgileri ekleyin:
+     ```
+     - Backend projesi Docker üzerinde çalışacak şekilde yapılandırıldı.
+     - IIS üzerindeki site kaldırıldı.
+     - UI projesi, Docker backend ile uyumlu hale getirildi.
+     ```
+
+4. **PR Onayı ve Merge İşlemi**
+   - PR'ınız için gerekli onayları aldıktan sonra **Complete Merge** butonuna tıklayarak değişiklikleri `main` branch'e merge edin.
 
 ---
 
 ### 5.30.6 Lab-30'un Tamamlanması
 
-Bu laboratuvar çalışmasını tamamlayarak backend projenizi Docker üzerinde çalışacak şekilde yapılandırdınız, IIS üzerindeki host işlemlerini durdurdunuz ve UI projesini Docker üzerinde çalışan backend ile entegre bir şekilde çalıştırdınız. Backend container'ını 10101 portunda çalıştırarak container tabanlı geliştirme ve dağıtım sürecine geçiş yaptınız.
+Bu laboratuvar çalışmasını tamamlayarak backend projenizi Docker üzerinde çalışacak şekilde yapılandırdınız, IIS üzerindeki host işlemlerini durdurdunuz, UI projesini Docker backend ile entegre ettiniz ve tüm değişiklikleri **main** branch'e merge ettiniz. Artık projeniz container tabanlı bir geliştirme ve dağıtım ortamında çalışmaktadır.
 
 
