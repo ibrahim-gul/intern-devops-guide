@@ -6826,3 +6826,146 @@ stages:
 ### 5.32.6 Lab-32'nin Tamamlanması
 
 Bu laboratuvar çalışmasını tamamlayarak backend pipeline'ınızı güncellediniz. Artık Docker image'leri pipeline'da oluşturuluyor, Docker Hub'a gönderiliyor ve sonrasında Docker Hub'dan çekilerek deploy ediliyor. Bu süreç, modern CI/CD yöntemlerini benimseyerek daha hızlı ve güvenilir bir dağıtım sağlar.
+
+## 5.33 Lab-33: Monitoring ve Logging: Prometheus ve Grafana ile Metrik Toplama
+
+Bu laboratuvar çalışmasında, **Prometheus** ve **Grafana**'yı Docker container'larında kurarak temel bir izleme ve görselleştirme sistemi oluşturacağız. Daha sonra backend uygulamasında metrikler oluşturarak Prometheus'a veri göndereceğiz ve bu verileri Grafana'da bir dashboard üzerinden görselleştireceğiz.
+
+---
+
+### 5.33.1 Prometheus ve Grafana Kurulumu
+
+#### 5.33.1.1 Docker Compose ile Prometheus ve Grafana Kurulumu
+
+1. **Docker Compose Dosyasını Hazırlama**
+   - Proje dizininize `docker-compose.yml` adlı bir dosya oluşturun ve aşağıdaki içeriği ekleyin:
+     ```yaml
+     version: '3.8'
+
+     services:
+       prometheus:
+         image: prom/prometheus:latest
+         container_name: prometheus
+         ports:
+           - "9090:9090"
+         volumes:
+           - ./prometheus.yml:/etc/prometheus/prometheus.yml
+         command:
+           - '--config.file=/etc/prometheus/prometheus.yml'
+
+       grafana:
+         image: grafana/grafana:latest
+         container_name: grafana
+         ports:
+           - "3000:3000"
+         environment:
+           - GF_SECURITY_ADMIN_USER=admin
+           - GF_SECURITY_ADMIN_PASSWORD=admin
+     ```
+
+2. **Prometheus Konfigürasyon Dosyasını Oluşturma**
+   - `prometheus.yml` adlı bir dosya oluşturun ve aşağıdaki içeriği ekleyin:
+     ```yaml
+     global:
+       scrape_interval: 15s
+
+     scrape_configs:
+       - job_name: 'backend'
+         static_configs:
+           - targets: ['host.docker.internal:5000'] # Backend uygulamanızın adresi
+     ```
+
+3. **Container'ları Başlatma**
+   - Terminalde şu komutu çalıştırarak Prometheus ve Grafana container'larını başlatın:
+     ```bash
+     docker-compose up -d
+     ```
+
+4. **Kurulumu Doğrulama**
+   - Prometheus arayüzüne erişmek için tarayıcınızda `http://localhost:9090` adresine gidin.
+   - Grafana arayüzüne erişmek için tarayıcınızda `http://localhost:3000` adresine gidin (Kullanıcı adı ve şifre: `admin` / `admin`).
+
+---
+
+### 5.33.2 Backend Uygulamasında Prometheus Metriklerini Eklemek
+
+#### 5.33.2.1 Prometheus Client Kütüphanesini Yükleme
+
+1. **NuGet Paketini Yükleme**
+   - Backend projesinde terminali açın ve şu komutu çalıştırın:
+     ```bash
+     dotnet add package prometheus-net.AspNetCore
+     ```
+
+2. **Startup Konfigürasyonunu Güncelleme**
+   - **Program.cs** dosyanıza aşağıdaki kodu ekleyin:
+     ```csharp
+     using Prometheus;
+
+     var builder = WebApplication.CreateBuilder(args);
+
+     // Add services to the container.
+     builder.Services.AddControllers();
+
+     var app = builder.Build();
+
+     // Use Prometheus metrics
+     app.UseHttpMetrics();
+
+     app.MapControllers();
+     app.MapMetrics(); // Prometheus için endpoint
+
+     app.Run();
+     ```
+
+3. **Metriklerin Çalıştığını Doğrulama**
+   - Backend uygulamanızı başlatın.
+   - Tarayıcınızda `http://localhost:5000/metrics` adresine giderek Prometheus için üretilen metrikleri görün.
+
+---
+
+### 5.33.3 Prometheus ve Grafana ile Backend Metriklerini Görselleştirme
+
+#### 5.33.3.1 Prometheus Konfigürasyonunu Güncelleme
+- Prometheus'un `prometheus.yml` dosyasındaki hedef adresini backend uygulamasına yönlendirin:
+  ```yaml
+  static_configs:
+    - targets: ['host.docker.internal:5000'] # Backend uygulamanızın adresi
+  ```
+
+#### 5.33.3.2 Prometheus'u Yeniden Başlatma
+- Konfigürasyon değişikliklerini uygulamak için Prometheus container'ını yeniden başlatın:
+  ```bash
+  docker-compose restart prometheus
+  ```
+
+#### 5.33.3.3 Grafana Dashboard Oluşturma
+
+1. **Grafana'ya Prometheus Veri Kaynağı Eklemek**
+   - `http://localhost:3000` adresine gidin ve Grafana'ya giriş yapın.
+   - Sol menüden **Configuration > Data Sources** seçeneğini seçin.
+   - **Add Data Source** butonuna tıklayın ve Prometheus'u seçin.
+   - **URL** kısmına `http://prometheus:9090` yazın ve kaydedin.
+
+2. **Yeni Dashboard Oluşturma**
+   - Sol menüden **Create > Dashboard** seçeneğini seçin.
+   - **Add a new panel** butonuna tıklayın.
+   - Panelin sorgu kısmına şu Prometheus sorgularını yazabilirsiniz:
+     - **Toplam HTTP İstek Sayısı**:
+       ```promql
+       http_requests_total
+       ```
+     - **İstek Yanıt Süreleri (Ortalama)**:
+       ```promql
+       http_request_duration_seconds_sum / http_request_duration_seconds_count
+       ```
+   - Paneli kaydedin ve dashboard'ınıza ekleyin.
+
+3. **Dashboard'ı Kaydetme**
+   - Dashboard'u kaydetmek için sağ üst köşedeki **Save Dashboard** butonuna tıklayın ve bir ad verin.
+
+---
+
+### 5.33.4 Lab-33'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak Docker üzerinden Prometheus ve Grafana kurdunuz, backend uygulamanızdan metrikleri toplayarak Prometheus'a gönderdiniz ve bu metrikleri Grafana'da görselleştirdiniz. Bu süreç, uygulamanızın performansını izlemenizi ve optimize etmenizi sağlayacak güçlü bir monitoring altyapısı oluşturur.
