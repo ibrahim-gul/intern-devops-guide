@@ -6137,3 +6137,128 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 
 Bu laboratuvar çalışmasını tamamlayarak backend projenize unit testler eklediniz, testlerinizi Visual Studio üzerinden çalıştırdınız ve test sonuçlarını analiz ettiniz. Bu süreç, projenizin kalite güvencesini artırmak ve potansiyel hataları erken aşamada tespit etmek için önemli bir adımdır.
 
+## 5.27 Lab-27: Backend Pipeline'da Build Adımına Test Adımı Eklemek ve Test Sonuçlarını Publish Etmek
+
+Bu laboratuvar çalışmasında, backend pipeline'ına **testleri çalıştıran bir adım** ekleyeceğiz. Bu adım, unit testlerin pipeline sırasında çalıştırılmasını sağlayacak ve test sonuçlarını Azure DevOps pipeline arayüzüne yayınlayacaktır. Test sonuçlarını pipeline arayüzünde gözlemleyerek, testlerin başarılı veya başarısız olduğunu kolayca takip edebilirsiniz.
+
+---
+
+### 5.27.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Unit Testler Eklenmiş Olmalı**: Lab-25'te eklediğiniz unit testler backend projenizde mevcut olmalıdır.
+- **Pipeline YAML Dosyası**: Backend projenizin pipeline'ı YAML formatında tanımlanmış olmalıdır.
+- **Test Framework**: `xUnit`, `NUnit` veya `MSTest` gibi bir test framework'ü kullanılabilir. Bu laboratuvarda `xUnit` kullanılmıştır.
+
+---
+
+### 5.27.2 Adım 1: Pipeline YAML Dosyasını Düzenleme
+
+1. **Pipeline Dosyasını Açma**
+   - Projenizdeki `.azure-pipelines/ci-cd-pipeline.yml` dosyasını açın.
+
+2. **Build Adımına Test Çalıştırma Eklemek**
+   - Aşağıdaki kodu **Build Stage** içinde uygun bir yere ekleyin:
+     ```yaml
+     - script: |
+         dotnet test --configuration $(buildConfiguration) --no-build --logger trx
+       displayName: "Run Unit Tests"
+     ```
+
+3. **Test Sonuçlarını Publish Etme**
+   - Test sonuçlarını Azure DevOps pipeline'ına yayınlamak için şu adımı ekleyin:
+     ```yaml
+     - task: PublishTestResults@2
+       displayName: "Publish Test Results"
+       inputs:
+         testResultsFiles: '**/*.trx'
+         searchFolder: '$(System.DefaultWorkingDirectory)'
+         mergeTestResults: true
+     ```
+
+4. **Güncellenmiş Pipeline Yapısı**
+   - Build Stage şu şekilde görünmelidir:
+     ```yaml
+     stages:
+       - stage: Build
+         displayName: "Build Stage"
+         jobs:
+           - job: BuildJob
+             displayName: "Build Backend Project"
+             steps:
+               - task: UseDotNet@2
+                 displayName: 'Install .NET SDK'
+                 inputs:
+                   packageType: 'sdk'
+                   version: '6.x'
+                   installationPath: $(Agent.ToolsDirectory)/dotnet
+
+               - script: |
+                   dotnet restore
+                   dotnet build --configuration $(buildConfiguration)
+                 displayName: "Restore and Build"
+
+               - script: |
+                   dotnet test --configuration $(buildConfiguration) --no-build --logger trx
+                 displayName: "Run Unit Tests"
+
+               - task: PublishTestResults@2
+                 displayName: "Publish Test Results"
+                 inputs:
+                   testResultsFiles: '**/*.trx'
+                   searchFolder: '$(System.DefaultWorkingDirectory)'
+                   mergeTestResults: true
+
+               - task: PublishBuildArtifacts@1
+                 displayName: "Publish Build Artifacts"
+                 inputs:
+                   PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+                   ArtifactName: 'drop'
+     ```
+
+5. **Pipeline Dosyasını Commit ve Push Etme**
+   - Visual Studio veya terminal üzerinden değişikliklerinizi commit ve push edin:
+     ```bash
+     git add .azure-pipelines/ci-cd-pipeline.yml
+     git commit -m "Build adımına test çalıştırma ve sonuç yayınlama eklendi"
+     git push origin <branch-name>
+     ```
+
+---
+
+### 5.27.3 Adım 2: Pipeline Çalıştırma ve Test Sonuçlarını Gözlemleme
+
+1. **Pipeline'ı Tetiklemek için PR Oluşturma**
+   - Değişikliklerinizi `main` branch'e merge etmek için bir pull request (PR) oluşturun.
+   - PR'ın oluşturulmasıyla pipeline otomatik olarak tetiklenecektir.
+
+2. **Pipeline'ın Çalışmasını İzleme**
+   - Azure DevOps portalında ilgili pipeline'ı açın ve **Build Stage**'i gözlemleyin.
+   - **Run Unit Tests** adımında testlerin çalıştırıldığını doğrulayın.
+
+3. **Test Sonuçlarını İnceleme**
+   - Pipeline tamamlandığında **Tests** sekmesine gidin.
+   - Burada çalıştırılan tüm unit testlerin durumunu görebilirsiniz:
+     - Geçen testler yeşil olarak işaretlenecektir.
+     - Başarısız olan testler kırmızı olarak işaretlenecektir.
+   - Detaylı hata raporları için bir testin üzerine tıklayarak çıktıyı inceleyebilirsiniz.
+
+---
+
+### 5.27.4 Adım 3: Başarısız Testlerin Ele Alınması
+
+1. **Hatalı Testleri İnceleme**
+   - Test Explorer'da veya pipeline üzerindeki test detaylarında başarısız testleri kontrol edin.
+   - Hataların nedenlerini analiz edin ve ilgili kodu düzeltin.
+
+2. **Düzeltmeleri Commit ve Push Etme**
+   - Hataları düzelttikten sonra testlerinizi lokal olarak çalıştırın ve başarılı olduklarını doğrulayın.
+   - Değişikliklerinizi tekrar commit ve push ederek pipeline'ı yeniden çalıştırın.
+
+---
+
+### 5.27.5 Lab-27'nin Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend pipeline'ınıza testleri çalıştıran bir adım eklediniz ve test sonuçlarını Azure DevOps pipeline arayüzüne yayınladınız. Bu işlem, kod kalitesini artırarak potansiyel hataların erken tespit edilmesini sağlar.
+
