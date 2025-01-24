@@ -6969,3 +6969,174 @@ Bu laboratuvar çalışmasında, **Prometheus** ve **Grafana**'yı Docker contai
 ### 5.33.4 Lab-33'ün Tamamlanması
 
 Bu laboratuvar çalışmasını tamamlayarak Docker üzerinden Prometheus ve Grafana kurdunuz, backend uygulamanızdan metrikleri toplayarak Prometheus'a gönderdiniz ve bu metrikleri Grafana'da görselleştirdiniz. Bu süreç, uygulamanızın performansını izlemenizi ve optimize etmenizi sağlayacak güçlü bir monitoring altyapısı oluşturur.
+
+## 5.34 Lab-34: Centralized Logging: Elasticsearch, Logstash ve Kibana (ELK Stack)
+
+Bu laboratuvar çalışmasında, **ELK Stack** (Elasticsearch, Logstash, Kibana) kurulumu yapacağız. Ardından, backend uygulamanızdan Elasticsearch'e logları aktararak Kibana arayüzünde bu logları izleyeceğiz. ELK Stack, merkezi log yönetimi ve analiz için güçlü bir araçtır.
+
+---
+
+### 5.34.1 ELK Stack Hakkında Genel Bilgi
+
+**ELK Stack**, log yönetimi ve analiz için kullanılan popüler bir açık kaynaklı çözümdür. 
+
+- **Elasticsearch**:
+  - Tam metin arama ve log verilerini indekslemek için kullanılan güçlü bir arama ve analitik motorudur.
+  - Dağıtık yapısı sayesinde büyük miktarda veriyle çalışabilir.
+
+- **Logstash**:
+  - Log verilerini toplar, dönüştürür ve Elasticsearch'e gönderir.
+  - Çeşitli veri kaynaklarından veri alabilir ve bu veriyi filtreleyerek analiz için uygun hale getirir.
+
+- **Kibana**:
+  - Elasticsearch üzerinde depolanan log verilerini görselleştirmek ve analiz etmek için kullanılır.
+  - Kullanıcı dostu bir arayüz sağlar ve özel dashboard'lar oluşturmanıza olanak tanır.
+
+ELK Stack, sistem ve uygulama loglarını tek bir noktadan yönetmek, analiz etmek ve hata ayıklama süreçlerini hızlandırmak için ideal bir çözümdür.
+
+---
+
+### 5.34.2 ELK Stack Kurulumu
+
+#### 5.34.2.1 Docker Compose ile ELK Stack Kurulumu
+
+1. **Docker Compose Dosyasını Hazırlama**
+   - Proje dizininize `docker-compose-elk.yml` adlı bir dosya oluşturun ve aşağıdaki içeriği ekleyin:
+     ```yaml
+     version: '3.8'
+
+     services:
+       elasticsearch:
+         image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+         container_name: elasticsearch
+         environment:
+           - discovery.type=single-node
+           - xpack.security.enabled=false
+         ports:
+           - "9200:9200"
+
+       logstash:
+         image: docker.elastic.co/logstash/logstash:7.17.0
+         container_name: logstash
+         volumes:
+           - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+         ports:
+           - "5044:5044"
+           - "9600:9600"
+
+       kibana:
+         image: docker.elastic.co/kibana/kibana:7.17.0
+         container_name: kibana
+         environment:
+           - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+         ports:
+           - "5601:5601"
+     ```
+
+2. **Logstash Konfigürasyon Dosyasını Hazırlama**
+   - Proje dizininizde `logstash.conf` adlı bir dosya oluşturun ve aşağıdaki içeriği ekleyin:
+     ```plain
+     input {
+       beats {
+         port => 5044
+       }
+     }
+
+     filter {
+       json {
+         source => "message"
+       }
+     }
+
+     output {
+       elasticsearch {
+         hosts => ["http://elasticsearch:9200"]
+         index => "application-logs-%{+YYYY.MM.dd}"
+       }
+       stdout { codec => rubydebug }
+     }
+     ```
+
+3. **Container'ları Başlatma**
+   - Terminalde şu komutu çalıştırarak ELK Stack container'larını başlatın:
+     ```bash
+     docker-compose -f docker-compose-elk.yml up -d
+     ```
+
+4. **Kurulumu Doğrulama**
+   - **Elasticsearch**: Tarayıcınızda `http://localhost:9200` adresine giderek Elasticsearch'in çalıştığını doğrulayın.
+   - **Kibana**: Tarayıcınızda `http://localhost:5601` adresine giderek Kibana'nın çalıştığını doğrulayın.
+
+---
+
+### 5.34.3 Backend Uygulamasını ELK Stack'e Bağlama
+
+#### 5.34.3.1 Log İçin Serilog Kullanımı
+
+1. **Serilog Paketlerini Yükleme**
+   - Backend projesinde terminali açın ve şu komutları çalıştırın:
+     ```bash
+     dotnet add package Serilog.AspNetCore
+     dotnet add package Serilog.Sinks.Elasticsearch
+     ```
+
+2. **Program.cs Dosyasını Güncelleme**
+   - **Program.cs** dosyasına aşağıdaki kodları ekleyin:
+     ```csharp
+     using Serilog;
+     using Serilog.Sinks.Elasticsearch;
+
+     var builder = WebApplication.CreateBuilder(args);
+
+     // Elasticsearch konfigürasyonu
+     Log.Logger = new LoggerConfiguration()
+         .Enrich.FromLogContext()
+         .WriteTo.Console()
+         .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+         {
+             AutoRegisterTemplate = true,
+             IndexFormat = "application-logs-{0:yyyy.MM.dd}"
+         })
+         .CreateLogger();
+
+     builder.Host.UseSerilog();
+
+     // Add services to the container.
+     builder.Services.AddControllers();
+
+     var app = builder.Build();
+
+     app.UseAuthorization();
+     app.MapControllers();
+     app.Run();
+     ```
+
+3. **Logları Test Etmek**
+   - Backend uygulamanızı başlatın.
+   - Tarayıcınızda veya Postman'de API'nize istek göndererek log oluşturun.
+
+---
+
+### 5.34.4 Logları Kibana'da Görüntüleme
+
+1. **Kibana'da Index Pattern Oluşturma**
+   - Kibana arayüzüne (`http://localhost:5601`) gidin ve giriş yapın.
+   - Sol menüden **Stack Management > Index Patterns** seçeneğini seçin.
+   - **Create Index Pattern** butonuna tıklayın.
+   - **Index Pattern Name** olarak `application-logs-*` yazın ve devam edin.
+
+2. **Discover Sekmesinde Logları Görüntüleme**
+   - Sol menüden **Discover** sekmesine tıklayın.
+   - Yeni oluşturduğunuz index pattern'i seçin.
+   - Loglarınız burada listelenmelidir.
+
+3. **Dashboard Oluşturma**
+   - Sol menüden **Dashboard > Create Dashboard** seçeneğini seçin.
+   - Loglara göre çeşitli görselleştirmeler ekleyerek bir dashboard oluşturun.
+
+---
+
+### 5.34.5 Lab-34'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak Docker üzerinden ELK Stack kurdunuz, backend uygulamanızdan Elasticsearch'e log aktardınız ve Kibana arayüzünde bu logları görüntülediniz. Bu süreç, merkezi log yönetimi ve log analizi için güçlü bir altyapı oluşturur.
+
