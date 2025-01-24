@@ -5813,3 +5813,196 @@ Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karş
 
 Bu laboratuvar çalışmasını tamamlayarak, YAML dosyalarında yapılan değişikliklerin PR pipeline'ları tetiklemesini engellediniz. Bu ayar, pipeline yapılandırmalarında yapılan değişikliklerin gereksiz çalıştırmaları önlemesini sağlayarak CI/CD süreçlerinizi optimize eder.
 
+## 5.24 Lab-24: Backend ve UI Pipeline'larına Deploy Adımı Öncesine Manuel Onay Eklemek
+
+Bu laboratuvar çalışmasında, backend ve UI projeleri için ayrı **Environments** tanımlayarak **Deploy** adımı öncesinde manuel onay mekanizması ekleyeceğiz. Her iki proje için de farklı ortamlar oluşturulacak ve onay mekanizması bu ortamlar üzerinden yapılandırılacaktır.
+
+---
+
+### 5.24.1 Ön Hazırlıklar
+
+Laboratuvar çalışmasına başlamadan önce aşağıdaki gereksinimlerin karşılandığından emin olun:
+
+- **Azure DevOps Hesabı ve Yetkiler**: Pipeline düzenleme ve ortam yapılandırma işlemleri için yönetici yetkisine sahip olmanız gerekir.
+- **Backend ve UI CI/CD Pipeline'ları**: Daha önce oluşturulmuş ve çalışan pipeline'lar mevcut olmalıdır.
+
+---
+
+### 5.24.2 Adım 1: Backend için "Backend-Production" Ortamı Oluşturma
+
+1. **Backend Ortamını Oluşturma**
+   - Azure DevOps portalına gidin ve sol menüden **Pipelines > Environments** seçeneğine tıklayın.
+   - **New Environment** butonuna tıklayın.
+   - **Environment Name** kısmına `Backend-Production` yazın ve oluşturun.
+
+2. **Onay Mekanizması Ekleme**
+   - Ortam detaylarına gidin.
+   - **Approvals and Checks** bölümüne tıklayın.
+   - **Approvals** seçeneğini seçin ve onay verecek kullanıcı veya grupları ekleyin.
+   - **Save** butonuna tıklayarak ayarları kaydedin.
+
+---
+
+### 5.24.3 Adım 2: UI için "UI-Production" Ortamı Oluşturma
+
+1. **UI Ortamını Oluşturma**
+   - Azure DevOps portalında tekrar **Environments** sekmesine gidin.
+   - **New Environment** butonuna tıklayın.
+   - **Environment Name** kısmına `UI-Production` yazın ve oluşturun.
+
+2. **Onay Mekanizması Ekleme**
+   - Ortam detaylarına gidin.
+   - **Approvals and Checks** bölümüne tıklayın.
+   - **Approvals** seçeneğini seçin ve onay verecek kullanıcı veya grupları ekleyin.
+   - **Save** butonuna tıklayarak ayarları kaydedin.
+
+---
+
+### 5.24.4 Adım 3: Backend Pipeline'ına Manuel Onay Eklemek
+
+1. **Backend Pipeline YAML Dosyasını Düzenleme**
+   - Projenizdeki `.azure-pipelines/ci-cd-pipeline.yml` dosyasını açın.
+   - **Deploy** aşamasını aşağıdaki gibi düzenleyin:
+     ```yaml
+     stages:
+       - stage: Build
+         displayName: "Build Stage"
+         jobs:
+           - job: BuildJob
+             displayName: "Build Backend Project"
+             steps:
+               # Build adımları
+
+       - stage: Deploy
+         displayName: "Deploy Stage"
+         dependsOn: Build
+         condition: succeeded()
+         jobs:
+           - deployment: DeployToIIS
+             displayName: "Deploy to IIS"
+             environment: 'Backend-Production' # Backend için ayrı bir environment
+             strategy:
+               runOnce:
+                 deploy:
+                   steps:
+                     - task: PowerShell@2
+                       displayName: "Stop Application Pool"
+                       inputs:
+                         targetType: 'inline'
+                         script: |
+                           Import-Module WebAdministration
+                           Stop-WebAppPool -Name $(appPoolName)
+
+                     - task: DownloadBuildArtifacts@0
+                       displayName: "Download Build Artifacts"
+                       inputs:
+                         artifactName: 'drop'
+                         downloadPath: '$(System.ArtifactsDirectory)'
+
+                     - task: PowerShell@2
+                       displayName: "Copy Files to IIS"
+                       inputs:
+                         targetType: 'inline'
+                         script: |
+                           Remove-Item -Recurse -Force $(deployPath)\*
+                           Copy-Item -Path "$(System.ArtifactsDirectory)\drop\*" -Destination $(deployPath) -Recurse
+
+                     - task: PowerShell@2
+                       displayName: "Start Application Pool"
+                       inputs:
+                         targetType: 'inline'
+                         script: |
+                           Import-Module WebAdministration
+                           Start-WebAppPool -Name $(appPoolName)
+     ```
+
+---
+
+### 5.24.5 Adım 4: UI Pipeline'ına Manuel Onay Eklemek
+
+1. **UI Pipeline YAML Dosyasını Düzenleme**
+   - UI projesindeki `.azure-pipelines/ci-cd-pipeline.yml` dosyasını açın.
+   - **Deploy** aşamasını aşağıdaki gibi düzenleyin:
+     ```yaml
+     stages:
+       - stage: Build
+         displayName: "Build Stage"
+         jobs:
+           - job: BuildJob
+             displayName: "Build UI Project"
+             steps:
+               # Build adımları
+
+       - stage: Deploy
+         displayName: "Deploy Stage"
+         dependsOn: Build
+         condition: succeeded()
+         jobs:
+           - deployment: DeployToIIS
+             displayName: "Deploy to IIS"
+             environment: 'UI-Production' # UI için ayrı bir environment
+             strategy:
+               runOnce:
+                 deploy:
+                   steps:
+                     - task: PowerShell@2
+                       displayName: "Stop Application Pool"
+                       inputs:
+                         targetType: 'inline'
+                         script: |
+                           Import-Module WebAdministration
+                           Stop-WebAppPool -Name $(appPoolName)
+
+                     - task: DownloadBuildArtifacts@0
+                       displayName: "Download Build Artifacts"
+                       inputs:
+                         artifactName: 'drop'
+                         downloadPath: '$(System.ArtifactsDirectory)'
+
+                     - task: PowerShell@2
+                       displayName: "Copy Files to IIS"
+                       inputs:
+                         targetType: 'inline'
+                         script: |
+                           Remove-Item -Recurse -Force $(deployPath)\*
+                           Copy-Item -Path "$(System.ArtifactsDirectory)\drop\*" -Destination $(deployPath) -Recurse
+
+                     - task: PowerShell@2
+                       displayName: "Start Application Pool"
+                       inputs:
+                         targetType: 'inline'
+                         script: |
+                           Import-Module WebAdministration
+                           Start-WebAppPool -Name $(appPoolName)
+     ```
+
+---
+
+### 5.24.6 Adım 5: Test Etme
+
+1. **Basit Değişiklikler Yapma**
+   - Backend ve UI projelerinde küçük bir değişiklik yapın, örneğin bir yorum ekleyin:
+     ```csharp
+     // Manual approval testi için değişiklik.
+     ```
+     ```html
+     <!-- Manual approval testi için değişiklik -->
+     ```
+
+2. **Değişiklikleri Commit ve Push Etme**
+   - Değişikliklerinizi ilgili branch'e commit ve push edin.
+
+3. **Pull Request (PR) Oluşturma**
+   - Azure DevOps portalında her iki proje için PR oluşturun.
+
+4. **Pipeline'ın Tetiklenmesini ve Onay Sürecini Doğrulama**
+   - PR pipeline'larının **Build** aşamasını tamamlamasını bekleyin.
+   - **Deploy** aşamasında pipeline'ın durduğunu ve onay beklediğini doğrulayın.
+   - Portalda ilgili ortamlar için onay verin.
+   - Onaydan sonra pipeline'ın devam edip başarıyla tamamlandığını gözlemleyin.
+
+---
+
+### 5.24.7 Lab-24'ün Tamamlanması
+
+Bu laboratuvar çalışmasını tamamlayarak backend ve UI projeleriniz için ayrı ortamlar oluşturup, deploy adımı öncesinde manuel onay eklediniz. Bu ayarlar, her bir proje için bağımsız kontrol ve güvenlik sağlayarak dağıtım süreçlerinizi daha güvenilir hale getirir.
